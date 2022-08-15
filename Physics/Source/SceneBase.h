@@ -66,6 +66,17 @@ public:
 		GEO_GREEN,
 		GEO_BLACKHOLE,
 		GEO_WHITEHOLE,
+		//
+
+
+
+
+
+
+
+
+
+
 		NUM_GEOMETRY,
 	};
 public:
