@@ -35,7 +35,7 @@ void CPlayer2D::Update(double dt)
 void CPlayer2D::Render()
 {
 	modelStack.PushMatrix();
-	modelStack.Translate(playerX, playerY, 0);
+	modelStack.Translate(playerX, playerY, 1);
 	modelStack.Scale(10, 10, 1);
 	RenderMesh(playerMesh, false);
 	modelStack.PopMatrix();
