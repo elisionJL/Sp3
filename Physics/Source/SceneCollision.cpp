@@ -35,12 +35,9 @@ void SceneCollision::Init()
 	maxBalls = 2;
 	ballcount = 0;
 	rechargeBall = 5;
-<<<<<<< Updated upstream
 	cSoundController->PlaySoundByID(1);
-=======
 
-	Companion->mass = 1;
->>>>>>> Stashed changes
+	//Companion->mass = 1;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -122,6 +119,9 @@ void SceneCollision::Update(double dt)
 				rechargeTime = 0;
 				extendTime = 0;
 				extendMulti = 1;
+
+				cSoundController->StopAllSound();
+				cSoundController->PlaySoundByID(5);
 			}
 
 			else 	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
