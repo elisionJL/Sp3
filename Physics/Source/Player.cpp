@@ -15,6 +15,18 @@ void CPlayer2D::Init()
 void CPlayer2D::Update(double dt)
 {
 	//if(Application::IsKeyPressed(VK_KEY_W))
+	if (Application::IsKeyPressed('W')) {
+		playerY += 10 * dt;
+	}
+	if (Application::IsKeyPressed('S')) {
+		playerY -= 10 * dt;
+	}
+	if (Application::IsKeyPressed('D')) {
+		playerX += 10 * dt;
+	}
+	if (Application::IsKeyPressed('A')) {
+		playerX -= 10 * dt;
+	}
 	SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(playerMesh);
 	sa->PlayAnimation("walkR", -1,1.f);
 	sa->Update(dt);
