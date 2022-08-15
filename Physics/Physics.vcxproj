@@ -171,7 +171,6 @@
     <ClCompile Include="Source\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\GameObject.h" />
     <ClInclude Include="Source\Light.h" />
