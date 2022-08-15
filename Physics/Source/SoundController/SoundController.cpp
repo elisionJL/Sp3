@@ -160,6 +160,20 @@ void CSoundController::StopPlayByID(const int ID) {
 }
 
 
+void CSoundController::StopAllSound()
+{
+	for (int i = 1; i <= soundMap.size(); ++i)
+	{
+		CSoundInfo* pSoundInfo = GetSound(i);
+
+		if (cSoundEngine->isCurrentlyPlaying(pSoundInfo->GetSound()))
+		{
+			//Stop a sound playback
+			cSoundEngine->stopAllSoundsOfSoundSource(pSoundInfo->GetSound());
+		}
+	}
+}
+
 void CSoundController::PlayBGM(const int ID) {
 	CSoundInfo* pSoundInfo = GetSound(ID);
 	if (!pSoundInfo) {
@@ -208,6 +222,13 @@ bool CSoundController::MasterVolumeDecrease(void)
 	cout << "MasterVolumeDecrease: fCurrentVolume = " << fCurrentVolume << endl;
 
 	return true;
+}
+
+float CSoundController::GetMasterVolume(void)
+{
+	float fCurrentVolume = cSoundEngine->getSoundVolume();
+
+	return fCurrentVolume;
 }
 
 

@@ -26,6 +26,9 @@
     <ClCompile Include="Source\Vector3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameControl\Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\MatrixStack.h">
@@ -45,6 +48,15 @@
     </ClInclude>
     <ClInclude Include="DesignPatterns\SingletonTemplate.h">
       <Filter>DesignPattern</Filter>
+    </ClInclude>
+    <ClInclude Include="System\filesystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameControl\Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\Source\Application.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

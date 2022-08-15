@@ -31,7 +31,7 @@ void SceneCollision::Init()
 	maxBalls = 2;
 	ballcount = 0;
 	rechargeBall = 5;
-
+	cSoundController->PlaySoundByID(1);
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -92,7 +92,7 @@ void SceneCollision::Update(double dt)
 		static bool bLButtonState = false;
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
-			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
+			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
 				currentState = main;
 				hp = 10;
 				score = 0;
@@ -111,7 +111,11 @@ void SceneCollision::Update(double dt)
 				extendTime = 0;
 				extendMulti = 1;
 			}
-			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
+
+			else 	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
+				//Shop Code
+			}
+			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.17 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.17) && (mousePos.y <= (m_worldHeight * 0.1) + 4.75 && mousePos.y >= (m_worldHeight * 0.1) - 4.75)) {
 				quit = true;
 			}
 		}
@@ -996,7 +1000,7 @@ void SceneCollision::RenderTitleScreen()
 	modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.4, 1);
 	modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
 	RenderMesh(meshList[GEO_START], true);
-	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 6.25 && mousePos.y >= (m_worldHeight * 0.4) - 6.25))
+	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75))
 		meshList[GEO_START]->material.kAmbient.Set(1, 1, 0);
 	else
 		meshList[GEO_START]->material.kAmbient.Set(1, 1, 1);
@@ -1006,7 +1010,7 @@ void SceneCollision::RenderTitleScreen()
 	modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.25, 1);
 	modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
 	RenderMesh(meshList[GEO_SHOP], true);
-	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.25) + 6.25 && mousePos.y >= (m_worldHeight * 0.25) - 6.25))
+	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75))
 		meshList[GEO_SHOP]->material.kAmbient.Set(1, 1, 0);
 	else
 		meshList[GEO_SHOP]->material.kAmbient.Set(1, 1, 1);
@@ -1016,7 +1020,7 @@ void SceneCollision::RenderTitleScreen()
 	modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.1, 1);
 	modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
 	RenderMesh(meshList[GEO_QUIT], true);
-	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.17 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.17) && (mousePos.y <= (m_worldHeight * 0.1) + 4.75 && mousePos.y >= (m_worldHeight * 0.1) - 4.75))
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 0);
 	else
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);

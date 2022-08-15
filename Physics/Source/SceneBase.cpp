@@ -9,12 +9,18 @@
 #include "LoadTexture.h"
 #include <sstream>
 
-SceneBase::SceneBase()
+#include "../Common/System/filesystem.h"
+
+SceneBase::SceneBase() : cSoundController(NULL)
 {
 }
 
 SceneBase::~SceneBase()
 {
+	if (cSoundController)
+	{
+		cSoundController = NULL;
+	}
 }
 
 void SceneBase::Init()
@@ -171,6 +177,10 @@ void SceneBase::Init()
 
 	meshList[GEO_BLACKHOLE] = MeshBuilder::GenerateSphere("ball", Color(1, 0, 0), 10, 10, 1.f);
 	meshList[GEO_WHITEHOLE] = MeshBuilder::GenerateSphere("ball", Color(0, 0, 1), 10, 10, 1.f);
+
+	cSoundController = CSoundController::GetInstance();
+	cSoundController->Init();
+	cSoundController->LoadSound(FileSystem::getPath("Music\\Main_Menu.ogg"), 1, true, true); //Main Menu
 
 	bLightEnabled = true;
 }

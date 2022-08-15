@@ -10,6 +10,8 @@
 #include "GameObject.h"
 #include <vector>
 
+#include "../Physics/Source/SoundController/SoundController.h"
+
 class SceneBase : public Scene
 {
 	enum UNIFORM_TYPE
@@ -101,6 +103,7 @@ protected:
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
 
+	CSoundController* cSoundController;
 	Camera camera;
 
 	MS modelStack;
