@@ -37,13 +37,10 @@ void SceneCollision::Init()
 	rechargeBall = 5;
 	cSoundController->PlaySoundByID(1);
 
-<<<<<<< Updated upstream
 	//Companion->mass = 1;
-=======
 	Companion = FetchGO();
 	Companion->mass = 1;
 	flip = 1;
->>>>>>> Stashed changes
 }
 
 GameObject* SceneCollision::FetchGO()
