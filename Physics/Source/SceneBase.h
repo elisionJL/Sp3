@@ -53,6 +53,7 @@ public:
 		GEO_WIN,
 		GEO_LOSE,
 		GEO_START,
+		GEO_SHOP,
 		GEO_RETRY,
 		GEO_QUIT,
 		GEO_BG,
@@ -67,6 +68,17 @@ public:
 		GEO_GREEN,
 		GEO_BLACKHOLE,
 		GEO_WHITEHOLE,
+		//
+
+
+
+
+
+
+
+
+
+
 		NUM_GEOMETRY,
 	};
 public:
