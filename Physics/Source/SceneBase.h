@@ -79,7 +79,7 @@ public:
 
 
 
-
+		GEO_COMPANION,
 
 		NUM_GEOMETRY,
 	};

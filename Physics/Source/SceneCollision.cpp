@@ -35,7 +35,12 @@ void SceneCollision::Init()
 	maxBalls = 2;
 	ballcount = 0;
 	rechargeBall = 5;
+<<<<<<< Updated upstream
 	cSoundController->PlaySoundByID(1);
+=======
+
+	Companion->mass = 1;
+>>>>>>> Stashed changes
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -310,6 +315,25 @@ void SceneCollision::Update(double dt)
 				rechargeMulti = 1;
 			}
 		}
+		if (Application::IsKeyPressed('E'))
+		{
+			Companion = FetchGO();
+			Companion->type = GameObject::GO_COMPANION;
+			Companion->mass = 5;
+			Companion->scale.Set(2, 2, 1);
+			Companion->vel.SetZero();
+			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+		}
+
+		if (Application::IsKeyPressed('A'))
+		{
+
+		}
+		if (Application::IsKeyPressed('D'))
+		{
+
+		}
+
 		//Physics Simulation Section
 		unsigned size = m_goList.size();
 		ballcount = 0;
@@ -415,6 +439,14 @@ void SceneCollision::Update(double dt)
 				}
 				if (go->type == GameObject::GO_BALL) {
 					++ballcount;
+				}
+				if (go->type == GameObject::GO_COMPANION)
+				{
+					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
+					//Play the animation “ROW1” that is looping infinitely and
+					//each animation completes in 2 sec
+					Companion->PlayAnimation("RunningRight", -1, 2.0f);
+					Companion->Update(dt);
 				}
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -1053,7 +1085,6 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.Scale(go->scale.x, go->scale.y, 1);
 		RenderMesh(meshList[GEO_BALL], false);
 		modelStack.PopMatrix();
-
 		//Exercise 11: think of a way to give balls different colors
 		break;
 	case GameObject::GO_WALL:
