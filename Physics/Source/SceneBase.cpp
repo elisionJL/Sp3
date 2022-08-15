@@ -185,9 +185,20 @@ void SceneBase::Init()
 	meshList[GEO_BLACKHOLE] = MeshBuilder::GenerateSphere("ball", Color(1, 0, 0), 10, 10, 1.f);
 	meshList[GEO_WHITEHOLE] = MeshBuilder::GenerateSphere("ball", Color(0, 0, 1), 10, 10, 1.f);
 
+<<<<<<< Updated upstream
 	cSoundController = CSoundController::GetInstance();
 	cSoundController->Init();
 	cSoundController->LoadSound(FileSystem::getPath("Music\\Main_Menu.ogg"), 1, true, true); //Main Menu
+=======
+	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 3, 7);
+	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
+	meshList[GEO_COMPANION]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	Companion->AddAnimation("RunningR", 0, 7);
+	Companion->AddAnimation("RunningL", 8, 14);
+
+>>>>>>> Stashed changes
 
 	bLightEnabled = true;
 }
