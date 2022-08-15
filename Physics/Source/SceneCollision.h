@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include <vector>
 #include "SceneBase.h"
+#include "Player.h"
 class SceneCollision : public SceneBase
 {
 public:
@@ -48,6 +49,7 @@ protected:
 	int score;
 	int minutes;
 	float seconds;
+	CPlayer2D* cPlayer2D;
 	gameStates currentState;
 	Vector3 m_gravity;
 	GameObject* m_timeGO;
