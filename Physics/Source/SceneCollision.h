@@ -42,6 +42,7 @@ protected:
 	std::vector<GameObject*> m_thickWallList;
 	std::vector<GameObject*> m_thinWallList;
 	std::vector<GameObject*> m_bouncerList;
+	GameObject* Companion;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;

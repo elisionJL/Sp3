@@ -41,11 +41,17 @@ public:
 	// Play a sound by its ID
 	void PlaySoundByID(const int ID);
 	void StopPlayByID(const int ID);
+
+	//Stop all sounds
+	void StopAllSound();
+
 	void PlayBGM(const int ID);
 	// Increase Master volume
 	bool MasterVolumeIncrease(void);
 	// Decrease Master volume
 	bool MasterVolumeDecrease(void);
+	//Get Current Master volume
+	float GetMasterVolume(void);
 
 	// Increase volume of a ISoundSource
 	bool VolumeIncrease(const int ID);

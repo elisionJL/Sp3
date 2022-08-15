@@ -9,12 +9,18 @@
 #include "LoadTexture.h"
 #include <sstream>
 
-SceneBase::SceneBase()
+#include "../Common/System/filesystem.h"
+
+SceneBase::SceneBase() : cSoundController(NULL)
 {
 }
 
 SceneBase::~SceneBase()
 {
+	if (cSoundController)
+	{
+		cSoundController = NULL;
+	}
 }
 
 void SceneBase::Init()
@@ -178,6 +184,24 @@ void SceneBase::Init()
 
 	meshList[GEO_BLACKHOLE] = MeshBuilder::GenerateSphere("ball", Color(1, 0, 0), 10, 10, 1.f);
 	meshList[GEO_WHITEHOLE] = MeshBuilder::GenerateSphere("ball", Color(0, 0, 1), 10, 10, 1.f);
+
+	cSoundController = CSoundController::GetInstance();
+	cSoundController->Init();
+
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Main_Menu.ogg"), 1, true, true); //Main Menu
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Character_Select.ogg"), 2, true, true); //Character Select Music
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Boss_Music.ogg"), 3, true, true); //Boss Music
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Shop_Menu.ogg"), 4, true, true); //Shop Music
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Battle_Music.ogg"), 5, true, true); //Battle Music
+
+
+	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 3, 7);
+	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
+	meshList[GEO_COMPANION]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	Companion->AddAnimation("RunningR", 0, 7);
+	Companion->AddAnimation("RunningL", 8, 14);
 
 	bLightEnabled = true;
 }
