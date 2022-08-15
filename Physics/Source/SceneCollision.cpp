@@ -41,6 +41,9 @@ void SceneCollision::Init()
 	Companion = FetchGO();
 	Companion->mass = 1;
 	flip = 1;
+
+	companionX = 9;
+	companionY = 9;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -318,13 +321,13 @@ void SceneCollision::Update(double dt)
 				rechargeMulti = 1;
 			}
 		}
-		if (Application::IsKeyPressed('E'))
+		if (Application::IsKeyPressed('E') && Companion->mass == 1)
 		{
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
-			Companion->scale.Set(7, 7, 1);
-			Companion->vel.SetZero();
+			Companion->scale.Set(2, 2, 1);
 			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+			Companion->vel.SetZero();
 		}
 
 		if (Application::IsKeyPressed('A'))
@@ -405,7 +408,7 @@ void SceneCollision::Update(double dt)
 
 				if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
 
-					if (go->type = GameObject::GO_BALL) {
+					if (go->type == GameObject::GO_BALL) {
 						if (ballcount > 0) {
 							--ballcount;
 						}
@@ -423,7 +426,7 @@ void SceneCollision::Update(double dt)
 
 					if (go->pos.y < 0 || go->pos.y > m_worldHeight)
 					{
-						if (go->type = GameObject::GO_BALL) {
+						if (go->type == GameObject::GO_BALL) {
 							if (ballcount > 0) {
 								--ballcount;
 							}
@@ -447,7 +450,6 @@ void SceneCollision::Update(double dt)
 					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
 					//Play the animation “ROW1” that is looping infinitely and
 					//each animation completes in 2 sec
-
 					if (flip == 1)
 					{
 						Companion->PlayAnimation("RunningR", -1, 2.0f);
@@ -456,7 +458,6 @@ void SceneCollision::Update(double dt)
 					{
 						Companion->PlayAnimation("RunningL", -1, 2.0f);
 					}
-
 					Companion->Update(dt);
 				}
 				GameObject* go2 = nullptr;
@@ -477,8 +478,7 @@ void SceneCollision::Update(double dt)
 					{
 						CollisionResponse(actor, actee);
 					}
-				}
-				
+				}				
 			}
 		}
 		if (hp <= 0) {
@@ -611,7 +611,6 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) {
 		}
 		Vector3 relativeVel = go1->vel - go2->vel;
 		Vector3 disDiff = go2->pos - go1->pos;
-
 		if (relativeVel.Dot(disDiff) <= 0) {
 			return false;
 		}
@@ -1100,8 +1099,8 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, go->pos.z);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
 		modelStack.PopMatrix();
 		break;

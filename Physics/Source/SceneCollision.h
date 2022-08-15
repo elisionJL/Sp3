@@ -77,6 +77,7 @@ protected:
 	float m1, m2;
 	int flip;
 	int rotationorder;
+	float companionX, companionY;
 
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;

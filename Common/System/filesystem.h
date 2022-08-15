@@ -7,7 +7,7 @@
 
 #include <string>
 #include <cstdlib>
-#include "../Common/GameControl/Settings.h"
+#include "../GameControl/Settings.h"
 
 #ifdef __linux__ 
 	#include <unistd.h>
