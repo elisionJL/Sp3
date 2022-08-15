@@ -21,7 +21,7 @@ void SceneBase::Init()
 {
 	quit = false;
 	// Black background
-	glClearColor(0.f, 0.6f, 0.2f, 0.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
@@ -123,13 +123,13 @@ void SceneBase::Init()
 	meshList[GEO_THIN]->textureID = LoadTexture("Image//thinWall.png", true);
 
 	meshList[GEO_START] = MeshBuilder::GenerateQuad("start", Color(1, 1, 1), 1.f);
-	meshList[GEO_START]->textureID = LoadTexture("Image//start.psd", true);
+	meshList[GEO_START]->textureID = LoadTexture("Image//Start_Game.png", true);
 
 	meshList[GEO_RETRY] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
 	meshList[GEO_RETRY]->textureID = LoadTexture("Image//retry.psd", true);
 
 	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("menu", Color(1, 1, 1), 1.f);
-	meshList[GEO_MENU]->textureID = LoadTexture("Image//menu.png", true);
+	meshList[GEO_MENU]->textureID = LoadTexture("Image//Super_Pain.png", true);
 
 	meshList[GEO_WIN] = MeshBuilder::GenerateQuad("win", Color(1, 1, 1), 1.f);
 	meshList[GEO_WIN]->textureID = LoadTexture("Image//winScreen.psd", true);
@@ -138,7 +138,10 @@ void SceneBase::Init()
 	meshList[GEO_LOSE]->textureID = LoadTexture("Image//loseScreen.psd", true);
 
 	meshList[GEO_QUIT] = MeshBuilder::GenerateQuad("quit", Color(1, 1, 1), 1.f);
-	meshList[GEO_QUIT]->textureID = LoadTexture("Image//quit.psd", true);
+	meshList[GEO_QUIT]->textureID = LoadTexture("Image//Quit_Game.png", true);
+
+	meshList[GEO_SHOP] = MeshBuilder::GenerateQuad("shop", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHOP]->textureID = LoadTexture("Image//Shop.png", true);
 
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
@@ -169,7 +172,7 @@ void SceneBase::Init()
 	meshList[GEO_BLACKHOLE] = MeshBuilder::GenerateSphere("ball", Color(1, 0, 0), 10, 10, 1.f);
 	meshList[GEO_WHITEHOLE] = MeshBuilder::GenerateSphere("ball", Color(0, 0, 1), 10, 10, 1.f);
 
-	bLightEnabled = false;
+	bLightEnabled = true;
 }
 
 void SceneBase::Update(double dt)

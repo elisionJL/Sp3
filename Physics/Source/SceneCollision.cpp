@@ -978,6 +978,50 @@ void SceneCollision::renderBricks()
 	}
 
 }
+void SceneCollision::RenderTitleScreen()
+{
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.7f, 0);
+	modelStack.Scale(m_worldWidth * 0.9, m_worldHeight * 0.5, 0);
+	RenderMesh(meshList[GEO_MENU], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.4, 1);
+	modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
+	RenderMesh(meshList[GEO_START], true);
+	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 6.25 && mousePos.y >= (m_worldHeight * 0.4) - 6.25))
+		meshList[GEO_START]->material.kAmbient.Set(1, 1, 0);
+	else
+		meshList[GEO_START]->material.kAmbient.Set(1, 1, 1);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.25, 1);
+	modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
+	RenderMesh(meshList[GEO_SHOP], true);
+	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.25) + 6.25 && mousePos.y >= (m_worldHeight * 0.25) - 6.25))
+		meshList[GEO_SHOP]->material.kAmbient.Set(1, 1, 0);
+	else
+		meshList[GEO_SHOP]->material.kAmbient.Set(1, 1, 1);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.1, 1);
+	modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
+	RenderMesh(meshList[GEO_QUIT], true);
+	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 0);
+	else
+		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);
+	modelStack.PopMatrix();
+}
 void SceneCollision::RenderGO(GameObject *go)
 {
 	//this is to render the animations for the mesh
@@ -1064,23 +1108,7 @@ void SceneCollision::Render()
 	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {
 	case start:
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.5f, 0);
-		modelStack.Scale(m_worldWidth*0.9, m_worldHeight*0.9, 0);
-		RenderMesh(meshList[GEO_MENU], false);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 1);
-		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
-		RenderMesh(meshList[GEO_START], false);
-		modelStack.PopMatrix();
-		
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 1);
-		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
-		RenderMesh(meshList[GEO_QUIT], false);
-		modelStack.PopMatrix();
+		RenderTitleScreen();
 		break;
 	case main:
 	{

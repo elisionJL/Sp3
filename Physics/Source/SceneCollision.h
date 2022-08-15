@@ -33,6 +33,7 @@ public:
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
 	void renderBricks();
+	void RenderTitleScreen();
 protected:
 	Vector3 m_lineStart;
 	//Physics
