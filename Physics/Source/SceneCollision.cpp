@@ -325,7 +325,7 @@ void SceneCollision::Update(double dt)
 		{
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
-			Companion->scale.Set(2, 2, 1);
+			Companion->scale.Set(7, 7, 1);
 			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
 			Companion->vel.SetZero();
 		}
@@ -451,13 +451,10 @@ void SceneCollision::Update(double dt)
 					//Play the animation “ROW1” that is looping infinitely and
 					//each animation completes in 2 sec
 					if (flip == 1)
-					{
 						Companion->PlayAnimation("RunningR", -1, 2.0f);
-					}
 					else
-					{
 						Companion->PlayAnimation("RunningL", -1, 2.0f);
-					}
+
 					Companion->Update(dt);
 				}
 				GameObject* go2 = nullptr;
@@ -1099,8 +1096,8 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, go->pos.z);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		modelStack.Translate(cPlayer2D->playerX + companionX, cPlayer2D->playerY + companionY, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
 		modelStack.PopMatrix();
 		break;
