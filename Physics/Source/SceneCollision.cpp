@@ -37,7 +37,13 @@ void SceneCollision::Init()
 	rechargeBall = 5;
 	cSoundController->PlaySoundByID(1);
 
+<<<<<<< Updated upstream
 	//Companion->mass = 1;
+=======
+	Companion = FetchGO();
+	Companion->mass = 1;
+	flip = 1;
+>>>>>>> Stashed changes
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -317,21 +323,20 @@ void SceneCollision::Update(double dt)
 		}
 		if (Application::IsKeyPressed('E'))
 		{
-			Companion = FetchGO();
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
-			Companion->scale.Set(2, 2, 1);
+			Companion->scale.Set(7, 7, 1);
 			Companion->vel.SetZero();
 			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
 		}
 
 		if (Application::IsKeyPressed('A'))
 		{
-
+			flip = 0;
 		}
 		if (Application::IsKeyPressed('D'))
 		{
-
+			flip = 1;
 		}
 
 		//Physics Simulation Section
@@ -442,10 +447,19 @@ void SceneCollision::Update(double dt)
 				}
 				if (go->type == GameObject::GO_COMPANION)
 				{
-					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
+					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
 					//Play the animation “ROW1” that is looping infinitely and
 					//each animation completes in 2 sec
-					Companion->PlayAnimation("RunningRight", -1, 2.0f);
+
+					if (flip == 1)
+					{
+						Companion->PlayAnimation("RunningR", -1, 2.0f);
+					}
+					else
+					{
+						Companion->PlayAnimation("RunningL", -1, 2.0f);
+					}
+
 					Companion->Update(dt);
 				}
 				GameObject* go2 = nullptr;
@@ -1086,6 +1100,13 @@ void SceneCollision::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_BALL], false);
 		modelStack.PopMatrix();
 		//Exercise 11: think of a way to give balls different colors
+		break;
+	case GameObject::GO_COMPANION:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_COMPANION], true);
+		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_WALL:
 		modelStack.PushMatrix();

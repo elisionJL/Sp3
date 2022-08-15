@@ -187,6 +187,7 @@ void SceneBase::Init()
 
 	cSoundController = CSoundController::GetInstance();
 	cSoundController->Init();
+<<<<<<< Updated upstream
 
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Main_Menu.ogg"), 1, true, true); //Main Menu
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Character_Select.ogg"), 2, true, true); //Character Select Music
@@ -194,6 +195,9 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Shop_Menu.ogg"), 4, true, true); //Shop Music
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Battle_Music.ogg"), 5, true, true); //Battle Music
 
+=======
+	cSoundController->LoadSound(FileSystem::getPath("Music\\Main_Menu.ogg"), 1, true, true); //Main Menu
+>>>>>>> Stashed changes
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 3, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
@@ -203,6 +207,10 @@ void SceneBase::Init()
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 	bLightEnabled = true;
 }
 
