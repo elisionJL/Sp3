@@ -7,7 +7,7 @@
 #pragma once
 
 // Include SingletonTemplate
-#include <DesignPatterns\SingletonTemplate.h>
+#include <../Common/DesignPatterns/SingletonTemplate.h>
 
 // Include GLEW
 #include <includes/irrKlang.h>
