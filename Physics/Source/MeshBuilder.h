@@ -21,7 +21,7 @@ public:
 	static Mesh* GenerateCone(const std::string &meshName, Color color, unsigned numSlice, float radius, float height);
 	static Mesh* GenerateOBJ(const std::string &meshName, const std::string &file_path);
 	static Mesh* GenerateText(const std::string &meshName, unsigned row, unsigned col);
-	Mesh* GenerateSpriteAnimation(const std::string& meshName, unsigned numRow, unsigned numCol);
+	static Mesh* GenerateSpriteAnimation(const std::string& meshName, unsigned numRow, unsigned numCol);
 };
 
 #endif

@@ -47,6 +47,7 @@ public:
 		GEO_TEXT,
 		GEO_BALL,
 		GEO_CUBE,
+		GEO_PLAYER,
 		GEO_LINE,
 		GEO_MENU,
 		GEO_WIN,

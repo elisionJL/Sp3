@@ -106,7 +106,7 @@ void SceneBase::Init()
 	//to add animation do this
 
 	//SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
-	////Add the animation “ROW1” that start at 0 with 4 frames
+	////Add the animation “ROW1” that start at 0 with 4 frameshjb
 	//sa->AddAnimation("ROW1", 0, 4);
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
@@ -115,6 +115,13 @@ void SceneBase::Init()
 
 	meshList[GEO_WALL] = MeshBuilder::GenerateQuad("wall", Color(1, 1, 1), 1.f);
 	meshList[GEO_WALL]->textureID = LoadTexture("Image//brick.png", true);
+
+	meshList[GEO_PLAYER] = MeshBuilder::GenerateSpriteAnimation("player", 6, 10);
+	meshList[GEO_PLAYER]->textureID = LoadTexture("Image//playerSpriteSheet.psd", true);
+	meshList[GEO_PLAYER]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
+	sa->AddAnimation("walkR", 6, 9);
+	sa->AddAnimation("walkL", 14, 19);
 
 	meshList[GEO_BOUNCE] = MeshBuilder::GenerateQuad("bounce", Color(1, 1, 1), 1.f);
 	meshList[GEO_BOUNCE]->textureID = LoadTexture("Image//bounceWall.png", true);

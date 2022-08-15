@@ -3,7 +3,7 @@
 #include "Application.h"
 #include "LoadTexture.h"
 #include <sstream>
-
+#include "SpriteAnimation.h"
 SceneCollision::SceneCollision()
 {
 }
@@ -15,6 +15,10 @@ SceneCollision::~SceneCollision()
 void SceneCollision::Init()
 {
 	SceneBase::Init();
+
+	cPlayer2D = CPlayer2D::GetInstance();
+	cPlayer2D->Init();
+	cPlayer2D->setmeshList(meshList[GEO_PLAYER]);
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -66,7 +70,10 @@ void SceneCollision::ReturnGO(GameObject *go)
 void SceneCollision::Update(double dt)
 {
 	SceneBase::Update(dt);
-
+	//SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
+	//sa->PlayAnimation("walkR", -1, 1.0f);
+	//sa->Update(dt);
+	cPlayer2D->Update(dt);
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -1060,6 +1067,12 @@ void SceneCollision::Render()
 	);
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 0);
+	modelStack.Scale(10,10, 1);
+	RenderMesh(meshList[GEO_PLAYER], false);
+	modelStack.PopMatrix();
 
 	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {
