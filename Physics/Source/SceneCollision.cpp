@@ -356,7 +356,11 @@ void SceneCollision::Update(double dt)
 
 		if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW)
 		{
-			SceneCollision::shooting(elapsedTime, prevTime, Gun);			
+			SceneCollision::shooting(elapsedTime, prevTime, Gun);
+		}
+		else if (G->getAnimationStatus("Shoot") == false && Gun->type != GameObject::GO_BOW)
+		{
+			G->Update(dt);
 		}
 
 		static bool bLButtonState = false;
