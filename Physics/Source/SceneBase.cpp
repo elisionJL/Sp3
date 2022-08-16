@@ -113,7 +113,7 @@ void SceneBase::Init()
 	//to add animation do this
 
 	//SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
-	////Add the animation “ROW1” that start at 0 with 4 frameshjb
+	////Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frameshjb
 	//sa->AddAnimation("ROW1", 0, 4);
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
@@ -207,7 +207,7 @@ void SceneBase::Init()
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
 	meshList[GEO_COMPANION]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
-	//Add the animation “ROW1” that start at 0 with 4 frames
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
 
@@ -216,8 +216,9 @@ void SceneBase::Init()
 	meshList[GEO_GRONK]->textureID = LoadTexture("Image//Gronk.png", true);
 	meshList[GEO_GRONK]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
-	//Add the animation “ROW1” that start at 0 with 4 frames
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
 	gronk->AddAnimation("Idle", 0, 12);
+
 	bLightEnabled = true;
 }
 
