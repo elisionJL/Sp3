@@ -15,7 +15,7 @@ SceneCollision::~SceneCollision()
 void SceneCollision::Init()
 {
 	SceneBase::Init();
-
+	srand(time(0));
 	cPlayer2D = CPlayer2D::GetInstance();
 	cPlayer2D->Init();
 	cPlayer2D->setmeshList(meshList[GEO_PLAYER]);
@@ -36,13 +36,16 @@ void SceneCollision::Init()
 	ballcount = 0;
 	rechargeBall = 5;
 	cSoundController->PlaySoundByID(1);
-
+	dialogueTime = 0;
 	//Companion->mass = 1;
 	Companion = FetchGO();
 	Gun = FetchGO();
 	Companion->mass = 1;
 	flip = 1;
-
+	OutputDialogue = "";
+	CurrentTextWrite = false, TextFinished = false;
+	CurrentCharText = 0;
+	randomDialogue = 0;
 	Gronk = FetchGO();
 	Gronk->mass = 1;
 
@@ -133,7 +136,7 @@ void SceneCollision::Update(double dt)
 				rechargeTime = 0;
 				extendTime = 0;
 				extendMulti = 1;
-				Gun->type = GameObject::GO_GL;
+				Gun->type = GameObject::GO_PISTOL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -152,12 +155,12 @@ void SceneCollision::Update(double dt)
 				}
 				else if (Gun->type == GameObject::GO_SNIPER)
 				{
-					Gun->scale.Set(7, 3.5, 1);
+					Gun->scale.Set(15, 5, 1);
 					CurrentGun = meshList[GEO_SNIPER];
 				}
 				else if (Gun->type == GameObject::GO_PISTOL)
 				{
-					Gun->scale.Set(7, 3.5, 1);
+					Gun->scale.Set(3, 1, 1);
 					CurrentGun = meshList[GEO_PISTOL];
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
@@ -194,7 +197,34 @@ void SceneCollision::Update(double dt)
 		SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
 		gronk->PlayAnimation("Idle", -1, 2.f);
 		gronk->Update(dt);
-		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) { //Back button
+	
+		dialogueTime += 1 * dt;
+		if (dialogueTime > 5.f)
+		{
+			CurrentTextWrite = true;
+			dialogueTime = 0;
+		}
+
+		if (Application::IsMousePressed(0)) {
+			if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+			{
+				OutputDialogue = "";
+				CurrentTextWrite = false, TextFinished = false;
+				CurrentCharText = 0;
+				randomDialogue = 0;
+
+				for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+				{
+					GameObject* go = (GameObject*)*it;
+					if (go->active)
+						if (go->type == GameObject::GO_GRONK)
+							go = NULL;
+				}
+
+				cSoundController->StopAllSound();
+				cSoundController->PlaySoundByID(1);
+				currentState = start;
+			}
 		}
 		break;
 	}
@@ -410,15 +440,11 @@ void SceneCollision::Update(double dt)
 			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 			if (Gun->type == GameObject::GO_BOW)
 			{
-				G->PlayAnimation("Shoot", 0, 2.0f);
-				if (G->getAnimationStatus("Shoot"))
-					G->Reset();
+				G->PlayAnimation("Shoot", -1, 2.0f);
 			}
 			else
 			{
-				G->PlayAnimation("Shoot", 0, 1.0f);
-				if (G->getAnimationStatus("Shoot"))
-					G->Reset();
+				G->PlayAnimation("Shoot", -1, 1.0f);
 			}
 			G->Update(dt);
 		}
@@ -605,6 +631,29 @@ void SceneCollision::Update(double dt)
 						Companion->PlayAnimation("RunningL", -1, 2.0f);
 
 					Companion->Update(dt);
+				}
+				if (go == Gun)
+				{
+					float Xaxis = go->pos.x - mousePos.x;
+					float Yaxis = go->pos.y - mousePos.y;
+
+					float Angle;
+					if (Xaxis <= 0 && Yaxis <= 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis < 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis > 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else if (Xaxis > 0 && Yaxis < 0) {
+						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else {
+						Angle = 0;
+					}
+					go->angle = Angle;
 				}
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -1221,6 +1270,67 @@ void SceneCollision::RenderTitleScreen()
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);
 	modelStack.PopMatrix();
 }
+void SceneCollision::RenderGronkDialogue()
+{
+	string GronkDialogue[50] = { "Welcome to Gronk Shop!", "Gronk has many stuff!", "What human want? Gronk can help find!",
+								 "Human died " + std::to_string(DeathCount) + " times! Gronk thinks human should work harder.", "Human not dead, human die soon?", "Gronk give human hint! No hit mean safe!",
+								 "Gronk first time make shop, Gronk hope can get what Gronk want!", "Gronk no travel much, human travel a lot?", 
+								 "This place dangerous for human, Gronk thinks human should leave.", "Human say Gronk is goblin? Gronk is Gronk, Gronk no Goblin! Human stupid."};
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
+	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+
+	if (CurrentTextWrite == true && TextFinished == false)
+	{
+		randomDialogue = rand() % 10;
+		if (randomDialogue == 3 && DeathCount <= 0)
+		{
+			randomDialogue = 4;
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			TextFinished = true;
+		}
+		else
+		{
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			TextFinished = true;
+		}
+	}
+
+	if (TextFinished == true)
+	{
+		char CurrentDialogue;
+
+		if (dialogueTime > 0.075f)
+		{
+			if (CurrentCharText < GronkDialogue[randomDialogue].length())
+			{
+				CurrentDialogue = GronkDialogue[randomDialogue][CurrentCharText];
+				OutputDialogue += CurrentDialogue;
+
+				CurrentCharText += 1;
+			}
+
+			else
+			{
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+
+			dialogueTime = 0;
+		}
+	}
+	RenderDialogueOnScreen(meshList[GEO_TEXT], OutputDialogue, Color(0, 0, 0), 1.5, 2.5, 8);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
+	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Gronk", Color(0, 0.75f, 0), 2.5f, 9, 11);
+	modelStack.PopMatrix();
+}
 void SceneCollision::RenderGO(GameObject *go)
 {
 	//this is to render the animations for the mesh
@@ -1245,7 +1355,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 2);
+		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 1.1f);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
 		modelStack.PopMatrix();
@@ -1253,6 +1363,7 @@ void SceneCollision::RenderGO(GameObject *go)
 	case GameObject::GO_BOW:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y , 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_BOW], true);
 		modelStack.PopMatrix();
@@ -1260,6 +1371,7 @@ void SceneCollision::RenderGO(GameObject *go)
 	case GameObject::GO_GL:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_GL], true);
 		modelStack.PopMatrix();
@@ -1267,8 +1379,27 @@ void SceneCollision::RenderGO(GameObject *go)
 	case GameObject::GO_SHOTGUN:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_SHOTGUN], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_SNIPER:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_SNIPER], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_PISTOL:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_PISTOL], true);
+		modelStack.PopMatrix();
+		break;
 	case GameObject::GO_GRONK:
 		modelStack.PushMatrix();
 		modelStack.Translate((m_worldWidth / 3) * 2.5f, m_worldHeight * 0.4, 2);
@@ -1349,6 +1480,13 @@ void SceneCollision::Render()
 		RenderTitleScreen();
 		break;
 	case shop:
+	{
+		double x, y, windowwidth, windowheight;
+		Application::GetCursorPos(&x, &y);
+		windowwidth = Application::GetWindowWidth();
+		windowheight = Application::GetWindowHeight();
+		Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
 		modelStack.Scale(m_worldWidth, m_worldHeight, 0);
@@ -1361,13 +1499,33 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_SHOP_SIGN], false);
 		modelStack.PopMatrix();
 
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+		RenderMesh(meshList[GEO_DIALOGUE_BOX], false);
+		modelStack.PopMatrix();
+
+		RenderGronkDialogue();
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 3) * 2.4f, m_worldHeight * 0.1, 2);
+		modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
+		RenderMesh(meshList[GEO_GRONK_BACK_BUTTON], true);
+		if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+			meshList[GEO_GRONK_BACK_BUTTON]->material.kAmbient.Set(1, 1, 1);
+		else
+			meshList[GEO_GRONK_BACK_BUTTON]->material.kAmbient.Set(0.4, 0.4, 0.4);
+		modelStack.PopMatrix();
+
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
 			GameObject* go = (GameObject*)*it;
 			if (go->active)
-				if(go->type == GameObject::GO_GRONK)
-				RenderGO(go);
+				if (go->type == GameObject::GO_GRONK)
+					RenderGO(go);
 		}
+
+	}
 		break;
 	case main:
 	{

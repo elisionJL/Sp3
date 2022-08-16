@@ -169,6 +169,12 @@ void SceneBase::Init()
 	meshList[GEO_SHOP_SIGN] = MeshBuilder::GenerateQuad("signboard", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHOP_SIGN]->textureID = LoadTexture("Image//Wooden_Sign.png", true);
 
+	meshList[GEO_DIALOGUE_BOX] = MeshBuilder::GenerateQuad("dialoguebox", Color(1, 1, 1), 1.f);
+	meshList[GEO_DIALOGUE_BOX]->textureID = LoadTexture("Image//DialogueBox.png", true);
+
+	meshList[GEO_GRONK_BACK_BUTTON] = MeshBuilder::GenerateQuad("gronkbackbutton", Color(1, 1, 1), 1.f);
+	meshList[GEO_GRONK_BACK_BUTTON]->textureID = LoadTexture("Image//Gronk_Back_Button.png", true);
+
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
 
@@ -207,8 +213,6 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Shop_Menu.ogg"), 4, true, true); //Shop Music
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Battle_Music.ogg"), 5, true, true); //Battle Music
 
-	cSoundController->LoadSound(FileSystem::getPath("Music\\Main_Menu.ogg"), 1, true, true); //Main Menu
-
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 3, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
 	meshList[GEO_COMPANION]->material.kAmbient.Set(1, 1, 1);
@@ -217,45 +221,40 @@ void SceneBase::Init()
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
 
-	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 2, 6);
+	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 3, 6);
 	meshList[GEO_BOW]->textureID = LoadTexture("Image//bow.png", true);
 	meshList[GEO_BOW]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Bow = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOW]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Bow->AddAnimation("Shoot", 0, 12);
-	Bow->AddAnimation("Idle", 0, 1);
+	Bow->AddAnimation("Shoot", 0, 13);
 
-	meshList[GEO_GL] = MeshBuilder::GenerateSpriteAnimation("GL", 1, 5);
+	meshList[GEO_GL] = MeshBuilder::GenerateSpriteAnimation("GL", 1, 6);
 	meshList[GEO_GL]->textureID = LoadTexture("Image//GL.png", true);
 	meshList[GEO_GL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	GL->AddAnimation("Shoot", 0, 5);
-	GL->AddAnimation("Idle", 0, 1);
+	GL->AddAnimation("Shoot", 0, 6);
 
-	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 5);
+	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
 	meshList[GEO_SHOTGUN]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Shotgun->AddAnimation("Shoot", 0, 5);
-	Shotgun->AddAnimation("Idle", 0, 1);
+	Shotgun->AddAnimation("Shoot", 0, 6);
 
-	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 2);
+	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 1, 3);
 	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
 	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Pistol->AddAnimation("Shoot", 0, 2);
-	Pistol->AddAnimation("Idle", 0, 1);
+	Pistol->AddAnimation("Shoot", 0, 3);
 
-	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 1, 2);
+	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 1, 3);
 	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
 	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Sniper->AddAnimation("Shoot", 0, 2);
-	Sniper->AddAnimation("Idle", 0, 1);
+	Sniper->AddAnimation("Shoot", 0, 3);
 
 
 	//Shopkeeper
@@ -263,7 +262,7 @@ void SceneBase::Init()
 	meshList[GEO_GRONK]->textureID = LoadTexture("Image//Gronk.png", true);
 	meshList[GEO_GRONK]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
-	//Add the animation �ROW1� that start at 0 with 4 frames
+	//Add the animation for grok
 	gronk->AddAnimation("Idle", 0, 12);
 
 	//Slime
@@ -351,7 +350,85 @@ void SceneBase::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, fl
 		characterSpacing.SetToTranslation(i * 1.0f + 0.5f, 0.5f, 0); //1.0f is the spacing of each character, you may change this value
 		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+	modelStack.PopMatrix();
+	viewStack.PopMatrix();
+	projectionStack.PopMatrix();
+	glEnable(GL_DEPTH_TEST);
+}
 
+void SceneBase::RenderDialogueOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+{
+	if (!mesh || mesh->textureID <= 0)
+		return;
+
+	glDisable(GL_DEPTH_TEST);
+	Mtx44 ortho;
+	ortho.SetToOrtho(0, 80, 0, 60, -10, 10);
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+	modelStack.Translate(x, y, 0);
+	modelStack.Scale(size, size, size);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+	int NextLine;
+	bool LineOne, LineTwo, LineThree, LineFour;
+	LineOne = LineTwo = LineThree = LineFour = false;
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		Mtx44 characterSpacing;
+		if (i < 20) {
+			LineOne = true;
+			characterSpacing.SetToTranslation(i * 1.0f + 0.5f, 0.5f, 0); //1.0f is the spacing of each character, you may change this value
+		}
+		else if (i >= 20 && text[i] != ' ' && LineTwo != true) {
+			characterSpacing.SetToTranslation(i * 1.0f + 0.5f, 0.5f, 0); //1.0f is the spacing of each character, you may change this value
+		}
+		else if (i >= 20 && text[i] == ' ' && LineTwo != true) {
+			NextLine = i + 1;
+			LineTwo = true;
+		}
+		else if ((i >= 20 && i < 45) && LineTwo == true) {
+			characterSpacing.SetToTranslation((i - NextLine) * 1.0f + 0.5f, -1.f, 0);
+		}
+		else if (i >= 45 && text[i] != ' ' && LineThree != true) {
+			characterSpacing.SetToTranslation((i - NextLine) * 1.0f + 0.5f, -1.f, 0);
+		}
+		else if (i >= 45 && text[i] == ' ' && LineThree != true) {
+			NextLine = i + 1;
+			LineThree = true;
+		}
+		else if ((i >= 45 && i < 70) && LineThree == true) {
+			characterSpacing.SetToTranslation((i - NextLine) * 1.0f + 0.5f, -2.5f, 0);
+		}
+		else if (i >= 70 && text[i] != ' ' && LineFour != true) {
+			characterSpacing.SetToTranslation((i - NextLine) * 1.0f + 0.5f, -2.5f, 0);
+		}
+		else if (i >= 70 && text[i] == ' ' && LineFour != true) {
+			NextLine = i + 1;
+			LineFour = true;
+		}
+		//else if (text[i] == ' ') {
+		//	NextLine = i;
+		//}
+		//else if ((i >= 40 && i < 60) && text[i] != ' ') {
+		//	characterSpacing.SetToTranslation((i - NextLine) * 1.0f + 0.5f, -1.5f, 0);
+		//}
+
+		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
 		mesh->Render((unsigned)text[i] * 6, 6);
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);

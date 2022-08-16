@@ -37,6 +37,7 @@ public:
 	void spawnPowerup(Vector3 pos);
 	void renderBricks();
 	void RenderTitleScreen();
+	void RenderGronkDialogue();
 protected:
 	Vector3 m_lineStart;
 	//Physics
@@ -81,6 +82,10 @@ protected:
 	int flip;
 	int rotationorder;
 	float companionX, companionY;
+
+	int DeathCount;
+	float dialogueTime;
+
 	GameObject* Gun;
 	double GunShootingTimer;
 	Mesh* CurrentGun;
@@ -89,6 +94,10 @@ protected:
 
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;
+	string OutputDialogue;
+	bool CurrentTextWrite, TextFinished;
+	int CurrentCharText;
+	int randomDialogue;
 };
 
 #endif
