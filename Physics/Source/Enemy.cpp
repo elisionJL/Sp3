@@ -18,9 +18,11 @@ bool Enemy::Init(void)
 
 void Enemy::Update(const double dElapsedTime)
 {
+	//Update enemy movement to chase player
+	
+
 	//Change enemy states in response to the direction they are moving
 	
-	//Update enemy movement to chase player
 
 }
 

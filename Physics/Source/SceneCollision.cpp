@@ -166,7 +166,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_BOW;
+				Gun->type = GameObject::GO_PISTOL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -454,11 +454,11 @@ void SceneCollision::Update(double dt)
 					}
 				}
 				// Handle X-Axis Bound
-				if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
-					((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
-				{
-					go->vel.x = -go->vel.x;
-				}
+				//if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
+				//	((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
+				//{
+				//	//go->vel.x = -go->vel.x;
+				//}
 
 				if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
 
@@ -468,10 +468,10 @@ void SceneCollision::Update(double dt)
 
 				// Handle Y-Axis Bound
 				if (go->thickWall == 0) {
-					if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
+				/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
 					{
 						go->vel.y = -go->vel.y;
-					}
+					}*/
 
 					if (go->pos.y < 0 || go->pos.y > m_worldHeight)
 					{
