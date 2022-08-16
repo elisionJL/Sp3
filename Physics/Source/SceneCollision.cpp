@@ -1141,6 +1141,7 @@ void SceneCollision::RenderGO(GameObject *go)
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
 		case GameObject::bow:
+			modelStack.Scale(1.2, 1, 1);
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
 			break;
 		}
