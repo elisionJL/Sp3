@@ -204,6 +204,9 @@ void SceneBase::Init()
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
 
+
+
+
 	bLightEnabled = true;
 }
 
