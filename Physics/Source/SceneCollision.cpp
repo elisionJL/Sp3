@@ -108,8 +108,8 @@ void SceneCollision::shooting (double elapsedTime, double prevTime, GameObject* 
 		Application::GetCursorPos(&x, &y);
 		unsigned w = Application::GetWindowWidth();
 		unsigned h = Application::GetWindowHeight();
-		float posX = (x / w * m_worldWidth);
-		float posY = m_worldHeight - (y / h * m_worldHeight);
+		float posX = (x / w * m_worldWidth) + camera.position.x;
+		float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
 		Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
 		go->vel = BulVel.Normalized() * 20;
 		go->scale.Set(4.5f, 2.f, 1.0f);
@@ -1238,10 +1238,10 @@ void SceneCollision::RenderGO(GameObject *go)
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
 		case GameObject::shotgun:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//shotgunBullet.png", true);
 			break;
 		case GameObject::sniper:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//sniperBullet.png", true);
 			break;
 		case GameObject::GL:
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
