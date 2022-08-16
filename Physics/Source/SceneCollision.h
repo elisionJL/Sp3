@@ -91,6 +91,8 @@ protected:
 	int CurrentCharText;
 	int randomDialogue;
 	int shootonceonly;
+	bool GunShoot;
+	int GunFrameWhereItStarts;
 };
 
 #endif

@@ -50,6 +50,8 @@ void SceneCollision::Init()
 	rotationorder = 1;
 
 	shootonceonly = 1;
+
+	GunShoot = false;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -168,36 +170,40 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_PISTOL;
+				Gun->type = GameObject::GO_SNIPER;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
 					Gun->scale.Set(7, 3.5, 1);
 					CurrentGun = meshList[GEO_GL];
+					GunFrameWhereItStarts = 6;
 				}
 				else if (Gun->type == GameObject::GO_BOW)
 				{
 					Gun->scale.Set(7, 7, 1);
 					CurrentGun = meshList[GEO_BOW];
+					GunFrameWhereItStarts = 0;
 				}
 				else if (Gun->type == GameObject::GO_SHOTGUN)
 				{
 					Gun->scale.Set(7, 3.5, 1);
 					CurrentGun = meshList[GEO_SHOTGUN];
+					GunFrameWhereItStarts = 6;
 				}
 				else if (Gun->type == GameObject::GO_SNIPER)
 				{
-					Gun->scale.Set(15, 5, 1);
+					Gun->scale.Set(7, 2.5, 1);
 					CurrentGun = meshList[GEO_SNIPER];
+					GunFrameWhereItStarts = 3;
 				}
 				else if (Gun->type == GameObject::GO_PISTOL)
 				{
-					Gun->scale.Set(3, 1, 1);
+					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_PISTOL];
+					GunFrameWhereItStarts = 3;
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
-				SpawnTree();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
 			}
@@ -231,7 +237,7 @@ void SceneCollision::Update(double dt)
 		SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
 		gronk->PlayAnimation("Idle", -1, 2.f);
 		gronk->Update(dt);
-	
+
 		dialogueTime += 1 * dt;
 		if (dialogueTime > 5.f)
 		{
@@ -348,6 +354,19 @@ void SceneCollision::Update(double dt)
 						G->PlayAnimation("Shoot", 0, 1.0f);
 					else
 						G->PlayAnimation("ShootR", 0, 1.0f);
+					if (GunShoot == false)
+					{
+						if (G->getcurrentanimationframe("Shoot") == 0)
+						{
+							SceneCollision::shooting(elapsedTime, prevTime, Gun);
+						}
+						else if (G->getcurrentanimationframe("ShootR") == GunFrameWhereItStarts)
+						{
+							SceneCollision::shooting(elapsedTime, prevTime, Gun);
+						}
+
+						GunShoot = true;
+					}
 
 					shooting = false;
 
@@ -355,34 +374,26 @@ void SceneCollision::Update(double dt)
 				}
 			}
 
-			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW)
+			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
 			{
 				SceneCollision::shooting(elapsedTime, prevTime, Gun);
+				shootonceonly = 0;
 			}
-			/*else if (Gun->type != GameObject::GO_BOW)
-			{
+			else if (GunShoot == true)
+			{				
 				float Xaxis = mousePos.x - Gun->pos.x;
-				if (Xaxis >= 0 && G->getAnimationStatus("Shoot"))
+				if ((Xaxis >= 0 && !G->getAnimationStatus("Shoot")) || (Xaxis < 0 && !G->getAnimationStatus("ShootR")))
 				{
-					G->Update(dt);
-				}
-				else if (Xaxis < 0 && G->getAnimationStatus("ShootR"))
-				{
-					G->Update(dt);
-				}
-				else
-				{
-					float Xaxis = mousePos.x - Gun->pos.x;
-					if (Xaxis >= 0)
-						G->PlayAnimation("Shoot", 0, 1.0f);
-					else
-						G->PlayAnimation("ShootR", 0, 1.0f);
+					GunShoot = false;
 
-					G->Update(dt);
+					if (Xaxis >= 0)
+						G->PlayAnimation("Shoot", -1, 1.0f);
+					else
+						G->PlayAnimation("ShootR", -1, 1.0f);
+
 					G->truereset();
 				}
-			}*/
-
+			}
 
 
 
@@ -398,279 +409,284 @@ void SceneCollision::Update(double dt)
 				{
 					G->PlayAnimation("Shoot", 0, 2.0f);
 					G->truereset();
+					SceneCollision::shooting(elapsedTime, prevTime, Gun);
 					shooting = false;
+					shootonceonly = 2;
 				}
-
-		}
-
-		unsigned size = m_goList.size();
-
-		//Player collision
-		for (unsigned i = 0; i < size; ++i)
-		{
-			GameObject* go = m_goList[i];
-			if (go->active)
-			{
-				if (go->type == GameObject::GO_TREE)
+				else if ((G->getAnimationStatus("Shoot")) || (G->getAnimationStatus("ShootR")))
 				{
-					if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) && 
-						cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
-					{
-						if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
-							cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
-						{
-							cPlayer2D->CollisionDetectedHorizontal(true);
-						}
+					G->Update(dt);
+				}
+			}
 
-						else
-							cPlayer2D->CollisionDetectedHorizontal(false);
-					}
-					else if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
-						cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+			unsigned size = m_goList.size();
+
+			//Player collision
+			for (unsigned i = 0; i < size; ++i)
+			{
+				GameObject* go = m_goList[i];
+				if (go->active)
+				{
+					if (go->type == GameObject::GO_TREE)
 					{
 						if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
 							cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
 						{
-							cPlayer2D->CollisionDetectedVertical(true);
+							if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
+								cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+							{
+								cPlayer2D->CollisionDetectedHorizontal(true);
+							}
+
+							else
+								cPlayer2D->CollisionDetectedHorizontal(false);
 						}
+						else if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) && cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+						{
+							if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
+								cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+							{
+								cPlayer2D->CollisionDetectedVertical(true);
+							}
 
-						else
-							cPlayer2D->CollisionDetectedVertical(false);
+							else
+								cPlayer2D->CollisionDetectedVertical(false);
+						}
 					}
+
 				}
-
 			}
-		}
 
-		
 
-		
 
-		//Physics Simulation Section
-		for (unsigned i = 0; i < size; ++i)
-		{
-			GameObject* go = m_goList[i];
-			if (go->active)
+
+
+			//Physics Simulation Section
+			for (unsigned i = 0; i < size; ++i)
 			{
-				if (go->PUIFrame > 0) {
-					go->PUIFrame -= dt;
-					if (go->PUIFrame <= 0) {
+				GameObject* go = m_goList[i];
+				if (go->active)
+				{
+					if (go->PUIFrame > 0) {
+						go->PUIFrame -= dt;
+						if (go->PUIFrame <= 0) {
+							go->active = false;
+							continue;
+						}
+					}
+					if (go->placed == true && go->activeTime > 0 && go->thinWall > 0) {
+						go->activeTime -= dt;
+					}
+					else if (go->placed == true && go->activeTime < 0 && go->thinWall > 0) {
 						go->active = false;
 						continue;
 					}
-				}
-				if (go->placed == true && go->activeTime > 0 && go->thinWall > 0) {
-					go->activeTime -= dt;
-				}
-				else if (go->placed == true && go->activeTime < 0 && go->thinWall > 0) {
-					go->active = false;
-					continue;
-				}
-				go->pos += go->vel * dt * m_speed;
-				if (go->pos.y < m_worldHeight * 0.4 && go->thickWall > 0) {
-					int target = go->thickWall;
-					int destroyed = 0;
-					std::vector<GameObject*>::iterator prev = m_thickWallList.begin();
-					std::vector<GameObject*>::iterator i = m_thickWallList.begin();
-					while (destroyed != 6) {
-						GameObject* go = (GameObject*)*i;
-						if (go->thickWall == target) {
-							go->active = false;
-							if (i == prev) {
-								m_thickWallList.erase(i);
-								i = m_thickWallList.begin();
-								prev = m_thickWallList.begin();
-								++destroyed;
-								continue;
+					go->pos += go->vel * dt * m_speed;
+					if (go->pos.y < m_worldHeight * 0.4 && go->thickWall > 0) {
+						int target = go->thickWall;
+						int destroyed = 0;
+						std::vector<GameObject*>::iterator prev = m_thickWallList.begin();
+						std::vector<GameObject*>::iterator i = m_thickWallList.begin();
+						while (destroyed != 6) {
+							GameObject* go = (GameObject*)*i;
+							if (go->thickWall == target) {
+								go->active = false;
+								if (i == prev) {
+									m_thickWallList.erase(i);
+									i = m_thickWallList.begin();
+									prev = m_thickWallList.begin();
+									++destroyed;
+									continue;
+								}
+								else {
+									m_thickWallList.erase(i);
+									i = prev;
+									++i;
+									++destroyed;
+								}
 							}
 							else {
-								m_thickWallList.erase(i);
-								i = prev;
 								++i;
-								++destroyed;
 							}
+							if (destroyed == 6) {
+								break;
+							}
+							if (i == m_thickWallList.end()) {
+								break;
+							}
+							prev = i;
 						}
-						else {
-							++i;
-						}
-						if (destroyed == 6) {
-							break;
-						}
-						if (i == m_thickWallList.end()) {
-							break;
-						}
-						prev = i;
 					}
-				}
-				// Handle X-Axis Bound
-				//if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
-				//	((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
-				//{
-				//	//go->vel.x = -go->vel.x;
-				//}
+					// Handle X-Axis Bound
+					//if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
+					//	((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
+					//{
+					//	//go->vel.x = -go->vel.x;
+					//}
 
-				if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
+					if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
 
-					ReturnGO(go);
-					continue;
-				}
-
-				// Handle Y-Axis Bound
-				if (go->thickWall == 0) {
-				/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
-					{
-						go->vel.y = -go->vel.y;
-					}*/
-
-					if (go->pos.y < 0 || go->pos.y > m_worldHeight)
-					{
 						ReturnGO(go);
 						continue;
 					}
-				}
-				else {
-					if (go->pos.y < 0)
-					{
-						ReturnGO(go);
-						continue;
-					}
-				}
-				if (go->type == GameObject::GO_COMPANION)
-				{
 
-					float moveXby;
-					float moveYby;
-					{
-						if (rotationorder == 1)
-						{
-							moveXby = -0.5;
-							moveYby = 0.2;
-							if (companionX <= 0)
-								rotationorder++;
-						}
-						else if (rotationorder == 2)
-						{
-							moveXby = -0.5;
-							moveYby = -0.2;
-							if (companionX <= -9)
-								rotationorder++;
-						}
-						else if (rotationorder == 3)
-						{
-							moveXby = -0.2;
-							moveYby = -0.5;
-							if (companionY <= 0)
-								rotationorder++;
-						}
-						else if (rotationorder == 4)
-						{
-							moveXby = 0.2;
-							moveYby = -0.5;
-							if (companionY <= -9)
-								rotationorder++;
-						}
-						else if (rotationorder == 5)
-						{
-							moveXby = 0.5;
-							moveYby = -0.2;
-							if (companionX >= 0)
-								rotationorder++;
-						}
-						else if (rotationorder == 6)
-						{
-							moveXby = 0.5;
-							moveYby = 0.2;
-							if (companionX >= 9)
-								rotationorder++;
-						}
-						else if (rotationorder == 7)
-						{
-							moveXby = 0.2;
-							moveYby = 0.5;
-							if (companionY >= 0)
-								rotationorder++;
-						}
-						else
-						{
-							moveXby = -0.2;
-							moveYby = 0.5;
-							if (companionY >= 9)
-								rotationorder = 1;
-						}
-					}
-					companionX += moveXby;
-					companionY += moveYby;
+					// Handle Y-Axis Bound
+					if (go->thickWall == 0) {
+						/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
+							{
+								go->vel.y = -go->vel.y;
+							}*/
 
-
-					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
-					//Play the animation �ROW1� that is looping infinitely and
-					//each animation completes in 2 sec
-					if (flip == 1)
-						Companion->PlayAnimation("RunningR", -1, 2.0f);
-					else
-						Companion->PlayAnimation("RunningL", -1, 2.0f);
-
-					Companion->Update(dt);
-				}
-				if (go == Gun)
-				{
-					float Xaxis = mousePos.x - go->pos.x;
-					float Yaxis = mousePos.y - go->pos.y;
-
-					float Angle;
-					if (Xaxis <= 0 && Yaxis <= 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-					}
-					else if (Xaxis < 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-					}
-					else if (Xaxis > 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-					}
-					else if (Xaxis > 0 && Yaxis < 0) {
-						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+						if (go->pos.y < 0 || go->pos.y > m_worldHeight)
+						{
+							ReturnGO(go);
+							continue;
+						}
 					}
 					else {
-						Angle = 0;
+						if (go->pos.y < 0)
+						{
+							ReturnGO(go);
+							continue;
+						}
 					}
-					go->angle = Angle;
-
-					if (shooting && go->type != GameObject::GO_BOW)
+					if (go->type == GameObject::GO_COMPANION)
 					{
-						if (Xaxis >= 0)
-							G->PlayAnimation("Shoot", 0, 1.0f);
-						else
-							G->PlayAnimation("ShootR", 0, 1.0f);
 
-						G->Reset();
+						float moveXby;
+						float moveYby;
+						{
+							if (rotationorder == 1)
+							{
+								moveXby = -0.5;
+								moveYby = 0.2;
+								if (companionX <= 0)
+									rotationorder++;
+							}
+							else if (rotationorder == 2)
+							{
+								moveXby = -0.5;
+								moveYby = -0.2;
+								if (companionX <= -9)
+									rotationorder++;
+							}
+							else if (rotationorder == 3)
+							{
+								moveXby = -0.2;
+								moveYby = -0.5;
+								if (companionY <= 0)
+									rotationorder++;
+							}
+							else if (rotationorder == 4)
+							{
+								moveXby = 0.2;
+								moveYby = -0.5;
+								if (companionY <= -9)
+									rotationorder++;
+							}
+							else if (rotationorder == 5)
+							{
+								moveXby = 0.5;
+								moveYby = -0.2;
+								if (companionX >= 0)
+									rotationorder++;
+							}
+							else if (rotationorder == 6)
+							{
+								moveXby = 0.5;
+								moveYby = 0.2;
+								if (companionX >= 9)
+									rotationorder++;
+							}
+							else if (rotationorder == 7)
+							{
+								moveXby = 0.2;
+								moveYby = 0.5;
+								if (companionY >= 0)
+									rotationorder++;
+							}
+							else
+							{
+								moveXby = -0.2;
+								moveYby = 0.5;
+								if (companionY >= 9)
+									rotationorder = 1;
+							}
+						}
+						companionX += moveXby;
+						companionY += moveYby;
+
+
+						SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
+						//Play the animation �ROW1� that is looping infinitely and
+						//each animation completes in 2 sec
+						if (flip == 1)
+							Companion->PlayAnimation("RunningR", -1, 2.0f);
+						else
+							Companion->PlayAnimation("RunningL", -1, 2.0f);
+
+						Companion->Update(dt);
+					}
+					if (go == Gun)
+					{
+						float Xaxis = mousePos.x - go->pos.x;
+						float Yaxis = mousePos.y - go->pos.y;
+
+						float Angle;
+						if (Xaxis <= 0 && Yaxis <= 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis < 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis > 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else if (Xaxis > 0 && Yaxis < 0) {
+							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else {
+							Angle = 0;
+						}
+						go->angle = Angle;
+
+						if (shooting && go->type != GameObject::GO_BOW)
+						{
+							if (Xaxis >= 0)
+								G->PlayAnimation("Shoot", 0, 1.0f);
+							else
+								G->PlayAnimation("ShootR", 0, 1.0f);
+
+							G->Reset();
+						}
+					}
+					GameObject* go2 = nullptr;
+					for (unsigned j = i + 1; j < size; ++j)
+					{
+						go2 = m_goList[j];
+						GameObject* actor(go);
+						GameObject* actee(go2);
+						if (go->type != GameObject::GO_BALL)
+						{
+							actor = go2;
+							actee = go;
+						}
+						if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
+							continue;
+						}
+						if (go2->active && CheckCollision(actor, actee))
+						{
+							CollisionResponse(actor, actee);
+						}
 					}
 				}
-				GameObject* go2 = nullptr;
-				for (unsigned j = i + 1; j < size; ++j)
-				{
-					go2 = m_goList[j];
-					GameObject* actor(go);
-					GameObject* actee(go2);
-					if (go->type != GameObject::GO_BALL)
-					{
-						actor = go2;
-						actee = go;
-					}
-					if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
-						continue;
-					}
-					if (go2->active && CheckCollision(actor, actee))
-					{
-						CollisionResponse(actor, actee);
-					}
-				}				
+			}
+			if (cPlayer2D->getState() == cPlayer2D->DEAD) {
+				currentState = lose;
 			}
 		}
-		if (cPlayer2D->getState() == cPlayer2D->DEAD) {
-			currentState = lose;
-		}
+		break;
 	}
-	break;
 	case win:
 	{
 		static bool bLButtonState = false;
@@ -710,7 +726,7 @@ void SceneCollision::Update(double dt)
 			}
 		}
 	}
-		break;
+	break;
 	}
 }
 

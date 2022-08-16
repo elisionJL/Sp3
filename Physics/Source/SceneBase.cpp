@@ -222,7 +222,7 @@ void SceneBase::Init()
 	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	GL->AddAnimation("Shoot", 0, 5);
-	GL->AddAnimation("ShootR", 6, 11);
+	GL->AddAnimation("ShootR", 6, 12);
 
 	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
@@ -230,7 +230,7 @@ void SceneBase::Init()
 	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Shotgun->AddAnimation("Shoot", 0, 5);
-	Shotgun->AddAnimation("ShootR", 6, 11);
+	Shotgun->AddAnimation("ShootR", 6, 12);
 
 	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 2, 3);
 	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
@@ -238,7 +238,7 @@ void SceneBase::Init()
 	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Pistol->AddAnimation("Shoot", 0, 2);
-	Pistol->AddAnimation("ShootR", 3, 5);
+	Pistol->AddAnimation("ShootR", 3, 6);
 
 	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 3);
 	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
@@ -246,7 +246,7 @@ void SceneBase::Init()
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Sniper->AddAnimation("Shoot", 0, 2);
-	Sniper->AddAnimation("ShootR", 3, 5);
+	Sniper->AddAnimation("ShootR", 3, 6);
 
 
 	//Shopkeeper
