@@ -1,5 +1,5 @@
 #pragma
-
+#include "Vector3.h"
 #include "../Common/DesignPatterns/SingletonTemplate.h"
 #include "GameObject.h"
 #include <vector>
@@ -18,8 +18,7 @@ public:
 	virtual void Render();
 	virtual void Exit();
 	virtual void setmeshList(Mesh* player);
-	float playerX;
-	float playerY;
+	Vector3 pos;
 	int getState();
 protected:
 	enum DIRECTION {
@@ -35,5 +34,6 @@ protected:
 	float m_worldHeight;
 	float hp;
 	float dmg;
+	Vector3 vel;
 
 };

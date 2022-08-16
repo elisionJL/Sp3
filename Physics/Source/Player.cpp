@@ -8,8 +8,8 @@ void CPlayer2D::Init()
 	dmg = 2;
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	playerX = m_worldWidth * 0.5;
-	playerY = m_worldHeight * 0.5;
+	pos.Set(m_worldWidth * 0.5, m_worldHeight * 0.5, 1);
+	vel.Set(0, 0, 0);
 	sFacingDirection = RIGHT;
 	sCurrentState = IDLE;
 }
@@ -28,32 +28,43 @@ void CPlayer2D::Update(double dt)
 		}
 	}
 	else if (hp > 0) {
+		if (Application::IsKeyPressed('Q') && sCurrentState != DODGING) {
+			sCurrentState = DODGING;
+		}
 		if (Application::IsKeyPressed('W')) {
-			playerY += 10 * dt;
-			sCurrentState = MOVING;
+			vel.y = 10;
+			if (sCurrentState != DODGING)
+				sCurrentState = MOVING;
 		}
 		else if (Application::IsKeyPressed('S')) {
-			playerY -= 10 * dt;
-			sCurrentState = MOVING;
+			vel.y = -10;
+			if (sCurrentState != DODGING)
+				sCurrentState = MOVING;
 		}
 		else {
-			sCurrentState = IDLE;
+			vel.y = 0;
+			if (sCurrentState != DODGING)
+				sCurrentState = IDLE;
 		}
 		if (Application::IsKeyPressed('D')) {
 			sFacingDirection = RIGHT;
-			sCurrentState = MOVING;
-			playerX += 10 * dt;
+			if (sCurrentState != DODGING)
+				sCurrentState = MOVING;
+			vel.x = 10;
 		}
 		else if (Application::IsKeyPressed('A')) {
 			sFacingDirection = LEFT;
-			sCurrentState = MOVING;
-			playerX -= 10 * dt;
+			if (sCurrentState != DODGING)
+				sCurrentState = MOVING;
+			vel.x = -10;
 		}
 		else {
-			if (sCurrentState == IDLE) {
+			if (sCurrentState == IDLE && sCurrentState != DODGING) {
+				vel.x = 0;
 				sCurrentState = IDLE;
 			}
 		}
+
 		switch (sCurrentState) {
 		case MOVING:
 			switch (sFacingDirection) {
@@ -75,16 +86,46 @@ void CPlayer2D::Update(double dt)
 				break;
 			}
 			break;
+		case DODGING:
+			switch (sFacingDirection) {
+			case RIGHT:
+				sa->PlayAnimation("rollR", 0, 1.f);
+				break;
+			case LEFT:
+				sa->PlayAnimation("rollL", 0, 1.f);
+				break;
+			}
+			break;
 		}
+		sa->Update(dt);
+		if (sCurrentState == DODGING) {
+			pos += vel * 2 * dt;
+			switch (sFacingDirection) {
+			case RIGHT:
+				if (sa->getAnimationStatus("rollR") == true) {
+					sCurrentState = IDLE;
+				}
+				break;
+			case LEFT:
+				if (sa->getAnimationStatus("rollL") == true) {
+					sCurrentState = IDLE;
+				}
+				break;
+			}
+		}
+		else {
+			pos += vel * dt;
+		}
+		
+
 	}
 
-	sa->Update(dt);
 }
 
 void CPlayer2D::Render()
 {
 	modelStack.PushMatrix();
-	modelStack.Translate(playerX, playerY, 1);
+	modelStack.Translate(pos.x, pos.y, 1);
 	modelStack.Scale(10, 10, 1);
 	RenderMesh(playerMesh, false);
 	modelStack.PopMatrix();
