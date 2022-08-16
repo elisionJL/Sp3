@@ -5,6 +5,7 @@
 #include <vector>
 #include "SceneBase.h"
 #include "Player.h"
+#include "Enemy.h"
 class SceneCollision : public SceneBase
 {
 public:
@@ -33,6 +34,7 @@ public:
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
+	void RenderGronkDialogue();
 protected:
 	Vector3 m_lineStart;
 	//Physics
@@ -69,6 +71,10 @@ protected:
 	int flip;
 	int rotationorder;
 	float companionX, companionY;
+
+	int DeathCount;
+	float dialogueTime;
+
 	GameObject* Gun;
 	double GunShootingTimer;
 	Mesh* CurrentGun;
@@ -78,6 +84,10 @@ protected:
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;
 	float calculateAngle(float x, float y);
+	string OutputDialogue;
+	bool CurrentTextWrite, TextFinished;
+	int CurrentCharText;
+	int randomDialogue;
 };
 
 #endif

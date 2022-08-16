@@ -20,7 +20,7 @@ void Enemy::Update(const double dElapsedTime)
 {
 }
 
-void Enemy::setSpawn()
+void Enemy::setSpawn(float x, float y,Vector3& pos)
 {
 	int spawnLocation = Math::RandIntMinMax(0, 3);
 	float w, h;
