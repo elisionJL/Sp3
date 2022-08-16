@@ -35,6 +35,7 @@ public:
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
 	void RenderGronkDialogue();
+	void SpawnTree();
 	void shooting(double elapsedTime, double prevTime, GameObject* Gun);
 protected:
 	Vector3 m_lineStart;

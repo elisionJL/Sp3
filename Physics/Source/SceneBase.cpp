@@ -180,6 +180,8 @@ void SceneBase::Init()
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
 
+	meshList[GEO_TREE] = MeshBuilder::GenerateQuad("tree", Color(1, 1, 1), 1.f);
+	meshList[GEO_TREE]->textureID = LoadTexture("Image//Tree.png", true);
 
 	meshList[GEO_LINE] = MeshBuilder::GenerateQuad("cube", Color(1, 1, 1), 1.f);
 	meshList[GEO_LINE]->textureID = LoadTexture("Image//line.png");
@@ -219,32 +221,32 @@ void SceneBase::Init()
 	meshList[GEO_GL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	GL->AddAnimation("Shoot", 0, 6);
-	GL->AddAnimation("ShootR", 6, 12);
+	GL->AddAnimation("Shoot", 0, 5);
+	GL->AddAnimation("ShootR", 6, 11);
 
 	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
 	meshList[GEO_SHOTGUN]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Shotgun->AddAnimation("Shoot", 0, 6);
-	Shotgun->AddAnimation("ShootR", 6, 12);
+	Shotgun->AddAnimation("Shoot", 0, 5);
+	Shotgun->AddAnimation("ShootR", 6, 11);
 
 	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 2, 3);
 	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
 	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Pistol->AddAnimation("Shoot", 0, 3);
-	Pistol->AddAnimation("ShootR", 3, 6);
+	Pistol->AddAnimation("Shoot", 0, 2);
+	Pistol->AddAnimation("ShootR", 3, 5);
 
 	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 3);
 	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
 	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Sniper->AddAnimation("Shoot", 0, 3);
-	Sniper->AddAnimation("ShootR", 3, 6);
+	Sniper->AddAnimation("Shoot", 0, 2);
+	Sniper->AddAnimation("ShootR", 3, 5);
 
 
 	//Shopkeeper

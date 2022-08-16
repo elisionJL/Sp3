@@ -110,8 +110,8 @@ void SceneCollision::shooting (double elapsedTime, double prevTime, GameObject* 
 		Application::GetCursorPos(&x, &y);
 		unsigned w = Application::GetWindowWidth();
 		unsigned h = Application::GetWindowHeight();
-		float posX = (x / w * m_worldWidth);
-		float posY = m_worldHeight - (y / h * m_worldHeight);
+		float posX = (x / w * m_worldWidth) + camera.position.x;
+		float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
 		Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
 		go->vel = BulVel.Normalized() * 20;
 		go->scale.Set(4.5f, 2.f, 1.0f);
@@ -197,7 +197,7 @@ void SceneCollision::Update(double dt)
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
-
+				SpawnTree();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
 			}
@@ -401,10 +401,44 @@ void SceneCollision::Update(double dt)
 					shooting = false;
 				}
 
-				if (shooting == false)
+		}
+
+		unsigned size = m_goList.size();
+
+		//Player collision
+		for (unsigned i = 0; i < size; ++i)
+		{
+			GameObject* go = m_goList[i];
+			if (go->active)
+			{
+				if (go->type == GameObject::GO_TREE)
 				{
-					SceneCollision::shooting(elapsedTime, prevTime, Gun);
+					if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) && 
+						cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+					{
+						if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
+							cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+						{
+							cPlayer2D->CollisionDetectedHorizontal(true);
+						}
+
+						else
+							cPlayer2D->CollisionDetectedHorizontal(false);
+					}
+					else if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
+						cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+					{
+						if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
+							cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+						{
+							cPlayer2D->CollisionDetectedVertical(true);
+						}
+
+						else
+							cPlayer2D->CollisionDetectedVertical(false);
+					}
 				}
+
 			}
 		}
 
@@ -413,7 +447,6 @@ void SceneCollision::Update(double dt)
 		
 
 		//Physics Simulation Section
-		unsigned size = m_goList.size();
 		for (unsigned i = 0; i < size; ++i)
 		{
 			GameObject* go = m_goList[i];
@@ -1157,6 +1190,14 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.PopMatrix();
 		//Exercise 11: think of a way to give balls different colors
 		break;
+	case GameObject::GO_TREE:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, 3);
+		modelStack.Scale(go->scale.x, go->scale.y, 1);
+		RenderMesh(meshList[GEO_TREE], false);
+		modelStack.PopMatrix();
+		break;
+
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 1.1f);
@@ -1259,10 +1300,10 @@ void SceneCollision::RenderGO(GameObject *go)
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
 		case GameObject::shotgun:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//shotgunBullet.png", true);
 			break;
 		case GameObject::sniper:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//sniperBullet.png", true);
 			break;
 		case GameObject::GL:
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
