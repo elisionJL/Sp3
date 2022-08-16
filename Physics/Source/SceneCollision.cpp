@@ -282,19 +282,40 @@ void SceneCollision::Update(double dt)
 		{
 			flip = 1;
 		}
-		if (Application::IsKeyPressed('X'))
-		{
-			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+
+
+		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+		static bool bLButtonState = false;
+		if (!bLButtonState && Application::IsMousePressed(0))
+		{			
 			if (Gun->type == GameObject::GO_BOW)
 			{
-				G->PlayAnimation("Shoot", -1, 2.0f);
+				G->PlayAnimation("Shoot", 0, 2.0f);
 			}
 			else
 			{
-				G->PlayAnimation("Shoot", -1, 1.0f);
+				float Xaxis = mousePos.x - Gun->pos.x;
+				if (Xaxis >= 0)
+					G->PlayAnimation("Shoot", 0, 1.0f);
+				else
+					G->PlayAnimation("ShootR", 0, 1.0f);
+
 			}
 			G->Update(dt);
 		}
+		else if (!Application::IsMousePressed(0))
+		{
+			bLButtonState = false;
+			if (Gun->type == GameObject::GO_BOW)
+				G->truereset();
+			//insert shooting here
+			else
+			{
+				G->Update(dt);
+			}
+
+		}
+
 
 		//Physics Simulation Section
 		unsigned size = m_goList.size();
@@ -465,8 +486,8 @@ void SceneCollision::Update(double dt)
 				}
 				if (go == Gun)
 				{
-					float Xaxis = go->pos.x - mousePos.x;
-					float Yaxis = go->pos.y - mousePos.y;
+					float Xaxis = mousePos.x - go->pos.x;
+					float Yaxis = mousePos.y - go->pos.y;
 
 					float Angle;
 					if (Xaxis <= 0 && Yaxis <= 0) {

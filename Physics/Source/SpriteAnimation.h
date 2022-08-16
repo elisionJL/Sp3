@@ -76,6 +76,8 @@ public:
 	void Pause();
 	void Resume();
 	void Reset();
+	void truereset();
+	void reset2(std::string anim_name);
 
 private:
 	//number of rows
