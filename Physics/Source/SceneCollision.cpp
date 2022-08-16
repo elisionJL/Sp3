@@ -381,7 +381,7 @@ void SceneCollision::Update(double dt)
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
 			Companion->scale.Set(7, 7, 1);
-			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+			Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
 			Companion->vel.SetZero();
 		}
 
@@ -611,7 +611,7 @@ void SceneCollision::Update(double dt)
 				}				
 			}
 		}
-		if (hp <= 0) {
+		if (cPlayer2D->getState() == cPlayer2D->DEAD) {
 			currentState = lose;
 		}
 	}
@@ -1229,7 +1229,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX + companionX, cPlayer2D->playerY + companionY, 1);
+		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 2);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
 		modelStack.PopMatrix();
@@ -1264,7 +1264,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, 2);
 		modelStack.Rotate(Math::RadianToDegree(atan2f(go->normal.y, go->normal.x)), 0, 0, 1);
-		//meshList[GEO_CUBE]->material.kAmbient(go->color.x, go->color.y, go->color.z);
+		//meshList[GEO_CUBE]->material.kAmbient(go->color.x, go->colora.y, go->color.z);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		if (go->thickWall > 0) { 
 			RenderMesh(meshList[GEO_WALL], false); 
@@ -1362,7 +1362,7 @@ void SceneCollision::Render()
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
 		modelStack.Scale(10, 10, 1);
 		RenderMesh(meshList[GEO_PLAYER], false);
 		modelStack.PopMatrix();
