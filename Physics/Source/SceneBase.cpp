@@ -211,6 +211,13 @@ void SceneBase::Init()
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
 
+	//Shopkeeper
+	meshList[GEO_GRONK] = MeshBuilder::GenerateSpriteAnimation("Gronk", 1, 12);
+	meshList[GEO_GRONK]->textureID = LoadTexture("Image//Gronk.png", true);
+	meshList[GEO_GRONK]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	gronk->AddAnimation("Idle", 0, 12);
 	bLightEnabled = true;
 }
 

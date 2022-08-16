@@ -20,6 +20,7 @@ struct GameObject
 		GO_PILLAR,
 		GO_POWERUP,
 		GO_COMPANION,
+		GO_GRONK,
 		GO_TOTAL, //must be last
 	};
 	GAMEOBJECT_TYPE type;

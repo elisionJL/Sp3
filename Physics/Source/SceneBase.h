@@ -82,6 +82,7 @@ public:
 
 
 		GEO_COMPANION,
+		GEO_GRONK,
 
 		NUM_GEOMETRY,
 	};
