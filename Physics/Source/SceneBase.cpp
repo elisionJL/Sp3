@@ -266,6 +266,17 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	gronk->AddAnimation("Idle", 0, 12);
 
+	//Slime
+	meshList[GEO_BOSS_SLIME] = MeshBuilder::GenerateSpriteAnimation("Boss Slime", 5, 6);
+	meshList[GEO_BOSS_SLIME]->textureID = LoadTexture("Image//boss_slime_sprites.png", true);
+	meshList[GEO_BOSS_SLIME]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* boss_slime = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOSS_SLIME]);
+	//Add the animations
+	boss_slime->AddAnimation("Idle", 0, 3);
+	boss_slime->AddAnimation("Jump", 4, 15);
+	boss_slime->AddAnimation("Move Right", 16, 22);
+	boss_slime->AddAnimation("Move Left", 23, 30);
+
 	bLightEnabled = true;
 }
 

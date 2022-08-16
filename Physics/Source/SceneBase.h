@@ -88,6 +88,7 @@ public:
 		GEO_PISTOL,
 		GEO_GL,
 		GEO_GRONK,
+		GEO_BOSS_SLIME,
 		NUM_GEOMETRY,
 	};
 public:

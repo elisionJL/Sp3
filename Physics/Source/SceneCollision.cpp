@@ -52,10 +52,6 @@ void SceneCollision::Init()
 	GunShootingTimer = 0;
 
 	rotationorder = 1;
-<<<<<<< HEAD
-
-=======
->>>>>>> 9a279bc32e0638a09ea21f5e685fd829de53f5d3
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -355,6 +351,18 @@ void SceneCollision::Update(double dt)
 		else if (bSpaceButtonState && !Application::IsKeyPressed(VK_SPACE)) {
 			bSpaceButtonState = false;
 		}
+
+		if (Application::IsKeyPressed('M'))
+		{
+			Vector3 Epos;
+
+			GameObject* enemy = FetchGO();
+			enemy->type = GameObject::GO_BOSS_SLIME;
+			enemy->scale.Set(1, 1, 1);
+			Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y,Epos);
+			enemy->pos = Epos;
+		}
+
 		if (Application::IsKeyPressed(VK_F9)) {
 			extendTime = 10;
 			extendMulti = 2;
@@ -1306,6 +1314,12 @@ void SceneCollision::RenderGO(GameObject *go)
 		}
 		modelStack.PopMatrix();
 		break;
+	case GameObject::GO_BOSS_SLIME:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_BOSS_SLIME], false);
+		modelStack.PopMatrix();
 	}
 }
 

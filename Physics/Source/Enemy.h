@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Source/SceneBase.h"
-#include "Source/GameObject.h"
-#include "Source/Application.h"
+#include "SceneBase.h"
+#include "GameObject.h"
+#include "Application.h"
 
 class Enemy
 {
@@ -16,7 +16,7 @@ public:
 	//update
 	void Update(const double dElapsedTime);
 	
-	void setSpawn();
+	static void setSpawn(float x, float y,Vector3& pos);
 
 	//public vars
 	float x, y;

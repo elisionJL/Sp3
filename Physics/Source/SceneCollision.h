@@ -5,6 +5,7 @@
 #include <vector>
 #include "SceneBase.h"
 #include "Player.h"
+#include "Enemy.h"
 class SceneCollision : public SceneBase
 {
 public:
