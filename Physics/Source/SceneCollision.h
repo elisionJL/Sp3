@@ -81,8 +81,16 @@ protected:
 	int flip;
 	int rotationorder;
 	float companionX, companionY;
+
 	int DeathCount;
 	float dialogueTime;
+
+	GameObject* Gun;
+	double GunShootingTimer;
+	Mesh* CurrentGun;
+
+	string GronkDialogue[50];
+
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;
 	string OutputDialogue;

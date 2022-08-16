@@ -39,6 +39,7 @@ void SceneCollision::Init()
 	dialogueTime = 0;
 	//Companion->mass = 1;
 	Companion = FetchGO();
+	Gun = FetchGO();
 	Companion->mass = 1;
 	flip = 1;
 	OutputDialogue = "";
@@ -50,6 +51,8 @@ void SceneCollision::Init()
 
 	companionX = 9;
 	companionY = 9;
+
+	GunShootingTimer = 0;
 
 	rotationorder = 1;
 }
@@ -133,6 +136,35 @@ void SceneCollision::Update(double dt)
 				rechargeTime = 0;
 				extendTime = 0;
 				extendMulti = 1;
+				Gun->type = GameObject::GO_PISTOL;
+				Gun->mass = 2;
+				if (Gun->type == GameObject::GO_GL)
+				{
+					Gun->scale.Set(7, 3.5, 1);
+					CurrentGun = meshList[GEO_GL];
+				}
+				else if (Gun->type == GameObject::GO_BOW)
+				{
+					Gun->scale.Set(7, 7, 1);
+					CurrentGun = meshList[GEO_BOW];
+				}
+				else if (Gun->type == GameObject::GO_SHOTGUN)
+				{
+					Gun->scale.Set(7, 3.5, 1);
+					CurrentGun = meshList[GEO_SHOTGUN];
+				}
+				else if (Gun->type == GameObject::GO_SNIPER)
+				{
+					Gun->scale.Set(15, 5, 1);
+					CurrentGun = meshList[GEO_SNIPER];
+				}
+				else if (Gun->type == GameObject::GO_PISTOL)
+				{
+					Gun->scale.Set(3, 1, 1);
+					CurrentGun = meshList[GEO_PISTOL];
+				}
+				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
+				Gun->vel.SetZero();
 
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
@@ -379,7 +411,7 @@ void SceneCollision::Update(double dt)
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
 			Companion->scale.Set(7, 7, 1);
-			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+			Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
 			Companion->vel.SetZero();
 		}
 
@@ -390,6 +422,19 @@ void SceneCollision::Update(double dt)
 		if (Application::IsKeyPressed('D'))
 		{
 			flip = 1;
+		}
+		if (Application::IsKeyPressed('X'))
+		{
+			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+			if (Gun->type == GameObject::GO_BOW)
+			{
+				G->PlayAnimation("Shoot", -1, 2.0f);
+			}
+			else
+			{
+				G->PlayAnimation("Shoot", -1, 1.0f);
+			}
+			G->Update(dt);
 		}
 
 		//Physics Simulation Section
@@ -500,71 +545,73 @@ void SceneCollision::Update(double dt)
 				}
 				if (go->type == GameObject::GO_COMPANION)
 				{
+
 					float moveXby;
 					float moveYby;
-					if (rotationorder == 1)
 					{
-						moveXby = -0.5;
-						moveYby = 0.2;
-						if (companionX <= 0)
-							rotationorder++;
+						if (rotationorder == 1)
+						{
+							moveXby = -0.5;
+							moveYby = 0.2;
+							if (companionX <= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 2)
+						{
+							moveXby = -0.5;
+							moveYby = -0.2;
+							if (companionX <= -9)
+								rotationorder++;
+						}
+						else if (rotationorder == 3)
+						{
+							moveXby = -0.2;
+							moveYby = -0.5;
+							if (companionY <= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 4)
+						{
+							moveXby = 0.2;
+							moveYby = -0.5;
+							if (companionY <= -9)
+								rotationorder++;
+						}
+						else if (rotationorder == 5)
+						{
+							moveXby = 0.5;
+							moveYby = -0.2;
+							if (companionX >= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 6)
+						{
+							moveXby = 0.5;
+							moveYby = 0.2;
+							if (companionX >= 9)
+								rotationorder++;
+						}
+						else if (rotationorder == 7)
+						{
+							moveXby = 0.2;
+							moveYby = 0.5;
+							if (companionY >= 0)
+								rotationorder++;
+						}
+						else
+						{
+							moveXby = -0.2;
+							moveYby = 0.5;
+							if (companionY >= 9)
+								rotationorder = 1;
+						}
 					}
-					else if (rotationorder == 2)
-					{
-						moveXby = -0.5;
-						moveYby = -0.2;
-						if (companionX <= -9)
-							rotationorder++;
-					}
-					else if (rotationorder == 3)
-					{
-						moveXby = -0.2;
-						moveYby = -0.5;
-						if (companionY <= 0)
-							rotationorder++;
-					}
-					else if (rotationorder == 4)
-					{
-						moveXby = 0.2;
-						moveYby = -0.5;
-						if (companionY <= -9)
-							rotationorder++;
-					}
-					else if (rotationorder == 5)
-					{
-						moveXby = 0.5;
-						moveYby = -0.2;
-						if (companionX >= 0)
-							rotationorder++;
-					}
-					else if (rotationorder == 6)
-					{
-						moveXby = 0.5;
-						moveYby = 0.2;
-						if (companionX >= 9)
-							rotationorder++;
-					}
-					else if (rotationorder == 7)
-					{
-						moveXby = 0.2;
-						moveYby = 0.5;
-						if (companionY >= 0)
-							rotationorder++;
-					}
-					else
-					{
-						moveXby = -0.2;
-						moveYby = 0.5;
-						if (companionY >= 9)
-							rotationorder = 1;
-					}
-
 					companionX += moveXby;
 					companionY += moveYby;
 
 
 					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
-					//Play the animation “ROW1” that is looping infinitely and
+					//Play the animation ï¿½ROW1ï¿½ that is looping infinitely and
 					//each animation completes in 2 sec
 					if (flip == 1)
 						Companion->PlayAnimation("RunningR", -1, 2.0f);
@@ -572,6 +619,29 @@ void SceneCollision::Update(double dt)
 						Companion->PlayAnimation("RunningL", -1, 2.0f);
 
 					Companion->Update(dt);
+				}
+				if (go == Gun)
+				{
+					float Xaxis = go->pos.x - mousePos.x;
+					float Yaxis = go->pos.y - mousePos.y;
+
+					float Angle;
+					if (Xaxis <= 0 && Yaxis <= 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis < 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis > 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else if (Xaxis > 0 && Yaxis < 0) {
+						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else {
+						Angle = 0;
+					}
+					go->angle = Angle;
 				}
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -594,7 +664,7 @@ void SceneCollision::Update(double dt)
 				}				
 			}
 		}
-		if (hp <= 0) {
+		if (cPlayer2D->getState() == cPlayer2D->DEAD) {
 			currentState = lose;
 		}
 	}
@@ -1254,7 +1324,7 @@ void SceneCollision::RenderGO(GameObject *go)
 	//this is to render the animations for the mesh
 	//In Update
 	//sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
-	////Play the animation “ROW1” that is looping infinitely and
+	////Play the animation ï¿½ROW1ï¿½ that is looping infinitely and
 	////each animation completes in 2 sec
 	//sa->PlayAnimation("ROW1", -1, 2.0f);
 	//sa->Update(dt);
@@ -1273,9 +1343,49 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX + companionX, cPlayer2D->playerY + companionY, 1);
+		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 1.1f);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_BOW:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y , 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_BOW], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_GL:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_GL], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_SHOTGUN:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_SHOTGUN], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_SNIPER:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_SNIPER], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_PISTOL:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_PISTOL], true);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_GRONK:
@@ -1289,7 +1399,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, 2);
 		modelStack.Rotate(Math::RadianToDegree(atan2f(go->normal.y, go->normal.x)), 0, 0, 1);
-		//meshList[GEO_CUBE]->material.kAmbient(go->color.x, go->color.y, go->color.z);
+		//meshList[GEO_CUBE]->material.kAmbient(go->color.x, go->colora.y, go->color.z);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		if (go->thickWall > 0) { 
 			RenderMesh(meshList[GEO_WALL], false); 
@@ -1414,7 +1524,7 @@ void SceneCollision::Render()
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
 		modelStack.Scale(10, 10, 1);
 		RenderMesh(meshList[GEO_PLAYER], false);
 		modelStack.PopMatrix();

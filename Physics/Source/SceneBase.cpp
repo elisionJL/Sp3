@@ -127,8 +127,14 @@ void SceneBase::Init()
 	meshList[GEO_PLAYER]->textureID = LoadTexture("Image//playerSpriteSheet.psd", true);
 	meshList[GEO_PLAYER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
+	sa->AddAnimation("idleR", 0, 7);
+	sa->AddAnimation("idleL", 10, 17);
 	sa->AddAnimation("walkR", 30, 39);
 	sa->AddAnimation("walkL", 20, 29);
+	sa->AddAnimation("rollL", 40, 48);
+	sa->AddAnimation("rollR", 50, 58);
+	sa->AddAnimation("death", 60, 67);
+
 
 	meshList[GEO_BOUNCE] = MeshBuilder::GenerateQuad("bounce", Color(1, 1, 1), 1.f);
 	meshList[GEO_BOUNCE]->textureID = LoadTexture("Image//bounceWall.png", true);
@@ -214,6 +220,42 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
+
+	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 3, 6);
+	meshList[GEO_BOW]->textureID = LoadTexture("Image//bow.png", true);
+	meshList[GEO_BOW]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Bow = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOW]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	Bow->AddAnimation("Shoot", 0, 13);
+
+	meshList[GEO_GL] = MeshBuilder::GenerateSpriteAnimation("GL", 1, 6);
+	meshList[GEO_GL]->textureID = LoadTexture("Image//GL.png", true);
+	meshList[GEO_GL]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	GL->AddAnimation("Shoot", 0, 6);
+
+	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 6);
+	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
+	meshList[GEO_SHOTGUN]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	Shotgun->AddAnimation("Shoot", 0, 6);
+
+	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 1, 3);
+	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
+	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	Pistol->AddAnimation("Shoot", 0, 3);
+
+	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 1, 3);
+	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
+	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	Sniper->AddAnimation("Shoot", 0, 3);
+
 
 	//Shopkeeper
 	meshList[GEO_GRONK] = MeshBuilder::GenerateSpriteAnimation("Gronk", 1, 12);
