@@ -25,6 +25,7 @@ struct GameObject
 		GO_BOW,
 		GO_PISTOL,
 		GO_GL,
+		GO_GRONK,
 		GO_TOTAL, //must be last
 	};
 	GAMEOBJECT_TYPE type;

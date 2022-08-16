@@ -43,12 +43,16 @@ void SceneCollision::Init()
 	Companion->mass = 1;
 	flip = 1;
 
+	Gronk = FetchGO();
+	Gronk->mass = 1;
+
 	companionX = 9;
 	companionY = 9;
 
 	GunShootingTimer = 0;
 
 	rotationorder = 1;
+	GronkDialogue[50] = {"Welcome to Gronk Shop!", "Gronk has many stuff!", "Player died " + }
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -167,6 +171,13 @@ void SceneCollision::Update(double dt)
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(4);
+
+				Gronk->type = GameObject::GO_GRONK;
+				Gronk->mass = 5;
+				Gronk->scale.Set(1, 1, 1);
+				Gronk->pos.Set(m_worldWidth / 2, m_worldHeight * 0.4, 1);
+				Gronk->vel.SetZero();
+
 				currentState = shop;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.17 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.17) && (mousePos.y <= (m_worldHeight * 0.1) + 4.75 && mousePos.y >= (m_worldHeight * 0.1) - 4.75)) {
@@ -180,9 +191,14 @@ void SceneCollision::Update(double dt)
 		break;
 	}
 	case shop:
+	{
+		SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
+		gronk->PlayAnimation("Idle", -1, 2.f);
+		gronk->Update(dt);
 		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) { //Back button
 		}
 		break;
+	}
 	case main:
 	{
 		seconds -= dt;
@@ -381,7 +397,7 @@ void SceneCollision::Update(double dt)
 		if (Application::IsKeyPressed('X'))
 		{
 			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
-			//Play the animation “ROW1” that is looping infinitely and
+			//Play the animation ï¿½ROW1ï¿½ that is looping infinitely and
 			//each animation completes in 2 sec
 			if (Gun->type == GameObject::GO_BOW)
 			{
@@ -569,7 +585,7 @@ void SceneCollision::Update(double dt)
 
 
 					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
-					//Play the animation “ROW1” that is looping infinitely and
+					//Play the animation ï¿½ROW1ï¿½ that is looping infinitely and
 					//each animation completes in 2 sec
 					if (flip == 1)
 						Companion->PlayAnimation("RunningR", -1, 2.0f);
@@ -1198,7 +1214,7 @@ void SceneCollision::RenderGO(GameObject *go)
 	//this is to render the animations for the mesh
 	//In Update
 	//sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
-	////Play the animation “ROW1” that is looping infinitely and
+	////Play the animation ï¿½ROW1ï¿½ that is looping infinitely and
 	////each animation completes in 2 sec
 	//sa->PlayAnimation("ROW1", -1, 2.0f);
 	//sa->Update(dt);
@@ -1241,6 +1257,11 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 2);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_SHOTGUN], true);
+	case GameObject::GO_GRONK:
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 3) * 2.5f, m_worldHeight * 0.4, 2);
+		modelStack.Scale(20, 20, 1);
+		RenderMesh(meshList[GEO_GRONK], true);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_WALL:
@@ -1321,6 +1342,14 @@ void SceneCollision::Render()
 		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.5, 0);
 		RenderMesh(meshList[GEO_SHOP_SIGN], false);
 		modelStack.PopMatrix();
+
+		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+		{
+			GameObject* go = (GameObject*)*it;
+			if (go->active)
+				if(go->type == GameObject::GO_GRONK)
+				RenderGO(go);
+		}
 		break;
 	case main:
 	{

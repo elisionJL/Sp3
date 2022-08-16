@@ -87,6 +87,7 @@ public:
 		GEO_BOW,
 		GEO_PISTOL,
 		GEO_GL,
+		GEO_GRONK,
 		NUM_GEOMETRY,
 	};
 public:
