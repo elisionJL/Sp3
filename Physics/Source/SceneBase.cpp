@@ -180,6 +180,8 @@ void SceneBase::Init()
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
 
+	meshList[GEO_TREE] = MeshBuilder::GenerateQuad("tree", Color(1, 1, 1), 1.f);
+	meshList[GEO_TREE]->textureID = LoadTexture("Image//Tree.png", true);
 
 	meshList[GEO_LINE] = MeshBuilder::GenerateQuad("cube", Color(1, 1, 1), 1.f);
 	meshList[GEO_LINE]->textureID = LoadTexture("Image//line.png");

@@ -156,7 +156,7 @@ void SceneCollision::Update(double dt)
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
-
+				SpawnTree();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
 			}
@@ -324,9 +324,46 @@ void SceneCollision::Update(double dt)
 
 		}
 
+		unsigned size = m_goList.size();
+
+		//Player collision
+		for (unsigned i = 0; i < size; ++i)
+		{
+			GameObject* go = m_goList[i];
+			if (go->active)
+			{
+				if (go->type == GameObject::GO_TREE)
+				{
+					if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) && 
+						cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+					{
+						if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
+							cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+						{
+							cPlayer2D->CollisionDetectedHorizontal(true);
+						}
+
+						else
+							cPlayer2D->CollisionDetectedHorizontal(false);
+					}
+					else if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
+						cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+					{
+						if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
+							cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+						{
+							cPlayer2D->CollisionDetectedVertical(true);
+						}
+
+						else
+							cPlayer2D->CollisionDetectedVertical(false);
+					}
+				}
+
+			}
+		}
 
 		//Physics Simulation Section
-		unsigned size = m_goList.size();
 		for (unsigned i = 0; i < size; ++i)
 		{
 			GameObject* go = m_goList[i];
@@ -1017,6 +1054,16 @@ void SceneCollision::RenderGronkDialogue()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Gronk", Color(0, 0.75f, 0), 2.5f, 9, 11);
 	modelStack.PopMatrix();
 }
+void SceneCollision::SpawnTree()
+{
+	GameObject* Tree = FetchGO();
+	Tree->type = GameObject::GO_TREE;
+	Tree->scale.Set(10, 20, 1);
+	Tree->pos.Set(m_worldWidth / 2 + m_worldWidth / 3, m_worldHeight / 2, 1);
+	Tree->normal.Set(0, 1, 0);
+	Tree->color.Set(1, 0, 1);
+	Tree->vel.SetZero();
+}
 float SceneCollision::calculateAngle(float x, float y)
 {
 	float angle;
@@ -1059,6 +1106,14 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.PopMatrix();
 		//Exercise 11: think of a way to give balls different colors
 		break;
+	case GameObject::GO_TREE:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, 3);
+		modelStack.Scale(go->scale.x, go->scale.y, 1);
+		RenderMesh(meshList[GEO_TREE], false);
+		modelStack.PopMatrix();
+		break;
+
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 1.1f);

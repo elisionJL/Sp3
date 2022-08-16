@@ -35,6 +35,7 @@ public:
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
 	void RenderGronkDialogue();
+	void SpawnTree();
 protected:
 	Vector3 m_lineStart;
 	//Physics
