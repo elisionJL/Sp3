@@ -102,13 +102,12 @@ void CPlayer2D::Update(double dt)
 			pos += vel * 2 * dt;
 			switch (sFacingDirection) {
 			case RIGHT:
-				if (sa->getAnimationStatus("rollR") == true) {
+				if (sa->getAnimationStatus("rollR") == false) {
 					sCurrentState = IDLE;
-					sa->Reset();
 				}
 				break;
 			case LEFT:
-				if (sa->getAnimationStatus("rollL") == true) {
+				if (sa->getAnimationStatus("rollL") == false) {
 					sCurrentState = IDLE;
 				}
 				break;

@@ -4,6 +4,7 @@
 #include "LoadTexture.h"
 #include <sstream>
 #include "SpriteAnimation.h"
+#include "LoadTexture.h"
 SceneCollision::SceneCollision()
 {
 }
@@ -27,14 +28,8 @@ void SceneCollision::Init()
 	m_speed = 1.f;
 	score = 0;
 	thickWall = 0;
-	thinWall = 0;
-	activeWalls = 0;
 	Math::InitRNG();
 	m_objectCount = 0;
-	waveTime = 11;
-	maxBalls = 2;
-	ballcount = 0;
-	rechargeBall = 5;
 	cSoundController->PlaySoundByID(1);
 	dialogueTime = 0;
 	//Companion->mass = 1;
@@ -126,23 +121,13 @@ void SceneCollision::Update(double dt)
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
 				currentState = main;
-				hp = 10;
 				score = 0;
+				elapsedTime = 0;
+				prevTime = 0;
 				m_objectCount = 0;
-				waveTime = 11;
-				maxBalls = 2;
-				ballcount = 0;
-				rechargeBall = 5;
-				thickWall = 0;
-				thinWall = 0;
-				activeWalls = 0;
 				minutes = 2;
 				seconds = 30;
-				rechargeMulti = 1;
-				rechargeTime = 0;
-				extendTime = 0;
-				extendMulti = 1;
-				Gun->type = GameObject::GO_PISTOL;
+				Gun->type = GameObject::GO_BOW;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -247,172 +232,46 @@ void SceneCollision::Update(double dt)
 			minutes -= 1;
 			seconds += 60;
 		}
-		static bool bLButtonState = false;
-		if (activeWalls < 15) {
-			if (!bLButtonState && Application::IsMousePressed(0))
-			{
-				bLButtonState = true;
-				std::cout << "LBUTTON DOWN" << std::endl;
-
-				if (mousePos.y > m_worldHeight * 0.4f) {
-					mousePos.y = m_worldHeight * 0.4f;
+		elapsedTime += dt;
+		if (Application::IsMousePressed(0)) {
+			double x = 0, y = 0;
+			float diff = elapsedTime - prevTime;
+			if (diff > 0.2) {
+				GameObject* go = FetchGO();
+				go->type = GameObject::GO_PROJECTILE;
+				switch (Gun->type) {
+				case GameObject::GO_PISTOL:
+					go->proj = GameObject::pistol;
+					break;
+				case GameObject::GO_SHOTGUN:
+					go->proj = GameObject::shotgun;
+					break;
+				case GameObject::GO_BOW:
+					go->proj = GameObject::bow;
+					break;
+				case GameObject::GO_GL:
+					go->proj = GameObject::GL;
+					break;
+				case GameObject::GO_SNIPER:
+					go->proj = GameObject::sniper;
+					break;
 				}
-				m_lineStart = mousePos;
-			}
-			else if (bLButtonState && !Application::IsMousePressed(0))
-			{
-				bLButtonState = false;
-				std::cout << "LBUTTON UP" << std::endl;
-				for (unsigned i = 0; i < m_goList.size(); ++i)
-				{
-					GameObject* go = m_goList[i];
-					if (go->thinWall == 0) {
-						if (go->placed == false) {
-							go->active = false;
-						}
-					}
-				}
-				if (mousePos.y > m_worldHeight * 0.4f) {
-					mousePos.y = m_worldHeight * 0.4f;
-				}
-				Vector3 vecLength = (mousePos - m_lineStart);
-				if (vecLength.Length() > (15*extendMulti)) {
-					vecLength *= ((15 * extendMulti) / vecLength.Length());
-				}
-				float length = vecLength.Length();
-				float width = 3;
-				if (vecLength.Length() > 0) {
-					Vector3 normal = Vector3(-vecLength.y, vecLength.x, 0).Normalize();
-					MakeThinWall(width, length, normal, m_lineStart + (vecLength * 0.5), true);
-				}
-			}
-
-			//left mouse button held down
-			if (Application::IsMousePressed(0)) {
-				for (unsigned i = 0; i < m_goList.size(); ++i)
-				{
-					GameObject* go = m_goList[i];
-					if (go->thinWall == 0) {
-						if (go->placed == false) {
-							go->active = false;
-						}
-					}
-				}
-				if (mousePos.y > m_worldHeight * 0.4f) {
-					mousePos.y = m_worldHeight * 0.4f;
-				}
-				Vector3 vecLength = (mousePos - m_lineStart);
-				if (vecLength.Length() > (15 * extendMulti)) {
-					vecLength *= ((15 * extendMulti) / vecLength.Length());
-				}
-				float length = vecLength.Length();
-				float width = 3;
-				if (vecLength.Length() > 0) {
-					Vector3 normal = Vector3(-vecLength.y, vecLength.x, 0).Normalize();
-					MakeThinWall(width, length, normal, m_lineStart + (vecLength * 0.5), false);
-				}
-			}
-			//right click to make bouncy walls
-			static bool bRButtonState = false;
-			if (!bRButtonState && Application::IsMousePressed(1)) {
-				bRButtonState = true;
-				if (mousePos.y > m_worldHeight * 0.4f) {
-					mousePos.y = m_worldHeight * 0.4f;
-				}
-				m_lineStart = mousePos;
-				prevPos = mousePos;
-			}
-			else if (bRButtonState && !Application::IsMousePressed(1)) {
-				bRButtonState = false;
-				for (unsigned i = 0; i < m_bouncerList.size(); ++i)
-				{
-					GameObject* go = m_bouncerList[i];
-					go->active = false;
-					go->linestart.SetZero();
-					go->lineEnd.SetZero();
-				}
-				int size = m_bouncerList.size();
-				for (unsigned i = 0; i < size; ++i)
-				{
-					m_bouncerList.erase(m_bouncerList.begin());
-				}
-
-
-			}
-			if (Application::IsMousePressed(1)) {
-				for (unsigned i = 0; i < m_bouncerList.size(); ++i)
-				{
-					GameObject* go = m_bouncerList[i];
-					go->active = false;
-					go->linestart.SetZero();
-					go->lineEnd.SetZero();
-
-				}
-				int size = m_bouncerList.size();
-				for (unsigned i = 0; i < size; ++i)
-				{
-					m_bouncerList.erase(m_bouncerList.begin());
-				}
-				if (mousePos.y > m_worldHeight * 0.4f) {
-					mousePos.y = m_worldHeight * 0.4f;
-				}
-				Vector3 vecLength = (mousePos - m_lineStart);
-				if (vecLength.Length() > 15) {
-					vecLength *= (15 / vecLength.Length());
-				}
-				float length = vecLength.Length();
-				float width = 3;
-				if (vecLength.Length() > 0) {
-					Vector3 normal = Vector3(-vecLength.y, vecLength.x, 0).Normalize();
-					MakeBounceWall(width, length, normal, m_lineStart + (vecLength * 0.5), m_lineStart, mousePos);
-					prevPos = mousePos;
-				}
+				go->pos = cPlayer2D->pos;
+				go->pos.z += 2;
+				Application::GetCursorPos(&x, &y);
+				unsigned w = Application::GetWindowWidth();
+				unsigned h = Application::GetWindowHeight();
+				float posX = (x / w * m_worldWidth);
+				float posY = m_worldHeight - (y / h * m_worldHeight);
+				Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
+				go->vel = BulVel.Normalized() * 20;
+				go->scale.Set(4.5f, 2.f, 1.0f);
+				go->angle = calculateAngle(BulVel.x, BulVel.y);
+				prevTime = elapsedTime;
 			}
 		}
-		if (rechargeBall < (5 * float((1 / rechargeMulti)))) {
-			rechargeBall += dt;
-		}
-		static bool bSpaceButtonState = false;
-		if (!bSpaceButtonState && Application::IsKeyPressed(VK_SPACE)) {
-			bSpaceButtonState = true;
-			if (ballcount < maxBalls && rechargeBall >= (5 * (1 / rechargeMulti))) {
-				GameObject* ball = FetchGO();	
-				ball->type = GameObject::GO_BALL;
-				ball->mass = 5;
-				ball->scale.Set(2, 2, 1);
-				ball->vel.SetZero();
-				ball->pos.Set(m_worldWidth * 0.5, m_worldHeight * 0.2, 0);
-				++ballcount;
-				rechargeBall = 0;
-			}
-		}
-		else if (bSpaceButtonState && !Application::IsKeyPressed(VK_SPACE)) {
-			bSpaceButtonState = false;
-		}
-		if (Application::IsKeyPressed(VK_F9)) {
-			extendTime = 10;
-			extendMulti = 2;
-		}
-		if (Application::IsKeyPressed(VK_F10)) {
-			rechargeMulti = 2;
-			rechargeTime = 15;
-		}
-		waveTime += dt;
-		if (waveTime > 10) {
-			waveTime = 0;
-			renderBricks();
-		}
-		if (extendTime > 0) {
-			extendTime -= dt;
-			if (extendTime <= 0) {
-				extendMulti = 1;
-			}
-		}
-		if (rechargeTime > 0) {
-			rechargeTime -= dt;
-			if (rechargeTime <= 0) {
-				rechargeMulti = 1;
-			}
+		switch (Gun->type) {
+			//case GameObject 
 		}
 		if (Application::IsKeyPressed('E') && Companion->mass == 1)
 		{
@@ -431,23 +290,43 @@ void SceneCollision::Update(double dt)
 		{
 			flip = 1;
 		}
-		if (Application::IsKeyPressed('X'))
-		{
-			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+
+
+		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+		static bool bLButtonState = false;
+		if (!bLButtonState && Application::IsMousePressed(0))
+		{			
 			if (Gun->type == GameObject::GO_BOW)
 			{
-				G->PlayAnimation("Shoot", -1, 2.0f);
+				G->PlayAnimation("Shoot", 0, 2.0f);
 			}
 			else
 			{
-				G->PlayAnimation("Shoot", -1, 1.0f);
+				float Xaxis = mousePos.x - Gun->pos.x;
+				if (Xaxis >= 0)
+					G->PlayAnimation("Shoot", 0, 1.0f);
+				else
+					G->PlayAnimation("ShootR", 0, 1.0f);
+
 			}
 			G->Update(dt);
 		}
+		else if (!Application::IsMousePressed(0))
+		{
+			bLButtonState = false;
+			if (Gun->type == GameObject::GO_BOW)
+				G->truereset();
+			//insert shooting here
+			else
+			{
+				G->Update(dt);
+			}
+
+		}
+
 
 		//Physics Simulation Section
 		unsigned size = m_goList.size();
-		ballcount = 0;
 		for (unsigned i = 0; i < size; ++i)
 		{
 			GameObject* go = m_goList[i];
@@ -465,7 +344,6 @@ void SceneCollision::Update(double dt)
 				}
 				else if (go->placed == true && go->activeTime < 0 && go->thinWall > 0) {
 					go->active = false;
-					activeWalls--;
 					continue;
 				}
 				go->pos += go->vel * dt * m_speed;
@@ -503,7 +381,6 @@ void SceneCollision::Update(double dt)
 						}
 						prev = i;
 					}
-					hp -= 1;
 				}
 				// Handle X-Axis Bound
 				if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
@@ -514,11 +391,6 @@ void SceneCollision::Update(double dt)
 
 				if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
 
-					if (go->type == GameObject::GO_BALL) {
-						if (ballcount > 0) {
-							--ballcount;
-						}
-					}
 					ReturnGO(go);
 					continue;
 				}
@@ -532,11 +404,6 @@ void SceneCollision::Update(double dt)
 
 					if (go->pos.y < 0 || go->pos.y > m_worldHeight)
 					{
-						if (go->type == GameObject::GO_BALL) {
-							if (ballcount > 0) {
-								--ballcount;
-							}
-						}
 						ReturnGO(go);
 						continue;
 					}
@@ -547,9 +414,6 @@ void SceneCollision::Update(double dt)
 						ReturnGO(go);
 						continue;
 					}
-				}
-				if (go->type == GameObject::GO_BALL) {
-					++ballcount;
 				}
 				if (go->type == GameObject::GO_COMPANION)
 				{
@@ -630,8 +494,8 @@ void SceneCollision::Update(double dt)
 				}
 				if (go == Gun)
 				{
-					float Xaxis = go->pos.x - mousePos.x;
-					float Yaxis = go->pos.y - mousePos.y;
+					float Xaxis = mousePos.x - go->pos.x;
+					float Yaxis = mousePos.y - go->pos.y;
 
 					float Angle;
 					if (Xaxis <= 0 && Yaxis <= 0) {
@@ -684,25 +548,11 @@ void SceneCollision::Update(double dt)
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
 				currentState = main;
-				hp = 10;
 				score = 0;
 				m_objectCount = 0;
-				waveTime = 11;
-				maxBalls = 2;
-				ballcount = 0;
-				rechargeBall = 5;
-				thickWall = 0;
-				thinWall = 0;
-				activeWalls = 0;
 				minutes = 2;
-				seconds = 30;
-				rechargeMulti = 1;
-				rechargeTime = 0;
-				extendTime = 0;
-				extendMulti = 1;
+				seconds = 30;;
 				m_goList.clear();
-				m_bouncerList.clear();
-				m_thinWallList.clear();
 				m_thickWallList.clear();
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
@@ -718,25 +568,11 @@ void SceneCollision::Update(double dt)
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
 				currentState = main;
-				hp = 10;
 				score = 0;
 				m_objectCount = 0;
-				waveTime = 11;
-				maxBalls = 2;
-				ballcount = 0;
-				rechargeBall = 5;
-				thickWall = 0;
-				thinWall = 0;
-				activeWalls = 0;
 				minutes = 2;
 				seconds = 30;
-				rechargeMulti = 1;
-				rechargeTime = 0;
-				extendTime = 0;
-				extendMulti = 1;
 				m_goList.clear();
-				m_bouncerList.clear();
-				m_thinWallList.clear();
 				m_thickWallList.clear();
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
@@ -957,132 +793,10 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 		break;
 	}
 	case GameObject::GO_POWERUP:
-		switch (go2->PU) {
-		case GameObject::heal:
-			hp = 10;
-			break;
-		case GameObject::rechargeUp:
-			rechargeMulti = 2;
-			rechargeTime = 15.f;
-			break;
-		case GameObject::ballUp:
-			++maxBalls;
-			break;
-		case GameObject::extend:
-			extendTime = 10;
-			extendMulti = 2;
-			break;
-		}
 		go2->active = false;
 		break;
 	}
-}
-void SceneCollision::MakeBounceWall(float width, float height, const Vector3& normal, const Vector3& pos, Vector3& start, Vector3& end) {
-	GameObject* go = FetchGO();
-	go->type = GameObject::GO_WALL;
-	go->scale.Set(width, height, 1.0f);
-	go->pos = pos;
-	std::cout << "x: " << normal.x << " y: " << normal.y << std::endl;
-	go->normal = normal;
-	go->vel.SetZero();
-	go->linestart = start;
-	go->lineEnd = end;
-	go->prevpos = prevPos;
-	go->mass = 5;
-
-	Vector3 tangent(-normal.y, normal.x);
-	GameObject* pillar1 = FetchGO();
-	pillar1->type = GameObject::GO_PILLAR;
-	pillar1->color.Set(0, 1, 0);
-	pillar1->scale.Set(width * 0.5f, width * 0.5f, 1.f);
-	pillar1->pos = pos + height * 0.5 * tangent;
-	pillar1->vel.SetZero();
-	pillar1->linestart = start;
-	pillar1->prevpos = prevPos;
-	pillar1->lineEnd = end;
-	pillar1->mass = 5;
-
-	//pillar 2
-	GameObject* pillar2 = FetchGO();
-	pillar2->type = GameObject::GO_PILLAR;
-	pillar2->color.Set(0, 1, 0);
-	pillar2->scale.Set(width * 0.5f, width * 0.5f, 1.f);
-	pillar2->pos = pos - height * 0.5 * tangent;
-	pillar2->vel.SetZero();
-	pillar2->linestart = start;
-	pillar2->prevpos = prevPos;
-	pillar2->lineEnd = end;
-	pillar2->mass = 5;
-
-	go->thinWall = 0;
-	pillar1->thinWall = 0;
-	pillar2->thinWall = 0;
-	go->placed = true;
-	m_bouncerList.push_back(go);
-	pillar1->placed = true;
-	pillar2->placed = true;
-	m_bouncerList.push_back(pillar1);
-	m_bouncerList.push_back(pillar2);
-	go->bounce = true;
-	pillar1->bounce = true;
-	pillar2->bounce = true;
-}
-void SceneCollision::MakeThinWall(float width, float height, const Vector3& normal, const Vector3& pos, bool real)
-{
-	GameObject* go = FetchGO();
-	go->type = GameObject::GO_WALL;
-	go->scale.Set(width, height, 1.0f);
-	go->pos = pos;
-	std::cout << "x: " << normal.x << " y: " << normal.y << std::endl;
-	go->normal = normal;
-	go->vel.SetZero();
-	go->mass = 5;
-
-	Vector3 tangent(-normal.y, normal.x);
-	GameObject* pillar1 = FetchGO();
-	pillar1->type = GameObject::GO_PILLAR;
-	pillar1->color.Set(0, 1, 0);
-	pillar1->scale.Set(width * 0.5f, width * 0.5f, 1.f);
-	pillar1->pos = pos + height * 0.5 * tangent;
-	pillar1->vel.SetZero();
-	pillar1->mass = 5;
-
-	//pillar 2
-	GameObject* pillar2 = FetchGO();
-	pillar2->type = GameObject::GO_PILLAR;
-	pillar2->color.Set(0, 1, 0);
-	pillar2->scale.Set(width * 0.5f, width * 0.5f, 1.f);
-	pillar2->pos = pos - height* 0.5 * tangent;
-	pillar2->vel.SetZero();
-	pillar2->mass = 5;
-
-
-	if (real == true) {
-		if (thinWall == 11) {
-			thinWall = 0;
-		}
-		thinWall++;
-		go->thinWall = thinWall;
-		pillar1->thinWall = thinWall;
-		pillar2->thinWall = thinWall;
-		go->placed = true;
-		m_thinWallList.push_back(go);
-		pillar1->placed = true;
-		pillar2->placed = true;
-		m_thinWallList.push_back(pillar1);
-		m_thinWallList.push_back(pillar2);
-		activeWalls += 3;
-	}
-	else
-	{
-		go->thinWall = 0;
-		pillar1->thinWall = 0;
-		pillar2->thinWall = 0;
-		go->placed = false;
-		pillar1->placed = false;
-		pillar2->placed = false;
-	}
-}
+} 
 
 void SceneCollision::MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos)
 {
@@ -1196,32 +910,8 @@ void SceneCollision::spawnPowerup(Vector3 pos)
 		}
 	}
 }
-void SceneCollision::renderBricks()
-{
-	float width = 13;
-	float height = 5;
-	//float maxWidth = width * asin(Math::DegreeToRadian(45)) + height * (asin(Math::DegreeToRadian(45)));
-	int column = floorf((m_worldWidth * 0.9) / width);
-	float gap = ((m_worldWidth * 0.9f) - (column * width)) / (column - 1);
-	Vector3 brickpos;
-	Vector3 normal;
-	for (int i = 0; i < column; ++i) {
-		float x = i * width + m_worldWidth * 0.05f + i * gap + width / 2;
-		brickpos = Vector3(x, width / 2 + m_worldHeight, 0);
-		//Vector3 normal = Vector3(Math::RandFloatMinMax(0, 0.8), Math::RandFloatMinMax(0, 0.8), 0);
-		switch (Math::RandIntMinMax(0, 3)) {
-		case 0:
-			normal = Vector3(0, 1, 0);
-			break;
-		case 1:
-			normal = Vector3(1, 0, 0);
-			break;
-		}
-		std::cout << normal.x << "y: " << normal.y << std::endl;
-		MakeThickWall(height, width, normal, brickpos);
-	}
 
-}
+
 void SceneCollision::RenderTitleScreen()
 {
 	double x, y, windowwidth, windowheight;
@@ -1326,6 +1016,26 @@ void SceneCollision::RenderGronkDialogue()
 	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
 	RenderTextOnScreen(meshList[GEO_TEXT], "Gronk", Color(0, 0.75f, 0), 2.5f, 9, 11);
 	modelStack.PopMatrix();
+}
+float SceneCollision::calculateAngle(float x, float y)
+{
+	float angle;
+	if (x <= 0 && y <= 0) {
+		angle = Math::RadianToDegree(atan(y / x)) + 180.0f;
+	}
+	else if (x < 0 && y > 0) {
+		angle = Math::RadianToDegree(atan(y / x)) + 180.0f;
+	}
+	else if (x > 0 && y > 0) {
+		angle = Math::RadianToDegree(atan(y / x));
+	}
+	else if (x > 0 && y < 0) {
+		angle = 360 + Math::RadianToDegree(atan(y / x));
+	}
+	else {
+		angle = 0;
+	}
+	return angle;
 }
 void SceneCollision::RenderGO(GameObject *go)
 {
@@ -1441,6 +1151,38 @@ void SceneCollision::RenderGO(GameObject *go)
 		}
 		modelStack.PopMatrix();
 		break;
+	case GameObject::GO_PROJECTILE:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, 1);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		switch (go->proj) {
+		case GameObject::pistol:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			break;
+		case GameObject::shotgun:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			break;
+		case GameObject::sniper:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			break;
+		case GameObject::GL:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			break;
+		case GameObject::bow:
+			modelStack.Scale(1.2, 1, 1);
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
+			break;
+		}
+		RenderMesh(meshList[GEO_PROJECTILE], false);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_BOSS_SLIME:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, 1);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_BOSS_SLIME], false);
+		modelStack.PopMatrix();
 	}
 }
 
@@ -1545,33 +1287,8 @@ void SceneCollision::Render()
 				RenderGO(go);
 			}
 		}
-		float X = m_worldWidth * 0.3;
-		float Y = m_worldHeight * 0.05;
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * 0.8, Y, 10);
-		modelStack.Scale(X, 5, 10);
-		RenderMesh(meshList[GEO_RED], false);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * 0.8, Y, 10.1);
-		X = X * (rechargeBall / (5*(1/rechargeMulti)));
-		if (X > m_worldWidth * 0.3) {
-			X = m_worldWidth * 0.3;
-		}
-		modelStack.Scale(X, 5, 10);
-		RenderMesh(meshList[GEO_GREEN], false);
-		modelStack.PopMatrix();
 		//On screen text
 		std::ostringstream ss;
-		ss.str("");
-		ss << "hp: " << hp << "/" <<"10";
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 2.5, 28, 0);
-
-		ss.str("");
-		ss << "balls:" << ballcount <<"/" << maxBalls;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1,0, 0), 2.5, 3, 0);
-		ss.str("");
 		ss.precision(5);
 		ss << "FPS: " << fps;
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 0, 3);

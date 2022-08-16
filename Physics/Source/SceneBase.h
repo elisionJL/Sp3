@@ -69,20 +69,8 @@ public:
 		GEO_THIN,
 		GEO_BOUNCE,
 		GEO_EXTEND,
-		GEO_RED,
 		GEO_WALL,
-		GEO_GREEN,
-		GEO_BLACKHOLE,
-		GEO_WHITEHOLE,
-		//
-		
-
-
-
-
-
-
-
+		GEO_PROJECTILE,
 		GEO_COMPANION,
 		GEO_SHOTGUN,
 		GEO_SNIPER,
@@ -90,6 +78,7 @@ public:
 		GEO_PISTOL,
 		GEO_GL,
 		GEO_GRONK,
+		GEO_BOSS_SLIME,
 		NUM_GEOMETRY,
 	};
 public:

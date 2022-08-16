@@ -1,7 +1,7 @@
 
 #include "GameObject.h"
 
-GameObject::GameObject(GAMEOBJECT_TYPE typeValue) 
+GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	: type(typeValue),
 	scale(1, 1, 1),
 	active(false),
@@ -9,8 +9,9 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	thickWall(-1),
 	thinWall(-1),
 	bounce(false),
-	prevpos ((0, 0, 0)),
-	PUIFrame(0)
+	prevpos((0, 0, 0)),
+	PUIFrame(0),
+	proj(pistol)
 {
 }
 

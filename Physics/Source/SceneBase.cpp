@@ -145,6 +145,8 @@ void SceneBase::Init()
 	meshList[GEO_START] = MeshBuilder::GenerateQuad("start", Color(1, 1, 1), 1.f);
 	meshList[GEO_START]->textureID = LoadTexture("Image//Start_Game.png", true);
 
+	meshList[GEO_PROJECTILE] = MeshBuilder::GenerateQuad("bullet", Color(1, 1, 1), 1.f);
+
 	meshList[GEO_RETRY] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
 	meshList[GEO_RETRY]->textureID = LoadTexture("Image//retry.psd", true);
 
@@ -178,31 +180,15 @@ void SceneBase::Init()
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
 
-	meshList[GEO_HEAL] = MeshBuilder::GenerateQuad("heal", Color(1, 1, 1), 1.f);
-	meshList[GEO_HEAL]->textureID = LoadTexture("Image//heal.png", true);
-
-	meshList[GEO_RECHARGEUP] = MeshBuilder::GenerateQuad("rechargeUp", Color(1, 1, 1), 1.f);
-	meshList[GEO_RECHARGEUP]->textureID = LoadTexture("Image//rechargeUp.png", true);
-
-	meshList[GEO_BALLUP] = MeshBuilder::GenerateQuad("ballUp", Color(1, 1, 1), 1.f);
-	meshList[GEO_BALLUP]->textureID = LoadTexture("Image//ballUp.png", true);
-
-	meshList[GEO_EXTEND] = MeshBuilder::GenerateQuad("extend", Color(0, 1, 1), 1.f);
-	meshList[GEO_EXTEND]->textureID = LoadTexture("Image//floor.png", true);
 
 	meshList[GEO_LINE] = MeshBuilder::GenerateQuad("cube", Color(1, 1, 1), 1.f);
 	meshList[GEO_LINE]->textureID = LoadTexture("Image//line.png");
 
-	meshList[GEO_RED] = MeshBuilder::GenerateQuad("red", Color(1, 0, 0), 1.f);
-
-	meshList[GEO_GREEN] = MeshBuilder::GenerateQuad("green", Color(0, 1, 0), 1.f);
 
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);
 
-	meshList[GEO_BLACKHOLE] = MeshBuilder::GenerateSphere("ball", Color(1, 0, 0), 10, 10, 1.f);
-	meshList[GEO_WHITEHOLE] = MeshBuilder::GenerateSphere("ball", Color(0, 0, 1), 10, 10, 1.f);
 
 	cSoundController = CSoundController::GetInstance();
 	cSoundController->Init();
@@ -228,33 +214,37 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Bow->AddAnimation("Shoot", 0, 13);
 
-	meshList[GEO_GL] = MeshBuilder::GenerateSpriteAnimation("GL", 1, 6);
+	meshList[GEO_GL] = MeshBuilder::GenerateSpriteAnimation("GL", 2, 6);
 	meshList[GEO_GL]->textureID = LoadTexture("Image//GL.png", true);
 	meshList[GEO_GL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	GL->AddAnimation("Shoot", 0, 6);
+	GL->AddAnimation("ShootR", 7, 12);
 
-	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 6);
+	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
 	meshList[GEO_SHOTGUN]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Shotgun->AddAnimation("Shoot", 0, 6);
+	Shotgun->AddAnimation("ShootR", 7, 12);
 
-	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 1, 3);
+	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 2, 3);
 	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
 	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Pistol->AddAnimation("Shoot", 0, 3);
+	Pistol->AddAnimation("ShootR", 4, 6);
 
-	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 1, 3);
+	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 3);
 	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
 	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Sniper->AddAnimation("Shoot", 0, 3);
+	Sniper->AddAnimation("ShootR", 4, 6);
 
 
 	//Shopkeeper
@@ -264,6 +254,17 @@ void SceneBase::Init()
 	SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
 	//Add the animation for grok
 	gronk->AddAnimation("Idle", 0, 12);
+
+	//Slime
+	meshList[GEO_BOSS_SLIME] = MeshBuilder::GenerateSpriteAnimation("Boss Slime", 5, 6);
+	meshList[GEO_BOSS_SLIME]->textureID = LoadTexture("Image//boss_slime_sprites.png", true);
+	meshList[GEO_BOSS_SLIME]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* boss_slime = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOSS_SLIME]);
+	//Add the animations
+	boss_slime->AddAnimation("Idle", 0, 3);
+	boss_slime->AddAnimation("Jump", 4, 15);
+	boss_slime->AddAnimation("Move Right", 16, 22);
+	boss_slime->AddAnimation("Move Left", 23, 30);
 
 	bLightEnabled = true;
 }

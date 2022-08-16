@@ -250,7 +250,7 @@ void SpriteAnimation::PlayAnimation(std::string anim_name, int repeat, float tim
 
 bool SpriteAnimation::getAnimationStatus(std::string anim_name)
 {
-	return animationList[anim_name]->ended;
+	return animationList[anim_name]->animActive;
 }
 
 /******************************************************************************/
@@ -292,6 +292,21 @@ Reset the current animation
 /******************************************************************************/
 void SpriteAnimation::Reset()
 {
+	currentFrame = animationList[currentAnimation]->frames[0];
+	playCount = 0;
+}
+
+void SpriteAnimation::reset2(std::string anim_name)
+{
+	currentFrame = animationList[currentAnimation]->frames[0];
+	playCount = 0;
+	animationList[anim_name]->ended = false;
+}
+
+void SpriteAnimation::truereset()
+{
+	animationList[currentAnimation]->animTime = 0;
+	currentTime = 0;
 	currentFrame = animationList[currentAnimation]->frames[0];
 	playCount = 0;
 }
