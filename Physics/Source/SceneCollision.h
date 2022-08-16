@@ -30,25 +30,24 @@ public:
 	void ReturnGO(GameObject *go);
 	bool CheckCollision(GameObject* go1, GameObject* go2);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
-	void MakeThinWall(float width, float height, const Vector3& normal, const Vector3& pos, bool real);
-	void MakeBounceWall(float width, float height, const Vector3& normal, const Vector3& pos, Vector3& start, Vector3& end);
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
-	void renderBricks();
 	void RenderTitleScreen();
 protected:
 	Vector3 m_lineStart;
 	//Physics
 	std::vector<GameObject *> m_goList;
 	std::vector<GameObject*> m_thickWallList;
-	std::vector<GameObject*> m_thinWallList;
-	std::vector<GameObject*> m_bouncerList;
+
 	GameObject* Companion;
 	GameObject* Gronk;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
-	int hp;
+	
+	float elapsedTime;
+	float prevTime;
+
 	int score;
 	int minutes;
 	float seconds;
@@ -64,17 +63,7 @@ protected:
 	float m_heightEstimated;
 	float m_heightMax;
 	float m_DistanceEstimated;
-	float waveTime;
-	int maxBalls;
-	int ballcount;
-	float rechargeBall;
-	int activeWalls;
 	int thickWall;
-	int thinWall;
-	float rechargeMulti;
-	int extendMulti;
-	float rechargeTime;
-	float extendTime;
 	//Auditing
 	float m1, m2;
 	int flip;
@@ -88,6 +77,7 @@ protected:
 
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;
+	float calculateAngle(float x, float y);
 };
 
 #endif
