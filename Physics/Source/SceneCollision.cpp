@@ -52,10 +52,6 @@ void SceneCollision::Init()
 	GunShootingTimer = 0;
 
 	rotationorder = 1;
-<<<<<<< HEAD
-
-=======
->>>>>>> 9a279bc32e0638a09ea21f5e685fd829de53f5d3
 }
 
 GameObject* SceneCollision::FetchGO()
