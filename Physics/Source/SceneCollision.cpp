@@ -44,6 +44,8 @@ void SceneCollision::Init()
 
 	companionX = 9;
 	companionY = 9;
+
+	rotationorder = 1;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -447,6 +449,69 @@ void SceneCollision::Update(double dt)
 				}
 				if (go->type == GameObject::GO_COMPANION)
 				{
+					float moveXby;
+					float moveYby;
+					if (rotationorder == 1)
+					{
+						moveXby = -0.5;
+						moveYby = 0.2;
+						if (companionX <= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 2)
+					{
+						moveXby = -0.5;
+						moveYby = -0.2;
+						if (companionX <= -9)
+							rotationorder++;
+					}
+					else if (rotationorder == 3)
+					{
+						moveXby = -0.2;
+						moveYby = -0.5;
+						if (companionY <= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 4)
+					{
+						moveXby = 0.2;
+						moveYby = -0.5;
+						if (companionY <= -9)
+							rotationorder++;
+					}
+					else if (rotationorder == 5)
+					{
+						moveXby = 0.5;
+						moveYby = -0.2;
+						if (companionX >= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 6)
+					{
+						moveXby = 0.5;
+						moveYby = 0.2;
+						if (companionX >= 9)
+							rotationorder++;
+					}
+					else if (rotationorder == 7)
+					{
+						moveXby = 0.2;
+						moveYby = 0.5;
+						if (companionY >= 0)
+							rotationorder++;
+					}
+					else
+					{
+						moveXby = -0.2;
+						moveYby = 0.5;
+						if (companionY >= 9)
+							rotationorder = 1;
+					}
+
+					companionX += moveXby;
+					companionY += moveYby;
+
+
 					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
 					//Play the animation “ROW1” that is looping infinitely and
 					//each animation completes in 2 sec
