@@ -295,3 +295,18 @@ void SpriteAnimation::Reset()
 	currentFrame = animationList[currentAnimation]->frames[0];
 	playCount = 0;
 }
+
+void SpriteAnimation::reset2(std::string anim_name)
+{
+	currentFrame = animationList[currentAnimation]->frames[0];
+	playCount = 0;
+	animationList[anim_name]->ended = false;
+}
+
+void SpriteAnimation::truereset()
+{
+	animationList[currentAnimation]->animTime = 0;
+	currentTime = 0;
+	currentFrame = animationList[currentAnimation]->frames[0];
+	playCount = 0;
+}
