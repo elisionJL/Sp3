@@ -48,6 +48,8 @@ void SceneCollision::Init()
 	GunShootingTimer = 0;
 
 	rotationorder = 1;
+
+	shootonceonly = 1;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -325,70 +327,84 @@ void SceneCollision::Update(double dt)
 			CurrentGun = meshList[GEO_PISTOL];
 		}
 
-
-
 		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 		bool shooting = true;
-		if (Application::IsMousePressed(0) && shooting)
 		{
-			if (Gun->type == GameObject::GO_BOW)
+			if (Application::IsMousePressed(0) && shooting)
 			{
-				G->PlayAnimation("Shoot", 0, 2.0f);
+				if (Gun->type == GameObject::GO_BOW)
+				{
+					G->PlayAnimation("Shoot", 0, 2.0f);
 
-				G->Update(dt);
+					G->Update(dt);
 
-				if (G->getAnimationStatus("Shoot"))
-					shooting = false;
-			}
-			else
-			{
-				float Xaxis = mousePos.x - Gun->pos.x;
-				if (Xaxis >= 0)
-					G->PlayAnimation("Shoot", 0, 1.0f);
+					if (G->getAnimationStatus("Shoot"))
+						shooting = false;
+				}
 				else
-					G->PlayAnimation("ShootR", 0, 1.0f);
+				{
+					float Xaxis = mousePos.x - Gun->pos.x;
+					if (Xaxis >= 0)
+						G->PlayAnimation("Shoot", 0, 1.0f);
+					else
+						G->PlayAnimation("ShootR", 0, 1.0f);
 
-				shooting = false;
+					shooting = false;
 
-				G->Update(dt);
-			}
-		}
-
-		if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW)
-		{
-			SceneCollision::shooting(elapsedTime, prevTime, Gun);
-
-		}
-		else if (Gun->type != GameObject::GO_BOW)
-		{
-		}
-
-		
-
-		static bool bLButtonState = false;
-		if (!bLButtonState && Application::IsMousePressed(0))
-		{
-			bLButtonState = true;			
-		}
-		else if (bLButtonState && !Application::IsMousePressed(0))
-		{
-			bLButtonState = false;
-			if (Gun->type == GameObject::GO_BOW)
-			{
-				G->PlayAnimation("Shoot", 0, 2.0f);
-				G->truereset();
-				shooting = false;
-			}
-			else
-			{
-				G->PlayAnimation("Shoot", 0, 1.0f);
-				G->Update(dt);
-				shooting = false;
+					G->Update(dt);
+				}
 			}
 
-			if (shooting == false)
+			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW)
 			{
 				SceneCollision::shooting(elapsedTime, prevTime, Gun);
+			}
+			/*else if (Gun->type != GameObject::GO_BOW)
+			{
+				float Xaxis = mousePos.x - Gun->pos.x;
+				if (Xaxis >= 0 && G->getAnimationStatus("Shoot"))
+				{
+					G->Update(dt);
+				}
+				else if (Xaxis < 0 && G->getAnimationStatus("ShootR"))
+				{
+					G->Update(dt);
+				}
+				else
+				{
+					float Xaxis = mousePos.x - Gun->pos.x;
+					if (Xaxis >= 0)
+						G->PlayAnimation("Shoot", 0, 1.0f);
+					else
+						G->PlayAnimation("ShootR", 0, 1.0f);
+
+					G->Update(dt);
+					G->truereset();
+				}
+			}*/
+
+
+
+
+			static bool bLButtonState = false;
+			if (!bLButtonState && Application::IsMousePressed(0))
+			{
+				bLButtonState = true;
+			}
+			else if (bLButtonState && !Application::IsMousePressed(0))
+			{
+				bLButtonState = false;
+				if (Gun->type == GameObject::GO_BOW)
+				{
+					G->PlayAnimation("Shoot", 0, 2.0f);
+					G->truereset();
+					shooting = false;
+				}
+
+				if (shooting == false)
+				{
+					SceneCollision::shooting(elapsedTime, prevTime, Gun);
+				}
 			}
 		}
 
@@ -585,7 +601,8 @@ void SceneCollision::Update(double dt)
 						Angle = 0;
 					}
 					go->angle = Angle;
-					if (shooting)
+
+					if (shooting && go->type != GameObject::GO_BOW)
 					{
 						if (Xaxis >= 0)
 							G->PlayAnimation("Shoot", 0, 1.0f);
@@ -594,7 +611,6 @@ void SceneCollision::Update(double dt)
 
 						G->Reset();
 					}
-
 				}
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)

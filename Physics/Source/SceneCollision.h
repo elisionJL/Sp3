@@ -89,6 +89,7 @@ protected:
 	bool CurrentTextWrite, TextFinished;
 	int CurrentCharText;
 	int randomDialogue;
+	int shootonceonly;
 };
 
 #endif
