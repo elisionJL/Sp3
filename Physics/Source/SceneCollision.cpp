@@ -52,7 +52,7 @@ void SceneCollision::Init()
 	GunShootingTimer = 0;
 
 	rotationorder = 1;
-	GronkDialogue[50] = {"Welcome to Gronk Shop!", "Gronk has many stuff!", "Player died " + }
+
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -161,7 +161,7 @@ void SceneCollision::Update(double dt)
 					Gun->scale.Set(7, 3.5, 1);
 					CurrentGun = meshList[GEO_PISTOL];
 				}
-				Gun->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 3);
+				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
 
 				cSoundController->StopAllSound();
@@ -1240,21 +1240,21 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_BOW:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 2);
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y , 2);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_BOW], true);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_GL:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 2);
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_GL], true);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_SHOTGUN:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 2);
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_SHOTGUN], true);
 	case GameObject::GO_GRONK:

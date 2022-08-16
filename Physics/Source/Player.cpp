@@ -89,10 +89,10 @@ void CPlayer2D::Update(double dt)
 		case DODGING:
 			switch (sFacingDirection) {
 			case RIGHT:
-				sa->PlayAnimation("rollR", 0, 1.f);
+				sa->PlayAnimation("rollR", 0, 2.f);
 				break;
 			case LEFT:
-				sa->PlayAnimation("rollL", 0, 1.f);
+				sa->PlayAnimation("rollL", 0, 2.f);
 				break;
 			}
 			break;
@@ -104,6 +104,7 @@ void CPlayer2D::Update(double dt)
 			case RIGHT:
 				if (sa->getAnimationStatus("rollR") == true) {
 					sCurrentState = IDLE;
+					sa->Reset();
 				}
 				break;
 			case LEFT:
