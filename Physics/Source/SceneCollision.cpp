@@ -124,8 +124,10 @@ void SceneCollision::Update(double dt)
 				cSoundController->PlaySoundByID(5);
 			}
 
-			else 	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
-				//Shop Code
+			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
+				cSoundController->StopAllSound();
+				cSoundController->PlaySoundByID(4);
+				currentState = shop;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.17 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.17) && (mousePos.y <= (m_worldHeight * 0.1) + 4.75 && mousePos.y >= (m_worldHeight * 0.1) - 4.75)) {
 				quit = true;
@@ -137,6 +139,10 @@ void SceneCollision::Update(double dt)
 		}
 		break;
 	}
+	case shop:
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) { //Back button
+		}
+		break;
 	case main:
 	{
 		seconds -= dt;
@@ -1157,6 +1163,19 @@ void SceneCollision::Render()
 	switch (currentState) {
 	case start:
 		RenderTitleScreen();
+		break;
+	case shop:
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
+		modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+		RenderMesh(meshList[GEO_SHOP_BG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.8f, 1);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.5, 0);
+		RenderMesh(meshList[GEO_SHOP_SIGN], false);
+		modelStack.PopMatrix();
 		break;
 	case main:
 	{

@@ -12,6 +12,7 @@ public:
 	enum gameStates {
 		start = 0,
 		main,
+		shop,
 		win,
 		lose
 	};
