@@ -4,6 +4,7 @@
 #include "LoadTexture.h"
 #include <sstream>
 #include "SpriteAnimation.h"
+#include "LoadTexture.h"
 SceneCollision::SceneCollision()
 {
 }
@@ -112,14 +113,12 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
 				currentState = main;
 				score = 0;
+				elapsedTime = 0;
+				prevTime = 0;
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				rechargeMulti = 1;
-				rechargeTime = 0;
-				extendTime = 0;
-				extendMulti = 1;
-				Gun->type = GameObject::GO_GL;
+				Gun->type = GameObject::GO_BOW;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -195,22 +194,42 @@ void SceneCollision::Update(double dt)
 			minutes -= 1;
 			seconds += 60;
 		}
+		elapsedTime += dt;
 		if (Application::IsMousePressed(0)) {
 			double x = 0, y = 0;
 			float diff = elapsedTime - prevTime;
-			if (diff > 0.4) {
+			if (diff > 0.2) {
 				GameObject* go = FetchGO();
-				go->type = GameObject::GO_PISTOL;
+				go->type = GameObject::GO_PROJECTILE;
+				switch (Gun->type) {
+				case GameObject::GO_PISTOL:
+					go->proj = GameObject::pistol;
+					break;
+				case GameObject::GO_SHOTGUN:
+					go->proj = GameObject::shotgun;
+					break;
+				case GameObject::GO_BOW:
+					go->proj = GameObject::bow;
+					break;
+				case GameObject::GO_GL:
+					go->proj = GameObject::GL;
+					break;
+				case GameObject::GO_SNIPER:
+					go->proj = GameObject::sniper;
+					break;
+				}
 				go->pos = cPlayer2D->pos;
+				go->pos.z += 2;
 				Application::GetCursorPos(&x, &y);
 				unsigned w = Application::GetWindowWidth();
 				unsigned h = Application::GetWindowHeight();
 				float posX = (x / w * m_worldWidth);
 				float posY = m_worldHeight - (y / h * m_worldHeight);
 				Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
-				go->vel = BulVel.Normalized() * 10;
+				go->vel = BulVel.Normalized() * 20;
 				go->scale.Set(4.5f, 2.f, 1.0f);
 				go->angle = calculateAngle(BulVel.x, BulVel.y);
+				prevTime = elapsedTime;
 			}
 		}
 		switch (Gun->type) {
@@ -1012,27 +1031,31 @@ void SceneCollision::RenderGO(GameObject *go)
 		}
 		modelStack.PopMatrix();
 		break;
-	/*case GameObject::GO_PROJECTILE:
+	case GameObject::GO_PROJECTILE:
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, 1);
-		modelStack.Rotate(Math::RadianToDegree(atan2f(go->normal.y, go->normal.x)), 0, 0, 1);
+		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		switch (go->PU) {
-		case GameObject::heal:
-			RenderMesh(meshList[GEO_HEAL], false);
+		switch (go->proj) {
+		case GameObject::pistol:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
-		case GameObject::rechargeUp:
-			RenderMesh(meshList[GEO_RECHARGEUP], false);
+		case GameObject::shotgun:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
-		case GameObject::ballUp:
-			RenderMesh(meshList[GEO_BALLUP], false);
+		case GameObject::sniper:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
-		case GameObject::extend:
-			RenderMesh(meshList[GEO_EXTEND], false);
+		case GameObject::GL:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			break;
+		case GameObject::bow:
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
 			break;
 		}
+		RenderMesh(meshList[GEO_PROJECTILE], false);
 		modelStack.PopMatrix();
-		break;*/
+		break;
 	}
 }
 

@@ -11,6 +11,13 @@ struct GameObject
 		heal,
 		extend
 	};
+	enum projectile {
+		pistol = 0,
+		GL,
+		bow,
+		sniper,
+		shotgun
+	};
 	enum GAMEOBJECT_TYPE
 	{
 		GO_NONE = 0,
@@ -20,6 +27,7 @@ struct GameObject
 		GO_PILLAR,
 		GO_POWERUP,
 		GO_COMPANION,
+		GO_PROJECTILE,
 		GO_SHOTGUN,
 		GO_SNIPER,
 		GO_BOW,
@@ -30,6 +38,7 @@ struct GameObject
 	};
 	GAMEOBJECT_TYPE type;
 	powerUp PU;
+	projectile proj;
 	Vector3 pos;
 	Vector3 vel;
 	Vector3 scale;
