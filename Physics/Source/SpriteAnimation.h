@@ -72,6 +72,7 @@ public:
 	void AddAnimation(std::string name, int start, int end);
 	void AddSequeneAnimation(std::string name, int count ...);
 	void PlayAnimation(std::string name, int repeat, float time);
+	bool getAnimationStatus(std::string anim_name);
 	void Pause();
 	void Resume();
 	void Reset();
