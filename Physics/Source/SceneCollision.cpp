@@ -52,10 +52,6 @@ void SceneCollision::Init()
 	GunShootingTimer = 0;
 
 	rotationorder = 1;
-<<<<<<< HEAD
-
-=======
->>>>>>> 9a279bc32e0638a09ea21f5e685fd829de53f5d3
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -137,7 +133,7 @@ void SceneCollision::Update(double dt)
 				rechargeTime = 0;
 				extendTime = 0;
 				extendMulti = 1;
-				Gun->type = GameObject::GO_GL;
+				Gun->type = GameObject::GO_PISTOL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -156,12 +152,12 @@ void SceneCollision::Update(double dt)
 				}
 				else if (Gun->type == GameObject::GO_SNIPER)
 				{
-					Gun->scale.Set(7, 3.5, 1);
+					Gun->scale.Set(15, 5, 1);
 					CurrentGun = meshList[GEO_SNIPER];
 				}
 				else if (Gun->type == GameObject::GO_PISTOL)
 				{
-					Gun->scale.Set(7, 3.5, 1);
+					Gun->scale.Set(3, 1, 1);
 					CurrentGun = meshList[GEO_PISTOL];
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
@@ -402,15 +398,11 @@ void SceneCollision::Update(double dt)
 			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 			if (Gun->type == GameObject::GO_BOW)
 			{
-				G->PlayAnimation("Shoot", 0, 2.0f);
-				if (G->getAnimationStatus("Shoot"))
-					G->Reset();
+				G->PlayAnimation("Shoot", -1, 2.0f);
 			}
 			else
 			{
-				G->PlayAnimation("Shoot", 0, 1.0f);
-				if (G->getAnimationStatus("Shoot"))
-					G->Reset();
+				G->PlayAnimation("Shoot", -1, 1.0f);
 			}
 			G->Update(dt);
 		}
@@ -597,6 +589,29 @@ void SceneCollision::Update(double dt)
 						Companion->PlayAnimation("RunningL", -1, 2.0f);
 
 					Companion->Update(dt);
+				}
+				if (go == Gun)
+				{
+					float Xaxis = go->pos.x - mousePos.x;
+					float Yaxis = go->pos.y - mousePos.y;
+
+					float Angle;
+					if (Xaxis <= 0 && Yaxis <= 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis < 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis > 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else if (Xaxis > 0 && Yaxis < 0) {
+						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else {
+						Angle = 0;
+					}
+					go->angle = Angle;
 				}
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -1237,7 +1252,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 2);
+		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, 1.1f);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
 		modelStack.PopMatrix();
@@ -1245,6 +1260,7 @@ void SceneCollision::RenderGO(GameObject *go)
 	case GameObject::GO_BOW:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y , 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_BOW], true);
 		modelStack.PopMatrix();
@@ -1252,6 +1268,7 @@ void SceneCollision::RenderGO(GameObject *go)
 	case GameObject::GO_GL:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_GL], true);
 		modelStack.PopMatrix();
@@ -1259,8 +1276,27 @@ void SceneCollision::RenderGO(GameObject *go)
 	case GameObject::GO_SHOTGUN:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_SHOTGUN], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_SNIPER:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_SNIPER], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_PISTOL:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 2);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_PISTOL], true);
+		modelStack.PopMatrix();
+		break;
 	case GameObject::GO_GRONK:
 		modelStack.PushMatrix();
 		modelStack.Translate((m_worldWidth / 3) * 2.5f, m_worldHeight * 0.4, 2);
