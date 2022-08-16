@@ -57,6 +57,8 @@ public:
 		GEO_START,
 		GEO_SHOP,
 		GEO_SHOP_SIGN,
+		GEO_DIALOGUE_BOX,
+		GEO_GRONK_BACK_BUTTON,
 		GEO_RETRY,
 		GEO_QUIT,
 		GEO_BG,
@@ -97,6 +99,7 @@ public:
 
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
+	void RenderDialogueOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderGO(GameObject *go);
 

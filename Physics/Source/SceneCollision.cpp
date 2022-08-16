@@ -15,7 +15,7 @@ SceneCollision::~SceneCollision()
 void SceneCollision::Init()
 {
 	SceneBase::Init();
-
+	srand(time(0));
 	cPlayer2D = CPlayer2D::GetInstance();
 	cPlayer2D->Init();
 	cPlayer2D->setmeshList(meshList[GEO_PLAYER]);
@@ -36,12 +36,15 @@ void SceneCollision::Init()
 	ballcount = 0;
 	rechargeBall = 5;
 	cSoundController->PlaySoundByID(1);
-
+	dialogueTime = 0;
 	//Companion->mass = 1;
 	Companion = FetchGO();
 	Companion->mass = 1;
 	flip = 1;
-
+	OutputDialogue = "";
+	CurrentTextWrite = false, TextFinished = false;
+	CurrentCharText = 0;
+	randomDialogue = 0;
 	Gronk = FetchGO();
 	Gronk->mass = 1;
 
@@ -49,7 +52,6 @@ void SceneCollision::Init()
 	companionY = 9;
 
 	rotationorder = 1;
-	GronkDialogue[50] = {"Welcome to Gronk Shop!", "Gronk has many stuff!", "Player died " + }
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -163,7 +165,34 @@ void SceneCollision::Update(double dt)
 		SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
 		gronk->PlayAnimation("Idle", -1, 2.f);
 		gronk->Update(dt);
-		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) { //Back button
+	
+		dialogueTime += 1 * dt;
+		if (dialogueTime > 5.f)
+		{
+			CurrentTextWrite = true;
+			dialogueTime = 0;
+		}
+
+		if (Application::IsMousePressed(0)) {
+			if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+			{
+				OutputDialogue = "";
+				CurrentTextWrite = false, TextFinished = false;
+				CurrentCharText = 0;
+				randomDialogue = 0;
+
+				for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+				{
+					GameObject* go = (GameObject*)*it;
+					if (go->active)
+						if (go->type == GameObject::GO_GRONK)
+							go = NULL;
+				}
+
+				cSoundController->StopAllSound();
+				cSoundController->PlaySoundByID(1);
+				currentState = start;
+			}
 		}
 		break;
 	}
@@ -1159,6 +1188,67 @@ void SceneCollision::RenderTitleScreen()
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);
 	modelStack.PopMatrix();
 }
+void SceneCollision::RenderGronkDialogue()
+{
+	string GronkDialogue[50] = { "Welcome to Gronk Shop!", "Gronk has many stuff!", "What human want? Gronk can help find!",
+								 "Human died " + std::to_string(DeathCount) + " times! Gronk thinks human should work harder.", "Human not dead, human die soon?", "Gronk give human hint! No hit mean safe!",
+								 "Gronk first time make shop, Gronk hope can get what Gronk want!", "Gronk no travel much, human travel a lot?", 
+								 "This place dangerous for human, Gronk thinks human should leave.", "Human say Gronk is goblin? Gronk is Gronk, Gronk no Goblin! Human stupid."};
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
+	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+
+	if (CurrentTextWrite == true && TextFinished == false)
+	{
+		randomDialogue = rand() % 10;
+		if (randomDialogue == 3 && DeathCount <= 0)
+		{
+			randomDialogue = 4;
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			TextFinished = true;
+		}
+		else
+		{
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			TextFinished = true;
+		}
+	}
+
+	if (TextFinished == true)
+	{
+		char CurrentDialogue;
+
+		if (dialogueTime > 0.075f)
+		{
+			if (CurrentCharText < GronkDialogue[randomDialogue].length())
+			{
+				CurrentDialogue = GronkDialogue[randomDialogue][CurrentCharText];
+				OutputDialogue += CurrentDialogue;
+
+				CurrentCharText += 1;
+			}
+
+			else
+			{
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+
+			dialogueTime = 0;
+		}
+	}
+	RenderDialogueOnScreen(meshList[GEO_TEXT], OutputDialogue, Color(0, 0, 0), 1.5, 2.5, 8);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
+	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Gronk", Color(0, 0.75f, 0), 2.5f, 9, 11);
+	modelStack.PopMatrix();
+}
 void SceneCollision::RenderGO(GameObject *go)
 {
 	//this is to render the animations for the mesh
@@ -1262,6 +1352,13 @@ void SceneCollision::Render()
 		RenderTitleScreen();
 		break;
 	case shop:
+	{
+		double x, y, windowwidth, windowheight;
+		Application::GetCursorPos(&x, &y);
+		windowwidth = Application::GetWindowWidth();
+		windowheight = Application::GetWindowHeight();
+		Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
 		modelStack.Scale(m_worldWidth, m_worldHeight, 0);
@@ -1274,13 +1371,33 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_SHOP_SIGN], false);
 		modelStack.PopMatrix();
 
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+		RenderMesh(meshList[GEO_DIALOGUE_BOX], false);
+		modelStack.PopMatrix();
+
+		RenderGronkDialogue();
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 3) * 2.4f, m_worldHeight * 0.1, 2);
+		modelStack.Scale(m_worldWidth * 0.4, 12.5, 1);
+		RenderMesh(meshList[GEO_GRONK_BACK_BUTTON], true);
+		if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+			meshList[GEO_GRONK_BACK_BUTTON]->material.kAmbient.Set(1, 1, 1);
+		else
+			meshList[GEO_GRONK_BACK_BUTTON]->material.kAmbient.Set(0.4, 0.4, 0.4);
+		modelStack.PopMatrix();
+
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
 			GameObject* go = (GameObject*)*it;
 			if (go->active)
-				if(go->type == GameObject::GO_GRONK)
-				RenderGO(go);
+				if (go->type == GameObject::GO_GRONK)
+					RenderGO(go);
 		}
+
+	}
 		break;
 	case main:
 	{
