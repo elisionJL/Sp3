@@ -46,8 +46,6 @@ void SceneCollision::Init()
 	CurrentTextWrite = false, TextFinished = false;
 	CurrentCharText = 0;
 	randomDialogue = 0;
-	Gronk = FetchGO();
-	Gronk->mass = 1;
 
 	companionX = 9;
 	companionY = 9;
@@ -112,6 +110,14 @@ void SceneCollision::Update(double dt)
 	windowwidth = Application::GetWindowWidth();
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
+	if(currentState == main)
+		camera.Update(dt, cPlayer2D->pos, m_worldWidth, m_worldHeight);
+	else {
+		camera.position.Set(0, 0, 1);
+		camera.target.Set(0, 0, 0);
+		camera.up.Set(0, 1, 0);
+	}
 	switch (currentState) {
 	case start:
 	{
@@ -174,6 +180,8 @@ void SceneCollision::Update(double dt)
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(4);
 
+				Gronk = FetchGO();
+				Gronk->mass = 1;
 				Gronk->type = GameObject::GO_GRONK;
 				Gronk->mass = 5;
 				Gronk->scale.Set(1, 1, 1);
@@ -218,7 +226,7 @@ void SceneCollision::Update(double dt)
 					GameObject* go = (GameObject*)*it;
 					if (go->active)
 						if (go->type == GameObject::GO_GRONK)
-							go = NULL;
+							ReturnGO(go);
 				}
 
 				cSoundController->StopAllSound();
@@ -1452,9 +1460,9 @@ void SceneCollision::Render()
 		camera.target.x, camera.target.y, camera.target.z,
 		camera.up.x, camera.up.y, camera.up.z
 	);
+
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
-
 
 	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {
