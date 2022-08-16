@@ -41,8 +41,6 @@ void SceneCollision::Init()
 	CurrentTextWrite = false, TextFinished = false;
 	CurrentCharText = 0;
 	randomDialogue = 0;
-	Gronk = FetchGO();
-	Gronk->mass = 1;
 
 	companionX = 9;
 	companionY = 9;
@@ -81,6 +79,45 @@ void SceneCollision::ReturnGO(GameObject *go)
 	}
 }
 
+void SceneCollision::shooting (double elapsedTime, double prevTime, GameObject* Gun)
+{
+	double x = 0, y = 0;
+	float diff = elapsedTime - prevTime;
+	if (diff > 0.2) {
+		GameObject* go = FetchGO();
+		go->type = GameObject::GO_PROJECTILE;
+		switch (Gun->type) {
+		case GameObject::GO_PISTOL:
+			go->proj = GameObject::pistol;
+			break;
+		case GameObject::GO_SHOTGUN:
+			go->proj = GameObject::shotgun;
+			break;
+		case GameObject::GO_BOW:
+			go->proj = GameObject::bow;
+			break;
+		case GameObject::GO_GL:
+			go->proj = GameObject::GL;
+			break;
+		case GameObject::GO_SNIPER:
+			go->proj = GameObject::sniper;
+			break;
+		}
+		go->pos = cPlayer2D->pos;
+		go->pos.z += 2;
+		Application::GetCursorPos(&x, &y);
+		unsigned w = Application::GetWindowWidth();
+		unsigned h = Application::GetWindowHeight();
+		float posX = (x / w * m_worldWidth);
+		float posY = m_worldHeight - (y / h * m_worldHeight);
+		Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
+		go->vel = BulVel.Normalized() * 20;
+		go->scale.Set(4.5f, 2.f, 1.0f);
+		go->angle = calculateAngle(BulVel.x, BulVel.y);
+		prevTime = elapsedTime;
+	}
+}
+
 void SceneCollision::Update(double dt)
 {
 	SceneBase::Update(dt);
@@ -107,6 +144,14 @@ void SceneCollision::Update(double dt)
 	windowwidth = Application::GetWindowWidth();
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
+	if(currentState == main)
+		camera.Update(dt, cPlayer2D->pos, m_worldWidth, m_worldHeight);
+	else {
+		camera.position.Set(0, 0, 1);
+		camera.target.Set(0, 0, 0);
+		camera.up.Set(0, 1, 0);
+	}
 	switch (currentState) {
 	case start:
 	{
@@ -121,7 +166,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_BOW;
+				Gun->type = GameObject::GO_PISTOL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -159,6 +204,8 @@ void SceneCollision::Update(double dt)
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(4);
 
+				Gronk = FetchGO();
+				Gronk->mass = 1;
 				Gronk->type = GameObject::GO_GRONK;
 				Gronk->mass = 5;
 				Gronk->scale.Set(1, 1, 1);
@@ -203,7 +250,7 @@ void SceneCollision::Update(double dt)
 					GameObject* go = (GameObject*)*it;
 					if (go->active)
 						if (go->type == GameObject::GO_GRONK)
-							go = NULL;
+							ReturnGO(go);
 				}
 
 				cSoundController->StopAllSound();
@@ -225,46 +272,9 @@ void SceneCollision::Update(double dt)
 			seconds += 60;
 		}
 		elapsedTime += dt;
-		if (Application::IsMousePressed(0)) {
-			double x = 0, y = 0;
-			float diff = elapsedTime - prevTime;
-			if (diff > 0.2) {
-				GameObject* go = FetchGO();
-				go->type = GameObject::GO_PROJECTILE;
-				switch (Gun->type) {
-				case GameObject::GO_PISTOL:
-					go->proj = GameObject::pistol;
-					break;
-				case GameObject::GO_SHOTGUN:
-					go->proj = GameObject::shotgun;
-					break;
-				case GameObject::GO_BOW:
-					go->proj = GameObject::bow;
-					break;
-				case GameObject::GO_GL:
-					go->proj = GameObject::GL;
-					break;
-				case GameObject::GO_SNIPER:
-					go->proj = GameObject::sniper;
-					break;
-				}
-				go->pos = cPlayer2D->pos;
-				go->pos.z += 2;
-				Application::GetCursorPos(&x, &y);
-				unsigned w = Application::GetWindowWidth();
-				unsigned h = Application::GetWindowHeight();
-				float posX = (x / w * m_worldWidth);
-				float posY = m_worldHeight - (y / h * m_worldHeight);
-				Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
-				go->vel = BulVel.Normalized() * 20;
-				go->scale.Set(4.5f, 2.f, 1.0f);
-				go->angle = calculateAngle(BulVel.x, BulVel.y);
-				prevTime = elapsedTime;
-			}
-		}
-		switch (Gun->type) {
-			//case GameObject 
-		}
+		//switch (Gun->type) {
+		//	//case GameObject 
+		//}
 		if (Application::IsKeyPressed('E') && Companion->mass == 1)
 		{
 			Companion->type = GameObject::GO_COMPANION;
@@ -284,13 +294,51 @@ void SceneCollision::Update(double dt)
 		}
 
 
+		if (Application::IsKeyPressed(VK_F1))
+		{
+			Gun->type = GameObject::GO_GL;
+			Gun->scale.Set(7, 3.5, 1);
+			CurrentGun = meshList[GEO_GL];
+		}
+		else if (Application::IsKeyPressed(VK_F2))
+		{
+			Gun->type = GameObject::GO_BOW;
+			Gun->scale.Set(7, 7, 1);
+			CurrentGun = meshList[GEO_BOW];
+		}
+		else if (Application::IsKeyPressed(VK_F3))
+		{
+			Gun->type = GameObject::GO_SHOTGUN;
+			Gun->scale.Set(7, 3.5, 1);
+			CurrentGun = meshList[GEO_SHOTGUN];
+		}
+		else if (Application::IsKeyPressed(VK_F4))
+		{
+			Gun->type = GameObject::GO_SNIPER;
+			Gun->scale.Set(15, 5, 1);
+			CurrentGun = meshList[GEO_SNIPER];
+		}
+		else if (Application::IsKeyPressed(VK_F5))
+		{
+			Gun->type = GameObject::GO_PISTOL;
+			Gun->scale.Set(3, 1, 1);
+			CurrentGun = meshList[GEO_PISTOL];
+		}
+
+
+
 		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
-		static bool bLButtonState = false;
-		if (!bLButtonState && Application::IsMousePressed(0))
-		{			
+		bool shooting = true;
+		if (Application::IsMousePressed(0) && shooting)
+		{
 			if (Gun->type == GameObject::GO_BOW)
 			{
 				G->PlayAnimation("Shoot", 0, 2.0f);
+
+				G->Update(dt);
+
+				if (G->getAnimationStatus("Shoot"))
+					shooting = false;
 			}
 			else
 			{
@@ -300,22 +348,48 @@ void SceneCollision::Update(double dt)
 				else
 					G->PlayAnimation("ShootR", 0, 1.0f);
 
+				shooting = false;
+
+				G->Update(dt);
 			}
-			G->Update(dt);
 		}
-		else if (!Application::IsMousePressed(0))
+
+		if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW)
+		{
+			SceneCollision::shooting(elapsedTime, prevTime, Gun);
+		}
+		
+
+		static bool bLButtonState = false;
+		if (!bLButtonState && Application::IsMousePressed(0))
+		{
+			bLButtonState = true;			
+		}
+		else if (bLButtonState && !Application::IsMousePressed(0))
 		{
 			bLButtonState = false;
 			if (Gun->type == GameObject::GO_BOW)
+			{
+				G->PlayAnimation("Shoot", 0, 2.0f);
 				G->truereset();
-			//insert shooting here
+				shooting = false;
+			}
 			else
 			{
+				G->PlayAnimation("Shoot", 0, 2.0f);
 				G->Update(dt);
+				shooting = false;
 			}
 
+			if (shooting == false)
+			{
+				SceneCollision::shooting(elapsedTime, prevTime, Gun);
+			}
 		}
 
+		
+
+		
 
 		//Physics Simulation Section
 		unsigned size = m_goList.size();
@@ -375,11 +449,11 @@ void SceneCollision::Update(double dt)
 					}
 				}
 				// Handle X-Axis Bound
-				if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
-					((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
-				{
-					go->vel.x = -go->vel.x;
-				}
+				//if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
+				//	((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
+				//{
+				//	//go->vel.x = -go->vel.x;
+				//}
 
 				if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
 
@@ -389,10 +463,10 @@ void SceneCollision::Update(double dt)
 
 				// Handle Y-Axis Bound
 				if (go->thickWall == 0) {
-					if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
+				/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
 					{
 						go->vel.y = -go->vel.y;
-					}
+					}*/
 
 					if (go->pos.y < 0 || go->pos.y > m_worldHeight)
 					{
@@ -506,6 +580,16 @@ void SceneCollision::Update(double dt)
 						Angle = 0;
 					}
 					go->angle = Angle;
+					if (shooting)
+					{
+						if (Xaxis >= 0)
+							G->PlayAnimation("Shoot", 0, 1.0f);
+						else
+							G->PlayAnimation("ShootR", 0, 1.0f);
+
+						G->Reset();
+					}
+
 				}
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -551,8 +635,8 @@ void SceneCollision::Update(double dt)
 				quit = true;
 			}
 		}
-	}
 		break;
+	}
 	case lose:
 	{
 		static bool bLButtonState = false;
@@ -1009,6 +1093,7 @@ void SceneCollision::RenderGronkDialogue()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Gronk", Color(0, 0.75f, 0), 2.5f, 9, 11);
 	modelStack.PopMatrix();
 }
+
 float SceneCollision::calculateAngle(float x, float y)
 {
 	float angle;
@@ -1145,7 +1230,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_PROJECTILE:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, 1);
+		modelStack.Translate(go->pos.x, go->pos.y, 3);
 		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		switch (go->proj) {
@@ -1194,9 +1279,9 @@ void SceneCollision::Render()
 		camera.target.x, camera.target.y, camera.target.z,
 		camera.up.x, camera.up.y, camera.up.z
 	);
+
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
-
 
 	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {

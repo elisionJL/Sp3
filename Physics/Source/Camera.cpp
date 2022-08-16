@@ -25,6 +25,10 @@ void Camera::Reset()
 	up.Set(0, 1, 0);
 }
 
-void Camera::Update(double dt)
-{
+void Camera::Update(double dt, Vector3 Player, float m_worldWidth, float m_worldHeight)
+{	
+	position.x = Player.x - (m_worldWidth / 2);
+	position.y = Player.y - (m_worldHeight / 2);
+	target.x = Player.x - (m_worldWidth / 2);
+	target.y = Player.y - (m_worldHeight / 2);
 }
