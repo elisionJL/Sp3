@@ -248,6 +248,11 @@ void SpriteAnimation::PlayAnimation(std::string anim_name, int repeat, float tim
 	}
 }
 
+bool SpriteAnimation::getAnimationStatus(std::string anim_name)
+{
+	return animationList[anim_name]->ended;
+}
+
 /******************************************************************************/
 /*!
 \brief

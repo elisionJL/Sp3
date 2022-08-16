@@ -113,7 +113,7 @@ void SceneBase::Init()
 	//to add animation do this
 
 	//SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
-	////Add the animation “ROW1” that start at 0 with 4 frameshjb
+	////Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frameshjb
 	//sa->AddAnimation("ROW1", 0, 4);
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
@@ -127,8 +127,14 @@ void SceneBase::Init()
 	meshList[GEO_PLAYER]->textureID = LoadTexture("Image//playerSpriteSheet.psd", true);
 	meshList[GEO_PLAYER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
+	sa->AddAnimation("idleR", 0, 7);
+	sa->AddAnimation("idleL", 10, 17);
 	sa->AddAnimation("walkR", 30, 39);
 	sa->AddAnimation("walkL", 20, 29);
+	sa->AddAnimation("rollL", 40, 48);
+	sa->AddAnimation("rollR", 50, 58);
+	sa->AddAnimation("death", 60, 67);
+
 
 	meshList[GEO_BOUNCE] = MeshBuilder::GenerateQuad("bounce", Color(1, 1, 1), 1.f);
 	meshList[GEO_BOUNCE]->textureID = LoadTexture("Image//bounceWall.png", true);
@@ -207,12 +213,58 @@ void SceneBase::Init()
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
 	meshList[GEO_COMPANION]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
-	//Add the animation “ROW1” that start at 0 with 4 frames
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
 
+	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 2, 6);
+	meshList[GEO_BOW]->textureID = LoadTexture("Image//bow.png", true);
+	meshList[GEO_BOW]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Bow = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOW]);
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
+	Bow->AddAnimation("Shoot", 0, 12);
+	Bow->AddAnimation("Idle", 0, 1);
+
+	meshList[GEO_GL] = MeshBuilder::GenerateSpriteAnimation("GL", 1, 5);
+	meshList[GEO_GL]->textureID = LoadTexture("Image//GL.png", true);
+	meshList[GEO_GL]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
+	GL->AddAnimation("Shoot", 0, 5);
+	GL->AddAnimation("Idle", 0, 1);
+
+	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 5);
+	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
+	meshList[GEO_SHOTGUN]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
+	Shotgun->AddAnimation("Shoot", 0, 5);
+	Shotgun->AddAnimation("Idle", 0, 1);
+
+	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 2);
+	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
+	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
+	Pistol->AddAnimation("Shoot", 0, 2);
+	Pistol->AddAnimation("Idle", 0, 1);
+
+	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 1, 2);
+	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
+	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
+	Sniper->AddAnimation("Shoot", 0, 2);
+	Sniper->AddAnimation("Idle", 0, 1);
 
 
+	//Shopkeeper
+	meshList[GEO_GRONK] = MeshBuilder::GenerateSpriteAnimation("Gronk", 1, 12);
+	meshList[GEO_GRONK]->textureID = LoadTexture("Image//Gronk.png", true);
+	meshList[GEO_GRONK]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
+	//Add the animation ï¿½ROW1ï¿½ that start at 0 with 4 frames
+	gronk->AddAnimation("Idle", 0, 12);
 
 	bLightEnabled = true;
 }

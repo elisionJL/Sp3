@@ -44,6 +44,7 @@ protected:
 	std::vector<GameObject*> m_thinWallList;
 	std::vector<GameObject*> m_bouncerList;
 	GameObject* Companion;
+	GameObject* Gronk;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
@@ -79,6 +80,11 @@ protected:
 	int flip;
 	int rotationorder;
 	float companionX, companionY;
+	GameObject* Gun;
+	double GunShootingTimer;
+	Mesh* CurrentGun;
+
+	string GronkDialogue[50];
 
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;
