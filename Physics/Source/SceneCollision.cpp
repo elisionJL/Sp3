@@ -369,6 +369,7 @@ void SceneCollision::Update(double dt)
 			bLButtonState = false;
 			if (Gun->type == GameObject::GO_BOW)
 			{
+				G->PlayAnimation("Shoot", 0, 2.0f);
 				G->truereset();
 				shooting = false;
 			}
