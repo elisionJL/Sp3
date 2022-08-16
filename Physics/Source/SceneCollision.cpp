@@ -41,8 +41,6 @@ void SceneCollision::Init()
 	CurrentTextWrite = false, TextFinished = false;
 	CurrentCharText = 0;
 	randomDialogue = 0;
-	Gronk = FetchGO();
-	Gronk->mass = 1;
 
 	companionX = 9;
 	companionY = 9;
@@ -107,6 +105,14 @@ void SceneCollision::Update(double dt)
 	windowwidth = Application::GetWindowWidth();
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
+	if(currentState == main)
+		camera.Update(dt, cPlayer2D->pos, m_worldWidth, m_worldHeight);
+	else {
+		camera.position.Set(0, 0, 1);
+		camera.target.Set(0, 0, 0);
+		camera.up.Set(0, 1, 0);
+	}
 	switch (currentState) {
 	case start:
 	{
@@ -159,6 +165,8 @@ void SceneCollision::Update(double dt)
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(4);
 
+				Gronk = FetchGO();
+				Gronk->mass = 1;
 				Gronk->type = GameObject::GO_GRONK;
 				Gronk->mass = 5;
 				Gronk->scale.Set(1, 1, 1);
@@ -203,7 +211,7 @@ void SceneCollision::Update(double dt)
 					GameObject* go = (GameObject*)*it;
 					if (go->active)
 						if (go->type == GameObject::GO_GRONK)
-							go = NULL;
+							ReturnGO(go);
 				}
 
 				cSoundController->StopAllSound();
@@ -282,19 +290,40 @@ void SceneCollision::Update(double dt)
 		{
 			flip = 1;
 		}
-		if (Application::IsKeyPressed('X'))
-		{
-			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+
+
+		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+		static bool bLButtonState = false;
+		if (!bLButtonState && Application::IsMousePressed(0))
+		{			
 			if (Gun->type == GameObject::GO_BOW)
 			{
-				G->PlayAnimation("Shoot", -1, 2.0f);
+				G->PlayAnimation("Shoot", 0, 2.0f);
 			}
 			else
 			{
-				G->PlayAnimation("Shoot", -1, 1.0f);
+				float Xaxis = mousePos.x - Gun->pos.x;
+				if (Xaxis >= 0)
+					G->PlayAnimation("Shoot", 0, 1.0f);
+				else
+					G->PlayAnimation("ShootR", 0, 1.0f);
+
 			}
 			G->Update(dt);
 		}
+		else if (!Application::IsMousePressed(0))
+		{
+			bLButtonState = false;
+			if (Gun->type == GameObject::GO_BOW)
+				G->truereset();
+			//insert shooting here
+			else
+			{
+				G->Update(dt);
+			}
+
+		}
+
 
 		//Physics Simulation Section
 		unsigned size = m_goList.size();
@@ -465,8 +494,8 @@ void SceneCollision::Update(double dt)
 				}
 				if (go == Gun)
 				{
-					float Xaxis = go->pos.x - mousePos.x;
-					float Yaxis = go->pos.y - mousePos.y;
+					float Xaxis = mousePos.x - go->pos.x;
+					float Yaxis = mousePos.y - go->pos.y;
 
 					float Angle;
 					if (Xaxis <= 0 && Yaxis <= 0) {
@@ -1173,9 +1202,9 @@ void SceneCollision::Render()
 		camera.target.x, camera.target.y, camera.target.z,
 		camera.up.x, camera.up.y, camera.up.z
 	);
+
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
-
 
 	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {
