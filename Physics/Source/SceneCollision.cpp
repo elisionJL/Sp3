@@ -52,7 +52,6 @@ void SceneCollision::Init()
 	GunShootingTimer = 0;
 
 	rotationorder = 1;
-	GronkDialogue[50] = {"Welcome to Gronk Shop!", "Gronk has many stuff!", "Player died " + }
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -397,17 +396,14 @@ void SceneCollision::Update(double dt)
 		if (Application::IsKeyPressed('X'))
 		{
 			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
-			//Play the animation �ROW1� that is looping infinitely and
-			//each animation completes in 2 sec
 			if (Gun->type == GameObject::GO_BOW)
 			{
-				G->PlayAnimation("Shoot", 1, 2.0f);
+				G->PlayAnimation("Shoot", 0, 2.0f);
 			}
 			else
 			{
 				G->PlayAnimation("Shoot", 0, 1.0f);
 			}
-
 			G->Update(dt);
 		}
 
