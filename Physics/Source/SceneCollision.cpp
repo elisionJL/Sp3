@@ -121,7 +121,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_BOW;
+				Gun->type = GameObject::GO_PISTOL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
