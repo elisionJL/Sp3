@@ -44,6 +44,8 @@ void SceneCollision::Init()
 
 	companionX = 9;
 	companionY = 9;
+
+	rotationorder = 1;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -130,8 +132,10 @@ void SceneCollision::Update(double dt)
 				cSoundController->PlaySoundByID(5);
 			}
 
-			else 	if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
-				//Shop Code
+			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
+				cSoundController->StopAllSound();
+				cSoundController->PlaySoundByID(4);
+				currentState = shop;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.17 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.17) && (mousePos.y <= (m_worldHeight * 0.1) + 4.75 && mousePos.y >= (m_worldHeight * 0.1) - 4.75)) {
 				quit = true;
@@ -143,6 +147,10 @@ void SceneCollision::Update(double dt)
 		}
 		break;
 	}
+	case shop:
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) { //Back button
+		}
+		break;
 	case main:
 	{
 		seconds -= dt;
@@ -325,7 +333,7 @@ void SceneCollision::Update(double dt)
 		{
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
-			Companion->scale.Set(10, 10, 1);
+			Companion->scale.Set(7, 7, 1);
 			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
 			Companion->vel.SetZero();
 		}
@@ -447,17 +455,77 @@ void SceneCollision::Update(double dt)
 				}
 				if (go->type == GameObject::GO_COMPANION)
 				{
+					float moveXby;
+					float moveYby;
+					if (rotationorder == 1)
+					{
+						moveXby = -0.5;
+						moveYby = 0.2;
+						if (companionX <= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 2)
+					{
+						moveXby = -0.5;
+						moveYby = -0.2;
+						if (companionX <= -9)
+							rotationorder++;
+					}
+					else if (rotationorder == 3)
+					{
+						moveXby = -0.2;
+						moveYby = -0.5;
+						if (companionY <= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 4)
+					{
+						moveXby = 0.2;
+						moveYby = -0.5;
+						if (companionY <= -9)
+							rotationorder++;
+					}
+					else if (rotationorder == 5)
+					{
+						moveXby = 0.5;
+						moveYby = -0.2;
+						if (companionX >= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 6)
+					{
+						moveXby = 0.5;
+						moveYby = 0.2;
+						if (companionX >= 9)
+							rotationorder++;
+					}
+					else if (rotationorder == 7)
+					{
+						moveXby = 0.2;
+						moveYby = 0.5;
+						if (companionY >= 0)
+							rotationorder++;
+					}
+					else
+					{
+						moveXby = -0.2;
+						moveYby = 0.5;
+						if (companionY >= 9)
+							rotationorder = 1;
+					}
+
+					companionX += moveXby;
+					companionY += moveYby;
+
+
 					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
 					//Play the animation “ROW1” that is looping infinitely and
 					//each animation completes in 2 sec
 					if (flip == 1)
-					{
 						Companion->PlayAnimation("RunningR", -1, 2.0f);
-					}
 					else
-					{
 						Companion->PlayAnimation("RunningL", -1, 2.0f);
-					}
+
 					Companion->Update(dt);
 				}
 				GameObject* go2 = nullptr;
@@ -1099,8 +1167,8 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(88, 50, 0);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		modelStack.Translate(cPlayer2D->playerX + companionX, cPlayer2D->playerY + companionY, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
 		modelStack.PopMatrix();
 		break;
@@ -1169,6 +1237,19 @@ void SceneCollision::Render()
 	switch (currentState) {
 	case start:
 		RenderTitleScreen();
+		break;
+	case shop:
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
+		modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+		RenderMesh(meshList[GEO_SHOP_BG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.8f, 1);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.5, 0);
+		RenderMesh(meshList[GEO_SHOP_SIGN], false);
+		modelStack.PopMatrix();
 		break;
 	case main:
 	{

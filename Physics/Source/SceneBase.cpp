@@ -157,6 +157,12 @@ void SceneBase::Init()
 	meshList[GEO_SHOP] = MeshBuilder::GenerateQuad("shop", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHOP]->textureID = LoadTexture("Image//Shop.png", true);
 
+	meshList[GEO_SHOP_BG] = MeshBuilder::GenerateQuad("shopbg", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHOP_BG]->textureID = LoadTexture("Image//Shop_BG.png", true);
+
+	meshList[GEO_SHOP_SIGN] = MeshBuilder::GenerateQuad("signboard", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHOP_SIGN]->textureID = LoadTexture("Image//Wooden_Sign.png", true);
+
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
 
