@@ -38,6 +38,7 @@ void SceneBase::Init()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glEnable(GL_BLEND);
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glGenVertexArrays(1, &m_vertexArrayID);
@@ -155,6 +156,12 @@ void SceneBase::Init()
 
 	meshList[GEO_SHOP] = MeshBuilder::GenerateQuad("shop", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHOP]->textureID = LoadTexture("Image//Shop.png", true);
+
+	meshList[GEO_SHOP_BG] = MeshBuilder::GenerateQuad("shopbg", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHOP_BG]->textureID = LoadTexture("Image//Shop_BG.png", true);
+
+	meshList[GEO_SHOP_SIGN] = MeshBuilder::GenerateQuad("signboard", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHOP_SIGN]->textureID = LoadTexture("Image//Wooden_Sign.png", true);
 
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
@@ -295,7 +302,6 @@ void SceneBase::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, fl
 void SceneBase::RenderMesh(Mesh* mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
-
 	MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
 	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
 	if (enableLight && bLightEnabled)
