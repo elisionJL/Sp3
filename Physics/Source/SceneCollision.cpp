@@ -399,10 +399,14 @@ void SceneCollision::Update(double dt)
 			if (Gun->type == GameObject::GO_BOW)
 			{
 				G->PlayAnimation("Shoot", 0, 2.0f);
+				if (G->getAnimationStatus("Shoot"))
+					G->Reset();
 			}
 			else
 			{
 				G->PlayAnimation("Shoot", 0, 1.0f);
+				if (G->getAnimationStatus("Shoot"))
+					G->Reset();
 			}
 			G->Update(dt);
 		}
