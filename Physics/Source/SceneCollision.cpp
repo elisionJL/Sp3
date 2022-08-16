@@ -38,6 +38,14 @@ void SceneCollision::Init()
 	cSoundController->PlaySoundByID(1);
 
 	//Companion->mass = 1;
+	Companion = FetchGO();
+	Companion->mass = 1;
+	flip = 1;
+
+	companionX = 9;
+	companionY = 9;
+
+	rotationorder = 1;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -321,23 +329,22 @@ void SceneCollision::Update(double dt)
 				rechargeMulti = 1;
 			}
 		}
-		if (Application::IsKeyPressed('E'))
+		if (Application::IsKeyPressed('E') && Companion->mass == 1)
 		{
-			Companion = FetchGO();
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
-			Companion->scale.Set(2, 2, 1);
-			Companion->vel.SetZero();
+			Companion->scale.Set(7, 7, 1);
 			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+			Companion->vel.SetZero();
 		}
 
 		if (Application::IsKeyPressed('A'))
 		{
-
+			flip = 0;
 		}
 		if (Application::IsKeyPressed('D'))
 		{
-
+			flip = 1;
 		}
 
 		//Physics Simulation Section
@@ -409,7 +416,7 @@ void SceneCollision::Update(double dt)
 
 				if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
 
-					if (go->type = GameObject::GO_BALL) {
+					if (go->type == GameObject::GO_BALL) {
 						if (ballcount > 0) {
 							--ballcount;
 						}
@@ -427,7 +434,7 @@ void SceneCollision::Update(double dt)
 
 					if (go->pos.y < 0 || go->pos.y > m_worldHeight)
 					{
-						if (go->type = GameObject::GO_BALL) {
+						if (go->type == GameObject::GO_BALL) {
 							if (ballcount > 0) {
 								--ballcount;
 							}
@@ -448,10 +455,77 @@ void SceneCollision::Update(double dt)
 				}
 				if (go->type == GameObject::GO_COMPANION)
 				{
-					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_BALL]);
+					float moveXby;
+					float moveYby;
+					if (rotationorder == 1)
+					{
+						moveXby = -0.5;
+						moveYby = 0.2;
+						if (companionX <= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 2)
+					{
+						moveXby = -0.5;
+						moveYby = -0.2;
+						if (companionX <= -9)
+							rotationorder++;
+					}
+					else if (rotationorder == 3)
+					{
+						moveXby = -0.2;
+						moveYby = -0.5;
+						if (companionY <= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 4)
+					{
+						moveXby = 0.2;
+						moveYby = -0.5;
+						if (companionY <= -9)
+							rotationorder++;
+					}
+					else if (rotationorder == 5)
+					{
+						moveXby = 0.5;
+						moveYby = -0.2;
+						if (companionX >= 0)
+							rotationorder++;
+					}
+					else if (rotationorder == 6)
+					{
+						moveXby = 0.5;
+						moveYby = 0.2;
+						if (companionX >= 9)
+							rotationorder++;
+					}
+					else if (rotationorder == 7)
+					{
+						moveXby = 0.2;
+						moveYby = 0.5;
+						if (companionY >= 0)
+							rotationorder++;
+					}
+					else
+					{
+						moveXby = -0.2;
+						moveYby = 0.5;
+						if (companionY >= 9)
+							rotationorder = 1;
+					}
+
+					companionX += moveXby;
+					companionY += moveYby;
+
+
+					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
 					//Play the animation “ROW1” that is looping infinitely and
 					//each animation completes in 2 sec
-					Companion->PlayAnimation("RunningRight", -1, 2.0f);
+					if (flip == 1)
+						Companion->PlayAnimation("RunningR", -1, 2.0f);
+					else
+						Companion->PlayAnimation("RunningL", -1, 2.0f);
+
 					Companion->Update(dt);
 				}
 				GameObject* go2 = nullptr;
@@ -472,8 +546,7 @@ void SceneCollision::Update(double dt)
 					{
 						CollisionResponse(actor, actee);
 					}
-				}
-				
+				}				
 			}
 		}
 		if (hp <= 0) {
@@ -606,7 +679,6 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) {
 		}
 		Vector3 relativeVel = go1->vel - go2->vel;
 		Vector3 disDiff = go2->pos - go1->pos;
-
 		if (relativeVel.Dot(disDiff) <= 0) {
 			return false;
 		}
@@ -1092,6 +1164,13 @@ void SceneCollision::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_BALL], false);
 		modelStack.PopMatrix();
 		//Exercise 11: think of a way to give balls different colors
+		break;
+	case GameObject::GO_COMPANION:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->playerX + companionX, cPlayer2D->playerY + companionY, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_COMPANION], true);
+		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_WALL:
 		modelStack.PushMatrix();
