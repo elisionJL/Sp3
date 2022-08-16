@@ -39,11 +39,14 @@ void SceneCollision::Init()
 
 	//Companion->mass = 1;
 	Companion = FetchGO();
+	Gun = FetchGO();
 	Companion->mass = 1;
 	flip = 1;
 
 	companionX = 9;
 	companionY = 9;
+
+	GunShootingTimer = 0;
 
 	rotationorder = 1;
 }
@@ -127,6 +130,35 @@ void SceneCollision::Update(double dt)
 				rechargeTime = 0;
 				extendTime = 0;
 				extendMulti = 1;
+				Gun->type = GameObject::GO_GL;
+				Gun->mass = 2;
+				if (Gun->type == GameObject::GO_GL)
+				{
+					Gun->scale.Set(7, 3.5, 1);
+					CurrentGun = meshList[GEO_GL];
+				}
+				else if (Gun->type == GameObject::GO_BOW)
+				{
+					Gun->scale.Set(7, 7, 1);
+					CurrentGun = meshList[GEO_BOW];
+				}
+				else if (Gun->type == GameObject::GO_SHOTGUN)
+				{
+					Gun->scale.Set(7, 3.5, 1);
+					CurrentGun = meshList[GEO_SHOTGUN];
+				}
+				else if (Gun->type == GameObject::GO_SNIPER)
+				{
+					Gun->scale.Set(7, 3.5, 1);
+					CurrentGun = meshList[GEO_SNIPER];
+				}
+				else if (Gun->type == GameObject::GO_PISTOL)
+				{
+					Gun->scale.Set(7, 3.5, 1);
+					CurrentGun = meshList[GEO_PISTOL];
+				}
+				Gun->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 3);
+				Gun->vel.SetZero();
 
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
@@ -346,6 +378,22 @@ void SceneCollision::Update(double dt)
 		{
 			flip = 1;
 		}
+		if (Application::IsKeyPressed('X'))
+		{
+			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+			//Play the animation “ROW1” that is looping infinitely and
+			//each animation completes in 2 sec
+			if (Gun->type == GameObject::GO_BOW)
+			{
+				G->PlayAnimation("Shoot", 1, 2.0f);
+			}
+			else
+			{
+				G->PlayAnimation("Shoot", 0, 1.0f);
+			}
+
+			G->Update(dt);
+		}
 
 		//Physics Simulation Section
 		unsigned size = m_goList.size();
@@ -455,65 +503,67 @@ void SceneCollision::Update(double dt)
 				}
 				if (go->type == GameObject::GO_COMPANION)
 				{
+
 					float moveXby;
 					float moveYby;
-					if (rotationorder == 1)
 					{
-						moveXby = -0.5;
-						moveYby = 0.2;
-						if (companionX <= 0)
-							rotationorder++;
+						if (rotationorder == 1)
+						{
+							moveXby = -0.5;
+							moveYby = 0.2;
+							if (companionX <= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 2)
+						{
+							moveXby = -0.5;
+							moveYby = -0.2;
+							if (companionX <= -9)
+								rotationorder++;
+						}
+						else if (rotationorder == 3)
+						{
+							moveXby = -0.2;
+							moveYby = -0.5;
+							if (companionY <= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 4)
+						{
+							moveXby = 0.2;
+							moveYby = -0.5;
+							if (companionY <= -9)
+								rotationorder++;
+						}
+						else if (rotationorder == 5)
+						{
+							moveXby = 0.5;
+							moveYby = -0.2;
+							if (companionX >= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 6)
+						{
+							moveXby = 0.5;
+							moveYby = 0.2;
+							if (companionX >= 9)
+								rotationorder++;
+						}
+						else if (rotationorder == 7)
+						{
+							moveXby = 0.2;
+							moveYby = 0.5;
+							if (companionY >= 0)
+								rotationorder++;
+						}
+						else
+						{
+							moveXby = -0.2;
+							moveYby = 0.5;
+							if (companionY >= 9)
+								rotationorder = 1;
+						}
 					}
-					else if (rotationorder == 2)
-					{
-						moveXby = -0.5;
-						moveYby = -0.2;
-						if (companionX <= -9)
-							rotationorder++;
-					}
-					else if (rotationorder == 3)
-					{
-						moveXby = -0.2;
-						moveYby = -0.5;
-						if (companionY <= 0)
-							rotationorder++;
-					}
-					else if (rotationorder == 4)
-					{
-						moveXby = 0.2;
-						moveYby = -0.5;
-						if (companionY <= -9)
-							rotationorder++;
-					}
-					else if (rotationorder == 5)
-					{
-						moveXby = 0.5;
-						moveYby = -0.2;
-						if (companionX >= 0)
-							rotationorder++;
-					}
-					else if (rotationorder == 6)
-					{
-						moveXby = 0.5;
-						moveYby = 0.2;
-						if (companionX >= 9)
-							rotationorder++;
-					}
-					else if (rotationorder == 7)
-					{
-						moveXby = 0.2;
-						moveYby = 0.5;
-						if (companionY >= 0)
-							rotationorder++;
-					}
-					else
-					{
-						moveXby = -0.2;
-						moveYby = 0.5;
-						if (companionY >= 9)
-							rotationorder = 1;
-					}
-
 					companionX += moveXby;
 					companionY += moveYby;
 
@@ -1170,6 +1220,27 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.Translate(cPlayer2D->playerX + companionX, cPlayer2D->playerY + companionY, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_BOW:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 2);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_BOW], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_GL:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 2);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_GL], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_SHOTGUN:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 2);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_SHOTGUN], true);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_WALL:

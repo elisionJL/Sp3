@@ -79,6 +79,9 @@ protected:
 	int flip;
 	int rotationorder;
 	float companionX, companionY;
+	GameObject* Gun;
+	double GunShootingTimer;
+	Mesh* CurrentGun;
 
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;

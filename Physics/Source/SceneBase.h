@@ -82,7 +82,11 @@ public:
 
 
 		GEO_COMPANION,
-
+		GEO_SHOTGUN,
+		GEO_SNIPER,
+		GEO_BOW,
+		GEO_PISTOL,
+		GEO_GL,
 		NUM_GEOMETRY,
 	};
 public:

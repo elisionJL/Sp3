@@ -211,6 +211,41 @@ void SceneBase::Init()
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
 
+	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 2, 6);
+	meshList[GEO_BOW]->textureID = LoadTexture("Image//bow.png", true);
+	meshList[GEO_BOW]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Bow = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOW]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	Bow->AddAnimation("Shoot", 0, 12);
+
+	meshList[GEO_GL] = MeshBuilder::GenerateSpriteAnimation("GL", 1, 5);
+	meshList[GEO_GL]->textureID = LoadTexture("Image//GL.png", true);
+	meshList[GEO_GL]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	GL->AddAnimation("Shoot", 0, 5);
+
+	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 5);
+	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
+	meshList[GEO_SHOTGUN]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	Shotgun->AddAnimation("Shoot", 0, 5);
+
+	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 1, 2);
+	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
+	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	Pistol->AddAnimation("Shoot", 0, 2);
+
+	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 1, 2);
+	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
+	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
+	//Add the animation “ROW1” that start at 0 with 4 frames
+	Sniper->AddAnimation("Shoot", 0, 2);
+
 
 
 
