@@ -325,7 +325,7 @@ void SceneCollision::Update(double dt)
 		{
 			Companion->type = GameObject::GO_COMPANION;
 			Companion->mass = 5;
-			Companion->scale.Set(2, 2, 1);
+			Companion->scale.Set(10, 10, 1);
 			Companion->pos.Set(cPlayer2D->playerX, cPlayer2D->playerY, 1);
 			Companion->vel.SetZero();
 		}
@@ -1099,7 +1099,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, go->pos.z);
+		modelStack.Translate(88, 50, 0);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		RenderMesh(meshList[GEO_COMPANION], true);
 		modelStack.PopMatrix();
@@ -1164,11 +1164,6 @@ void SceneCollision::Render()
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
 
-	modelStack.PushMatrix();
-	modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 0);
-	modelStack.Scale(10,10, 1);
-	RenderMesh(meshList[GEO_PLAYER], false);
-	modelStack.PopMatrix();
 
 	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {
@@ -1188,6 +1183,13 @@ void SceneCollision::Render()
 		modelStack.Scale(m_worldWidth, 1, 0);
 		RenderMesh(meshList[GEO_LINE], false);
 		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->playerX, cPlayer2D->playerY, 1);
+		modelStack.Scale(10, 10, 1);
+		RenderMesh(meshList[GEO_PLAYER], false);
+		modelStack.PopMatrix();
+
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
 			GameObject* go = (GameObject*)*it;

@@ -14,7 +14,6 @@ void CPlayer2D::Init()
 
 void CPlayer2D::Update(double dt)
 {
-	//if(Application::IsKeyPressed(VK_KEY_W))
 	if (Application::IsKeyPressed('W')) {
 		playerY += 10 * dt;
 	}
