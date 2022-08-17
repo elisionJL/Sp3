@@ -168,7 +168,7 @@ void SceneCollision::shooting (double elapsedTime, int numberofshots, GameObject
 					break;
 				}
 				timerforbullets.push_back(elapsedTime + 2.0f);
-				go->lifetime = timerforbullets.size() - 1;
+				go->lifetime = timerforbullets.size() - 1; 
 			}
 		}
 	}
