@@ -201,7 +201,7 @@ void SceneCollision::Update(double dt)
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
 
-	if (currentState == main)
+	if(currentState == main)
 		camera.Update(dt, cPlayer2D->pos, m_worldWidth, m_worldHeight);
 	else {
 		camera.position.Set(0, 0, 1);
@@ -262,8 +262,8 @@ void SceneCollision::Update(double dt)
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
 				cSoundController->StopAllSound();
-				SpawnTree();
 				cSoundController->PlaySoundByID(5);
+				SpawnTree();
 			}
 
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
@@ -422,6 +422,10 @@ void SceneCollision::Update(double dt)
 			blMButtonState = false;
 		}
 
+
+
+
+
 		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 		bool shooting = true;
 		{
@@ -518,20 +522,6 @@ void SceneCollision::Update(double dt)
 						needtofinishanimation = false;
 				}
 			}
-			else if (Gun->type != GameObject::GO_BOW)
-			{
-				float Xaxis = mousePos.x - Gun->pos.x;
-				if (Xaxis < 0)
-				{
-					G->PlayAnimation("ShootR", 0, 1.0f);
-					G->Reset();
-				}
-				if (Xaxis >= 0)
-				{
-					G->PlayAnimation("Shoot", 0, 1.0f);
-					G->Reset();
-				}
-			}
 
 
 
@@ -573,6 +563,7 @@ void SceneCollision::Update(double dt)
 		}
 
 		unsigned size = m_goList.size();
+
 		//Player collision
 		for (unsigned i = 0; i < size; ++i)
 		{
@@ -608,98 +599,22 @@ void SceneCollision::Update(double dt)
 				}
 			}
 		}
+
+
+
+
+
 		//Physics Simulation Section
 		for (unsigned i = 0; i < size; ++i)
 		{
 			GameObject* go = m_goList[i];
 			if (go->active)
 			{
-				if (go->PUIFrame > 0) {
-					go->PUIFrame -= dt;
-					if (go->PUIFrame <= 0) {
-						go->active = false;
-						continue;
-					}
-				}
-				if (go->placed == true && go->activeTime > 0 && go->thinWall > 0) {
-					go->activeTime -= dt;
-				}
-				else if (go->placed == true && go->activeTime < 0 && go->thinWall > 0) {
-					go->active = false;
-					continue;
-				}
+
 				go->pos += go->vel * dt * m_speed;
-				if (go->pos.y < m_worldHeight * 0.4 && go->thickWall > 0) {
-					int target = go->thickWall;
-					int destroyed = 0;
-					std::vector<GameObject*>::iterator prev = m_thickWallList.begin();
-					std::vector<GameObject*>::iterator i = m_thickWallList.begin();
-					while (destroyed != 6) {
-						GameObject* go = (GameObject*)*i;
-						if (go->thickWall == target) {
-							go->active = false;
-							if (i == prev) {
-								m_thickWallList.erase(i);
-								i = m_thickWallList.begin();
-								prev = m_thickWallList.begin();
-								++destroyed;
-								continue;
-							}
-							else {
-								m_thickWallList.erase(i);
-								i = prev;
-								++i;
-								++destroyed;
-							}
-						}
-						else {
-							++i;
-						}
-						if (destroyed == 6) {
-							break;
-						}
-						if (i == m_thickWallList.end()) {
-							break;
-						}
-						prev = i;
-					}
-				}
-
-				if ((go->pos.x < 0 || go->pos.x > m_worldWidth) && go->type != GameObject::GO_BOSS_SLIME) {
-					if (go->type != GameObject::GO_TREE)
-					{
-						ReturnGO(go);
-						continue;
-					}
-				}
 
 
-				// Handle Y-Axis Bound
-				if (go->thickWall == 0) {
-					/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
-						{
-							go->vel.y = -go->vel.y;
-						}*/
-
-					if ((go->pos.y < 0 || go->pos.y > m_worldHeight) && go->type != GameObject::GO_BOSS_SLIME)
-					{
-						if (go->type != GameObject::GO_TREE)
-						{
-							ReturnGO(go);
-							continue;
-						}
-					}
-				}
-				else {
-					if (go->pos.y < 0 && go->type != GameObject::GO_BOSS_SLIME)
-					{
-						if (go->type != GameObject::GO_TREE)
-						{
-							ReturnGO(go);
-							continue;
-						}
-					}
-					if (go->type == GameObject::GO_COMPANION)
+				if (go->type == GameObject::GO_COMPANION)
 					{
 
 						float moveXby;
@@ -776,43 +691,44 @@ void SceneCollision::Update(double dt)
 
 						Companion->Update(dt);
 					}
-					else if (go == Gun)
-					{
-						float Xaxis = mousePos.x - go->pos.x;
-						float Yaxis = mousePos.y - go->pos.y;
+				else if (go == Gun)
+				{
+					float Xaxis = mousePos.x - go->pos.x;
+					float Yaxis = mousePos.y - go->pos.y;
 
-						float Angle;
-						if (Xaxis <= 0 && Yaxis <= 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis < 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis > 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else if (Xaxis > 0 && Yaxis < 0) {
-							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else {
-							Angle = 0;
-						}
-						go->angle = Angle;
-
+					float Angle;
+					if (Xaxis <= 0 && Yaxis <= 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
 					}
-					else if (go->type == GameObject::GO_PROJECTILE)
+					else if (Xaxis < 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis > 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else if (Xaxis > 0 && Yaxis < 0) {
+						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else {
+						Angle = 0;
+					}
+					go->angle = Angle;
+				}
+				else if (go->type == GameObject::GO_PROJECTILE)
+				{
+					if (Gun->type == GameObject::GO_SHOTGUN)
 					{
-						if (Gun->type == GameObject::GO_SHOTGUN)
+						if (elapsedTime > timerforbullets[go->lifetime])
 						{
-							if (elapsedTime > timerforbullets[go->lifetime])
-							{
-								ReturnGO(go);
-								timerforbullets[go->lifetime] = 0;
-							}
+							ReturnGO(go);
+							timerforbullets[go->lifetime] = 0;
 						}
 					}
-					GameObject* go2 = nullptr;
-					for (unsigned j = i + 1; j < size; ++j)
+				}
+
+
+				GameObject* go2 = nullptr;
+				for (unsigned j = i + 1; j < size; ++j)
 					{
 						go2 = m_goList[j];
 						GameObject* actor(go);
@@ -830,13 +746,12 @@ void SceneCollision::Update(double dt)
 							CollisionResponse(actor, actee);
 						}
 					}
-				}
+				if (cPlayer2D->getState() == cPlayer2D->DEAD) {
+					currentState = lose;
+				}				
 			}
-			if (cPlayer2D->getState() == cPlayer2D->DEAD) {
-				currentState = lose;
-			}
-			break;
 		}
+		break;
 	}
 	case win:
 	{
@@ -880,7 +795,6 @@ void SceneCollision::Update(double dt)
 	break;
 	}
 }
-
 
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) {
 	if (go1->type != GameObject::GO_BALL) {
@@ -1437,7 +1351,6 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_TREE:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
 		modelStack.Scale(go->scale.x, go->scale.y, 1);
 		RenderMesh(meshList[GEO_TREE], false);
@@ -1652,8 +1565,8 @@ void SceneCollision::Render()
 			for (int y = 1; y <= 6; ++y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
@@ -1661,8 +1574,8 @@ void SceneCollision::Render()
 			for (int y = -1; y >= -6; --y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
@@ -1672,8 +1585,8 @@ void SceneCollision::Render()
 			for (int y = -1; y >= -6; --y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
@@ -1681,21 +1594,15 @@ void SceneCollision::Render()
 			for (int y = 1; y <= 6; ++y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
 		}
-		//Render Background
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.4f, 1);
-		modelStack.Scale(m_worldWidth, 1, 0);
-		RenderMesh(meshList[GEO_LINE], false);
-		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 1.0001f);
 		modelStack.Scale(10, 10, 1);
 		RenderMesh(meshList[GEO_PLAYER], false);
 		modelStack.PopMatrix();
@@ -1717,23 +1624,6 @@ void SceneCollision::Render()
 			RenderMesh(meshList[GEO_BOSS_SLIME], false);
 			modelStack.PopMatrix();
 		}
-		float expX = cPlayer2D->pos.x , expY = cPlayer2D->pos.y - (m_worldHeight*0.4);
-		float expScaleX = m_worldWidth*0.95, expScaleY =2;
-		modelStack.PushMatrix();
-		modelStack.Translate(expX, expY, 3);
-		modelStack.Scale(expScaleX, expScaleY, 1);
-		RenderMesh(meshList[GEO_EXPBG], false);
-		modelStack.PopMatrix();
-
-		expScaleX = m_worldWidth * 0.75;
-		//expScaleX
-		modelStack.PushMatrix();
-		modelStack.Translate(expX, expY, 4);
-		modelStack.Scale(expScaleX, expScaleY, 1);
-		RenderMesh(meshList[GEO_EXP], false);
-		modelStack.PopMatrix();
-
-
 		//On screen text
 		std::ostringstream ss;
 		ss.precision(5);
@@ -1753,8 +1643,8 @@ void SceneCollision::Render()
 			ss << minutes << ":0" << seconds;
 		}
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1,0,0), 3, 3, 56);
+		break;
 	}
-	break;
 	case win:
 	{
 		modelStack.PushMatrix();
@@ -1820,13 +1710,5 @@ void SceneCollision::Exit()
 		delete go;
 		m_goList.pop_back();
 	}
-	while (enemyList.size() > 0)
-	{
-		GameObject* go = m_goList.back();
-		delete go;
-		enemyList.pop_back();
-	}
-	cPlayer2D->Destroy();
-
 	
 }
