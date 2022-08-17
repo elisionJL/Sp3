@@ -1624,7 +1624,8 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_EXPBG], false);
 		modelStack.PopMatrix();
 
-		expScaleX = m_worldWidth * 0.75;
+		expScaleX = Math::Min((float)(m_worldWidth * 0.75),m_worldWidth * (float)0.75 * (cPlayer2D->xp/((cPlayer2D->getLevel() - 1)* 10 +5) ));
+
 		//expScaleX
 		modelStack.PushMatrix();
 		modelStack.Translate(expX, expY, 4);
