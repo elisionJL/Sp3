@@ -180,6 +180,12 @@ void SceneBase::Init()
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//Grass_BG.png", true);
 
+	meshList[GEO_EXPBG] = MeshBuilder::GenerateQuad("expBarBG", Color(1, 1, 1), 1.f);
+	meshList[GEO_EXPBG]->textureID = LoadTexture("Image//expBarBG.png", true);
+
+	meshList[GEO_EXP] = MeshBuilder::GenerateQuad("expBar", Color(1, 1, 1), 1.f);
+	meshList[GEO_EXP]->textureID = LoadTexture("Image//expBar.png", true);
+
 	meshList[GEO_TREE] = MeshBuilder::GenerateQuad("tree", Color(1, 1, 1), 1.f);
 	meshList[GEO_TREE]->textureID = LoadTexture("Image//Tree.png", true);
 
