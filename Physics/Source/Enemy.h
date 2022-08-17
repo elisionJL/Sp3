@@ -1,9 +1,8 @@
 #pragma once
 
-#include "SceneBase.h"
+//#include "SceneBase.h"
 #include "GameObject.h"
 #include "Application.h"
-//#include "Player.h"
 
 class Enemy
 {
@@ -44,6 +43,5 @@ protected:
 		NUM_LOCATIONS
 	};
 
-	//CPlayer2D* cPlayer2D
 };
 

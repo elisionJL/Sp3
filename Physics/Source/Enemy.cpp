@@ -17,8 +17,6 @@ bool Enemy::Init(void)
 void Enemy::Update(const double dElapsedTime)
 {
 	//Update enemy movement to chase player
-	//Vector3 EnemyVel = Vector3(pos.x, pos.y, 0) - cPlayer2D->pos;
-	//vel = EnemyVel.Normalized() * 20;
 	
 	//Change enemy states in response to the direction they are moving	
 
