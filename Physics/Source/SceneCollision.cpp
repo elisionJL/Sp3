@@ -325,8 +325,6 @@ void SceneCollision::Update(double dt)
 			CurrentGun = meshList[GEO_PISTOL];
 		}
 
-
-
 		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 		bool shooting = true;
 		if (Application::IsMousePressed(0) && shooting)
@@ -364,7 +362,6 @@ void SceneCollision::Update(double dt)
 		}
 
 		
-
 		static bool bLButtonState = false;
 		if (!bLButtonState && Application::IsMousePressed(0))
 		{

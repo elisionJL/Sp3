@@ -19,6 +19,8 @@ public:
 	virtual void Exit();
 	virtual void setmeshList(Mesh* player);
 	Vector3 pos;
+	float xp;
+	int getLevel();
 	int getState();
 protected:
 	enum DIRECTION {
@@ -27,6 +29,7 @@ protected:
 	};
 	CPlayer2D();
 	~CPlayer2D();
+	int level;
 	STATES sCurrentState;
 	DIRECTION sFacingDirection;
 	Mesh* playerMesh;

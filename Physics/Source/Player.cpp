@@ -1,7 +1,7 @@
 #include "player.h"
 #include "Application.h"
 #include "SpriteAnimation.h"
-
+#include "iostream"
 void CPlayer2D::Init()
 {
 	hp = 30;
@@ -46,6 +46,7 @@ void CPlayer2D::Update(double dt)
 			if (sCurrentState != DODGING)
 				sCurrentState = IDLE;
 		}
+		
 		if (Application::IsKeyPressed('D')) {
 			sFacingDirection = RIGHT;
 			if (sCurrentState != DODGING)
@@ -59,8 +60,8 @@ void CPlayer2D::Update(double dt)
 			vel.x = -10;
 		}
 		else {
+			vel.x = 0;
 			if (sCurrentState == IDLE && sCurrentState != DODGING) {
-				vel.x = 0;
 				sCurrentState = IDLE;
 			}
 		}
@@ -138,6 +139,11 @@ void CPlayer2D::Exit()
 void CPlayer2D::setmeshList(Mesh* meshlist)
 {
 	playerMesh = meshlist;
+}
+
+int CPlayer2D::getLevel()
+{
+	return level;
 }
 
 int CPlayer2D::getState()
