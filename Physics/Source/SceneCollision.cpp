@@ -93,6 +93,7 @@ void SceneCollision::ReturnGO(GameObject *go)
 void SceneCollision::shooting (double elapsedTime, int numberofshots, GameObject* Gun)
 {
 	double x = 0, y = 0;
+	if (numberofshots > 1)
 	{
 		Application::GetCursorPos(&x, &y);
 		unsigned w = Application::GetWindowWidth();
@@ -172,6 +173,37 @@ void SceneCollision::shooting (double elapsedTime, int numberofshots, GameObject
 			}
 		}
 	}
+	else
+	{
+		GameObject* go = FetchGO();
+		go->type = GameObject::GO_PROJECTILE;
+		switch (Gun->type) {
+		case GameObject::GO_PISTOL:
+			go->proj = GameObject::pistol;
+			break;
+		case GameObject::GO_BOW:
+			go->proj = GameObject::bow;
+			break;
+		case GameObject::GO_GL:
+			go->proj = GameObject::GL;
+			break;
+		case GameObject::GO_SNIPER:
+			go->proj = GameObject::sniper;
+			break;
+		}
+		go->pos = cPlayer2D->pos;
+		go->pos.z += 2;
+		Application::GetCursorPos(&x, &y);
+		unsigned w = Application::GetWindowWidth();
+		unsigned h = Application::GetWindowHeight();
+		float posX = (x / w * m_worldWidth) + camera.position.x;
+		float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
+		Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
+		go->vel = BulVel.Normalized() * 20;
+		go->scale.Set(4.5f, 2.f, 1.0f);
+		go->angle = calculateAngle(BulVel.x, BulVel.y);
+		prevTime = elapsedTime;
+	}
 }
 
 void SceneCollision::Update(double dt)
@@ -222,7 +254,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_SHOTGUN;
+				Gun->type = GameObject::GO_GL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -293,6 +325,7 @@ void SceneCollision::Update(double dt)
 	}
 	case shop:
 	{
+		zaxis = 1;
 		SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
 		gronk->PlayAnimation("Idle", -1, 2.f);
 		gronk->Update(dt);
@@ -361,38 +394,6 @@ void SceneCollision::Update(double dt)
 			flip = 1;
 		}
 
-
-		if (Application::IsKeyPressed(VK_F1))
-		{
-			Gun->type = GameObject::GO_GL;
-			Gun->scale.Set(5, 2, 1);
-			CurrentGun = meshList[GEO_GL];
-			GunFrameWhereItStarts = 6;
-		}
-		else if (Application::IsKeyPressed(VK_F2))
-		{
-			Gun->type = GameObject::GO_BOW;
-			Gun->scale.Set(7, 7, 1);
-			CurrentGun = meshList[GEO_BOW];
-		}
-		else if (Application::IsKeyPressed(VK_F3))
-		{
-			Gun->type = GameObject::GO_SHOTGUN;
-			Gun->scale.Set(7, 3.5, 1);
-			CurrentGun = meshList[GEO_SHOTGUN];
-		}
-		else if (Application::IsKeyPressed(VK_F4))
-		{
-			Gun->type = GameObject::GO_SNIPER;
-			Gun->scale.Set(15, 5, 1);
-			CurrentGun = meshList[GEO_SNIPER];
-		}
-		else if (Application::IsKeyPressed(VK_F5))
-		{
-			Gun->type = GameObject::GO_PISTOL;
-			Gun->scale.Set(3, 1, 1);
-			CurrentGun = meshList[GEO_PISTOL];
-		}
 
 		//Enemy Spawn
 		static bool blMButtonState = false;
@@ -485,7 +486,7 @@ void SceneCollision::Update(double dt)
 					G->truereset();
 				}
 			}
-			if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
+			else if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
 			{
 				if (!xisneg)
 				{
@@ -518,6 +519,10 @@ void SceneCollision::Update(double dt)
 					if (!G->getAnimationStatus("ShootR"))
 						needtofinishanimation = false;
 				}
+			}
+			else if (!shooting && !needtofinishanimation)
+			{
+
 			}
 
 
