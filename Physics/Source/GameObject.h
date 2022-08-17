@@ -52,6 +52,7 @@ struct GameObject
 	Vector3 prevpos;
 	int thickWall;
 	int thinWall;
+	int lifetime;
 	//Rotation variables
 	Vector3 direction;
 	Vector3 linestart;

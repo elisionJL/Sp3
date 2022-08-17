@@ -90,62 +90,18 @@ void SceneCollision::ReturnGO(GameObject *go)
 	}
 }
 
-void SceneCollision::shooting (double elapsedTime, double prevTime, GameObject* Gun)
+void SceneCollision::shooting (double elapsedTime, int numberofshots, GameObject* Gun)
 {
 	double x = 0, y = 0;
-	float diff = elapsedTime - prevTime;
-	if (diff > 0.2) {
-		if (Gun->type == GameObject::GO_SHOTGUN)
-		{
-			for (int i = -22; i <= 22; i += 22)
-			{
-				GameObject* go = FetchGO();
-				go->type = GameObject::GO_PROJECTILE;
-				go->proj = GameObject::shotgun;
-				go->pos = cPlayer2D->pos;
-				go->pos.z += 2;
-				Application::GetCursorPos(&x, &y);
-				unsigned w = Application::GetWindowWidth();
-				unsigned h = Application::GetWindowHeight();
-				float posX = (x / w * m_worldWidth) + camera.position.x;
-				float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
-
-				
-				Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
-				go->vel = BulVel.Normalized() * 20;
-				go->scale.Set(4.5f, 2.f, 1.0f);
-				go->angle = calculateAngle(BulVel.x, BulVel.y) + i;
+	{
+		Application::GetCursorPos(&x, &y);
+		unsigned w = Application::GetWindowWidth();
+		unsigned h = Application::GetWindowHeight();
+		float posX = (x / w * m_worldWidth) + camera.position.x;
+		float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
 
 
-				float Xaxis = posX - cPlayer2D->pos.x;
-				float Yaxis = posY - cPlayer2D->pos.y;
-
-				if (Yaxis >= 0 && Xaxis >= 0)
-				{
-					go->vel.x += cos(i * Math::TWO_PI / 180);
-					go->vel.y += sin(i * Math::TWO_PI / 180);
-				}
-				else if (Yaxis < 0 && Xaxis >= 0)
-				{
-					go->vel.x -= cos(i * Math::TWO_PI / 180);
-					go->vel.y += sin(i * Math::TWO_PI / 180);
-				}
-				else if (Yaxis < 0 && Xaxis < 0)
-				{
-					go->vel.x -= cos(i * Math::TWO_PI / 180);
-					go->vel.y -= sin(i * Math::TWO_PI / 180);
-				}
-				else if (Yaxis >= 0 && Xaxis < 0)
-				{
-					go->vel.x += cos(i * Math::TWO_PI / 180);
-					go->vel.y -= sin(i * Math::TWO_PI / 180);
-				}
-				go->vel = go->vel.Normalized() * 20;
-
-				prevTime = elapsedTime;
-			}
-		}
-		else
+		for (int i = -20; i <= 20; i += 10)
 		{
 			GameObject* go = FetchGO();
 			go->type = GameObject::GO_PROJECTILE;
@@ -159,22 +115,61 @@ void SceneCollision::shooting (double elapsedTime, double prevTime, GameObject* 
 			case GameObject::GO_GL:
 				go->proj = GameObject::GL;
 				break;
+			case GameObject::GO_SHOTGUN:
+				go->proj = GameObject::shotgun;
+				break;
 			case GameObject::GO_SNIPER:
 				go->proj = GameObject::sniper;
 				break;
 			}
+
 			go->pos = cPlayer2D->pos;
-			go->pos.z += 2;
-			Application::GetCursorPos(&x, &y);
-			unsigned w = Application::GetWindowWidth();
-			unsigned h = Application::GetWindowHeight();
-			float posX = (x / w * m_worldWidth) + camera.position.x;
-			float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
-			Vector3 BulVel = Vector3(posX, posY, 0) - cPlayer2D->pos;
-			go->vel = BulVel.Normalized() * 20;
+			go->pos.z += 0.01;			
+			
+			
 			go->scale.Set(4.5f, 2.f, 1.0f);
-			go->angle = calculateAngle(BulVel.x, BulVel.y);
-			prevTime = elapsedTime;
+
+			float Xaxis = posX - cPlayer2D->pos.x;
+			float Yaxis = posY - cPlayer2D->pos.y;
+
+			if (Yaxis >= 0 && Xaxis >= 0)
+			{
+				go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+				go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+			}
+			else if (Yaxis < 0 && Xaxis >= 0)
+			{
+				go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+				go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+			}
+			else if (Yaxis < 0 && Xaxis < 0)
+			{
+				go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+				go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+			}
+			else if (Yaxis >= 0 && Xaxis < 0)
+			{
+				go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+				go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+			}
+
+			go->vel = go->vel.Normalized() * 20;
+			go->angle = calculateAngle(go->vel.x, go->vel.y);
+
+			{
+				for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+				{
+					if (timerforbullets[arraynumber] != 0)
+					{
+						continue;
+					}
+					timerforbullets[arraynumber] = elapsedTime + 2.0f;
+					go->lifetime = arraynumber;
+					break;
+				}
+				timerforbullets.push_back(elapsedTime + 2.0f);
+				go->lifetime = timerforbullets.size() - 1; 
+			}
 		}
 	}
 }
@@ -234,30 +229,35 @@ void SceneCollision::Update(double dt)
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_GL];
 					GunFrameWhereItStarts = 6;
+					numberofbullets = 1;
 				}
 				else if (Gun->type == GameObject::GO_BOW)
 				{
 					Gun->scale.Set(5, 5, 1);
 					CurrentGun = meshList[GEO_BOW];
 					GunFrameWhereItStarts = 0;
+					numberofbullets = 1;
 				}
 				else if (Gun->type == GameObject::GO_SHOTGUN)
 				{
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_SHOTGUN];
 					GunFrameWhereItStarts = 6;
+					numberofbullets = 5;
 				}
 				else if (Gun->type == GameObject::GO_SNIPER)
 				{
 					Gun->scale.Set(7, 2.5, 1);
 					CurrentGun = meshList[GEO_SNIPER];
 					GunFrameWhereItStarts = 3;
+					numberofbullets = 1;
 				}
 				else if (Gun->type == GameObject::GO_PISTOL)
 				{
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_PISTOL];
 					GunFrameWhereItStarts = 3;
+					numberofbullets = 1;
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
@@ -399,11 +399,15 @@ void SceneCollision::Update(double dt)
 			Vector3 Epos;
 			//GameObject* enemy = FetchGO();
 			Enemy* go = new Enemy();
-			
+
 			Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
 			go->type = GameObject::GO_BOSS_SLIME;
 			go->scale.Set(10, 10, 1);
 			go->pos = Epos;
+			//Vector3 EnemyVel = Vector3(x, y, 0) - cPlayer2D->pos;
+			//go->vel = EnemyVel.Normalized() * 20;
+
+
 
 			cout << Epos.x << endl;
 			cout << Epos.y << endl;
@@ -416,7 +420,7 @@ void SceneCollision::Update(double dt)
 		{
 			blMButtonState = false;
 		}
-		
+
 
 
 
@@ -447,11 +451,11 @@ void SceneCollision::Update(double dt)
 					{
 						if (G->getcurrentanimationframe("Shoot") == 0)
 						{
-							SceneCollision::shooting(elapsedTime, prevTime, Gun);
+							SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 						}
 						else if (G->getcurrentanimationframe("ShootR") == GunFrameWhereItStarts)
 						{
-							SceneCollision::shooting(elapsedTime, prevTime, Gun);
+							SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 						}
 
 						GunShoot = true;
@@ -465,11 +469,11 @@ void SceneCollision::Update(double dt)
 
 			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
 			{
-				SceneCollision::shooting(elapsedTime, prevTime, Gun);
+				SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 				shootonceonly = 0;
 			}
 			else if (GunShoot == true)
-			{				
+			{
 				float Xaxis = mousePos.x - Gun->pos.x;
 				if ((Xaxis >= 0 && !G->getAnimationStatus("Shoot")) || (Xaxis < 0 && !G->getAnimationStatus("ShootR")))
 				{
@@ -505,7 +509,7 @@ void SceneCollision::Update(double dt)
 				}
 
 				G->Update(dt);
-				
+
 				if (!xisneg)
 				{
 					if (!G->getAnimationStatus("Shoot"))
@@ -516,7 +520,20 @@ void SceneCollision::Update(double dt)
 					if (!G->getAnimationStatus("ShootR"))
 						needtofinishanimation = false;
 				}
-
+			}
+			else if (Gun->type != GameObject::GO_BOW)
+			{				
+				float Xaxis = mousePos.x - Gun->pos.x;
+				if (Xaxis < 0)
+				{
+					G->PlayAnimation("ShootR", 0, 1.0f);
+					G->Reset();
+				}				
+				if (Xaxis >= 0)
+				{
+					G->PlayAnimation("Shoot", 0, 1.0f);
+					G->Reset();
+				}
 			}
 
 
@@ -535,7 +552,7 @@ void SceneCollision::Update(double dt)
 					G->truereset();
 					if (shootonceonly == 1)
 					{
-						SceneCollision::shooting(elapsedTime, prevTime, Gun);
+						SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 					}
 					shooting = false;
 					shootonceonly = 1;
@@ -556,140 +573,151 @@ void SceneCollision::Update(double dt)
 					}
 				}
 			}
+		}
 
-			unsigned size = m_goList.size();
+		unsigned size = m_goList.size();
 
-			//Player collision
-			for (unsigned i = 0; i < size; ++i)
+		//Player collision
+		for (unsigned i = 0; i < size; ++i)
+		{
+			GameObject* go = m_goList[i];
+			if (go->active)
 			{
-				GameObject* go = m_goList[i];
-				if (go->active)
+				if (go->type == GameObject::GO_TREE)
 				{
-					if (go->type == GameObject::GO_TREE)
+					if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
 					{
-						if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
-							cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+						if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
 						{
-							if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
-								cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
-							{
-								cPlayer2D->CollisionDetectedHorizontal(true);
-							}
+							Vector3 TempPos;
+							TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
+							Vector3 NegativeX = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
+							Vector3 PositiveX = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
+							Vector3 NegativeY = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
+							Vector3 PositiveY = TempPos - cPlayer2D->pos;
 
-							else
-								cPlayer2D->CollisionDetectedHorizontal(false);
-						}
-						else if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) && cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
-						{
-							if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
-								cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
-							{
-								cPlayer2D->CollisionDetectedVertical(true);
-							}
-
-							else
-								cPlayer2D->CollisionDetectedVertical(false);
+							if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
+								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
+							else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
+							else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
+							else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
 						}
 					}
-
 				}
 			}
+		}
 
 
 
 
 
-			//Physics Simulation Section
-			for (unsigned i = 0; i < size; ++i)
+		//Physics Simulation Section
+		for (unsigned i = 0; i < size; ++i)
+		{
+			GameObject* go = m_goList[i];
+			if (go->active)
 			{
-				GameObject* go = m_goList[i];
-				if (go->active)
-				{
-					if (go->PUIFrame > 0) {
-						go->PUIFrame -= dt;
-						if (go->PUIFrame <= 0) {
+				if (go->PUIFrame > 0) {
+					go->PUIFrame -= dt;
+					if (go->PUIFrame <= 0) {
 							go->active = false;
 							continue;
 						}
-					}
-					if (go->placed == true && go->activeTime > 0 && go->thinWall > 0) {
-						go->activeTime -= dt;
-					}
-					else if (go->placed == true && go->activeTime < 0 && go->thinWall > 0) {
-						go->active = false;
-						continue;
-					}
-					go->pos += go->vel * dt * m_speed;
-					if (go->pos.y < m_worldHeight * 0.4 && go->thickWall > 0) {
-						int target = go->thickWall;
-						int destroyed = 0;
-						std::vector<GameObject*>::iterator prev = m_thickWallList.begin();
-						std::vector<GameObject*>::iterator i = m_thickWallList.begin();
-						while (destroyed != 6) {
-							GameObject* go = (GameObject*)*i;
-							if (go->thickWall == target) {
-								go->active = false;
-								if (i == prev) {
-									m_thickWallList.erase(i);
-									i = m_thickWallList.begin();
-									prev = m_thickWallList.begin();
-									++destroyed;
-									continue;
-								}
-								else {
-									m_thickWallList.erase(i);
-									i = prev;
-									++i;
-									++destroyed;
-								}
+				}
+				if (go->placed == true && go->activeTime > 0 && go->thinWall > 0) {
+					go->activeTime -= dt;
+				}
+				else if (go->placed == true && go->activeTime < 0 && go->thinWall > 0) {
+					go->active = false;
+					continue;
+				}
+				go->pos += go->vel * dt * m_speed;
+				if (go->pos.y < m_worldHeight * 0.4 && go->thickWall > 0) {
+					int target = go->thickWall;
+					int destroyed = 0;
+					std::vector<GameObject*>::iterator prev = m_thickWallList.begin();
+					std::vector<GameObject*>::iterator i = m_thickWallList.begin();
+					while (destroyed != 6) {
+						GameObject* go = (GameObject*)*i;
+						if (go->thickWall == target) {
+							go->active = false;
+							if (i == prev) {
+								m_thickWallList.erase(i);
+								i = m_thickWallList.begin();
+								prev = m_thickWallList.begin();
+								++destroyed;
+								continue;
 							}
 							else {
+								m_thickWallList.erase(i);
+								i = prev;
 								++i;
+								++destroyed;
 							}
-							if (destroyed == 6) {
-								break;
-							}
-							if (i == m_thickWallList.end()) {
-								break;
-							}
-							prev = i;
 						}
+						else {
+							++i;
+						}
+						if (destroyed == 6) {
+							break;
+						}
+						if (i == m_thickWallList.end()) {
+							break;
+						}
+						prev = i;
 					}
-					// Handle X-Axis Bound
-					//if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
-					//	((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
-					//{
-					//	//go->vel.x = -go->vel.x;
-					//}
+				}
+				// Handle X-Axis Bound
+				//if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
+				//	((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
+				//{
+				//	//go->vel.x = -go->vel.x;
+				//}
 
-				if ((go->pos.x < 0 || go->pos.x > m_worldWidth) && go->type != GameObject::GO_BOSS_SLIME) {
-
+						if ((go->pos.x < 0 || go->pos.x > m_worldWidth) && go->type != GameObject::GO_BOSS_SLIME) {
+							if (go->type != GameObject::GO_TREE)
+							{
+								ReturnGO(go);
+								continue;
+							}
+						}
 						ReturnGO(go);
 						continue;
 					}
 
-					// Handle Y-Axis Bound
-					if (go->thickWall == 0) {
-						/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
-							{
-								go->vel.y = -go->vel.y;
-							}*/
+				// Handle Y-Axis Bound
+				if (go->thickWall == 0) {
+					/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
+						{
+							go->vel.y = -go->vel.y;
+						}*/
 
 					if ((go->pos.y < 0 || go->pos.y > m_worldHeight ) && go->type != GameObject::GO_BOSS_SLIME)
 					{
-						ReturnGO(go);
-						continue;
+						if (go->type != GameObject::GO_TREE)
+						{
+							ReturnGO(go);
+							continue;
+						}
 					}
 				}
 				else {
 					if (go->pos.y < 0 && go->type != GameObject::GO_BOSS_SLIME)
 					{
-						ReturnGO(go);
-						continue;
+						if (go->type != GameObject::GO_TREE)
+						{
+							ReturnGO(go);
+							continue;
+						}
 					}
-				}
 				if (go->type == GameObject::GO_COMPANION)
-				{
+					{
 
 						float moveXby;
 						float moveYby;
@@ -765,65 +793,64 @@ void SceneCollision::Update(double dt)
 
 						Companion->Update(dt);
 					}
-					if (go == Gun)
-					{
-						float Xaxis = mousePos.x - go->pos.x;
-						float Yaxis = mousePos.y - go->pos.y;
+				else if (go == Gun)
+				{
+					float Xaxis = mousePos.x - go->pos.x;
+					float Yaxis = mousePos.y - go->pos.y;
 
-						if (shooting && go->type != GameObject::GO_BOW && !needtofinishanimation)
-						{
-							Xaxis = mousePos.x - Gun->pos.x;
-							if (Xaxis >= 0)
-								G->PlayAnimation("Shoot", 0, 1.0f);
-							else
-								G->PlayAnimation("ShootR", 0, 1.0f);
-
-							G->Reset();
-						}
-
-						float Angle;
-						if (Xaxis <= 0 && Yaxis <= 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis < 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis > 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else if (Xaxis > 0 && Yaxis < 0) {
-							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else {
-							Angle = 0;
-						}
-						go->angle = Angle;
-
+					float Angle;
+					if (Xaxis <= 0 && Yaxis <= 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
 					}
-					GameObject* go2 = nullptr;
-					for (unsigned j = i + 1; j < size; ++j)
+					else if (Xaxis < 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+					}
+					else if (Xaxis > 0 && Yaxis > 0) {
+						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else if (Xaxis > 0 && Yaxis < 0) {
+						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+					}
+					else {
+						Angle = 0;
+					}
+					go->angle = Angle;
+
+				}
+				else if (go->type == GameObject::GO_PROJECTILE)
+				{
+					if (Gun->type == GameObject::GO_SHOTGUN)
 					{
-						go2 = m_goList[j];
-						GameObject* actor(go);
-						GameObject* actee(go2);
-						if (go->type != GameObject::GO_BALL)
+						if (elapsedTime > timerforbullets[go->lifetime])
 						{
-							actor = go2;
-							actee = go;
-						}
-						if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
-							continue;
-						}
-						if (go2->active && CheckCollision(actor, actee))
-						{
-							CollisionResponse(actor, actee);
+							ReturnGO(go);
+							timerforbullets[go->lifetime] = 0;
 						}
 					}
 				}
+				GameObject* go2 = nullptr;
+				for (unsigned j = i + 1; j < size; ++j)
+				{
+					go2 = m_goList[j];
+					GameObject* actor(go);
+					GameObject* actee(go2);
+					if (go->type != GameObject::GO_BALL)
+					{
+						actor = go2;
+						actee = go;
+					}
+					if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
+						continue;
+					}
+					if (go2->active && CheckCollision(actor, actee))
+					{
+						CollisionResponse(actor, actee);
+					}
+				}
 			}
-			if (cPlayer2D->getState() == cPlayer2D->DEAD) {
-				currentState = lose;
-			}
+		}
+		if (cPlayer2D->getState() == cPlayer2D->DEAD) {
+			currentState = lose;
 		}
 		break;
 	}
@@ -1304,6 +1331,83 @@ void SceneCollision::RenderGronkDialogue()
 	modelStack.PopMatrix();
 }
 
+void SceneCollision::SpawnTree()
+{
+	int TreeCount;
+	TreeCount = 0;
+
+	while (TreeCount < 200)
+	{
+		bool TreeCollided;
+		TreeCollided = false;
+		float CheckSpawn;
+		CheckSpawn = 0;
+		float SpawnX, SpawnY;
+		Vector3 TreeSpawnPos;
+		TreeSpawnPos = { 0, 0, 0 };
+
+		unsigned size = m_goList.size();
+
+		SpawnX = ((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth)) + static_cast<float>(rand()) * static_cast<float>(((m_worldWidth + m_worldWidth + m_worldWidth))-((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth)))  / RAND_MAX;
+		SpawnY = ((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight)) + static_cast<float>(rand()) * static_cast<float>(((m_worldHeight + m_worldHeight + m_worldHeight))-((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight))) / RAND_MAX;
+
+		//TreeSpawnPos.Set(SpawnX, SpawnY, 4.f);
+		for (unsigned i = 0; i < size; ++i)
+		{
+			GameObject* go = m_goList[i];
+
+			if (go->type == GameObject::GO_TREE)
+			{
+				float NegX = go->pos.x - 9;
+				float PosX = go->pos.x + 9;
+				float NegY = go->pos.y - 12;
+				float PosY = go->pos.y + 7.5f;
+
+				if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
+				{
+					if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
+						TreeCollided = true;
+				}
+				else if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
+				{
+					if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
+						TreeCollided = true;
+				}
+			}
+
+			if (i == size - 1)
+			{
+				if (TreeCount == 0)
+				{
+					GameObject* Tree = FetchGO();
+					Tree->type = GameObject::GO_TREE;
+					Tree->scale.Set(10, 20, 1.0f);
+					Tree->pos.Set(SpawnX, SpawnY, 4.f);
+					Tree->normal.Set(0, 1, 0);
+					Tree->vel.SetZero();
+				}
+
+				else if (TreeCount > 0)
+				{
+					if (TreeCollided == false)
+					{
+						GameObject* Tree = FetchGO();
+						Tree->type = GameObject::GO_TREE;
+						Tree->scale.Set(10, 20, 1.0f);
+						Tree->pos.Set(SpawnX, SpawnY, 4.f);
+						Tree->normal.Set(0, 1, 0);
+						Tree->vel.SetZero();
+					}
+				}
+
+				break;
+			}
+		}
+
+		TreeCount++;
+	}
+}
+
 float SceneCollision::calculateAngle(float x, float y)
 {
 	float angle;
@@ -1348,6 +1452,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_TREE:
 		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
 		modelStack.Scale(go->scale.x, go->scale.y, 1);
 		RenderMesh(meshList[GEO_TREE], false);
@@ -1556,12 +1661,48 @@ void SceneCollision::Render()
 		break;
 	case main:
 	{
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
-		modelStack.Scale(m_worldWidth, m_worldHeight, 0);
-		RenderMesh(meshList[GEO_BG], false);
-		modelStack.PopMatrix();
+		//Render Background
+		for (int x = 1; x <= 4; ++x)
+		{
+			for (int y = 1; y <= 6; ++y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
 
+			for (int y = -1; y >= -6; --y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
+		}
+		for (int x = -1; x >= -4; --x)
+		{
+			for (int y = -1; y >= -6; --y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
+
+			for (int y = 1; y <= 6; ++y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
+		}
+		//Render Background
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.4f, 1);
 		modelStack.Scale(m_worldWidth, 1, 0);

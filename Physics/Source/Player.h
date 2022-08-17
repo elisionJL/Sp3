@@ -16,8 +16,10 @@ public:
 	virtual void Init();
 	virtual void Update(double dt);
 	virtual void Render();
-	void CollisionDetectedHorizontal(bool Collided);
-	void CollisionDetectedVertical(bool Collided);
+	void CollisionDetectedUp(bool Collided);
+	void CollisionDetectedDown(bool Collided);
+	void CollisionDetectedLeft(bool Collided);
+	void CollisionDetectedRight(bool Collided);
 	virtual void Exit();
 	virtual void setmeshList(Mesh* player);
 	Vector3 pos;
@@ -39,7 +41,6 @@ protected:
 	float m_worldHeight;
 	float hp;
 	float dmg;
-	bool collided[2]; //Horizontal = 0, Vertical = 1
 	Vector3 vel;
 
 };
