@@ -407,10 +407,6 @@ void SceneCollision::Update(double dt)
 			go->type = GameObject::GO_BOSS_SLIME;
 			go->scale.Set(10, 10, 1);
 			go->pos = Epos;
-			//Vector3 EnemyVel = Vector3(x, y, 0) - cPlayer2D->pos;
-			//go->vel = EnemyVel.Normalized() * 20;
-
-
 
 			cout << Epos.x << endl;
 			cout << Epos.y << endl;
@@ -746,6 +742,13 @@ void SceneCollision::Update(double dt)
 					currentState = lose;
 				}				
 			}
+		}
+		for (unsigned i = 0; i < enemyList.size(); ++i)
+		{
+			Enemy* enemy = enemyList[i];
+			enemy->vel = cPlayer2D->pos - enemy->pos;
+			enemy->vel.Normalized() *= 20;
+			enemy->pos += enemy->vel * dt;
 		}
 		break;
 	}
