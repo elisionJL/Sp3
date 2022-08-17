@@ -612,84 +612,8 @@ void SceneCollision::Update(double dt)
 			{
 
 				go->pos += go->vel * dt * m_speed;
-				if (go->pos.y < m_worldHeight * 0.4 && go->thickWall > 0) {
-					int target = go->thickWall;
-					int destroyed = 0;
-					std::vector<GameObject*>::iterator prev = m_thickWallList.begin();
-					std::vector<GameObject*>::iterator i = m_thickWallList.begin();
-					while (destroyed != 6) {
-						GameObject* go = (GameObject*)*i;
-						if (go->thickWall == target) {
-							go->active = false;
-							if (i == prev) {
-								m_thickWallList.erase(i);
-								i = m_thickWallList.begin();
-								prev = m_thickWallList.begin();
-								++destroyed;
-								continue;
-							}
-							else {
-								m_thickWallList.erase(i);
-								i = prev;
-								++i;
-								++destroyed;
-							}
-						}
-						else {
-							++i;
-						}
-						if (destroyed == 6) {
-							break;
-						}
-						if (i == m_thickWallList.end()) {
-							break;
-						}
-						prev = i;
-					}
-				}
-				// Handle X-Axis Bound
-				//if (((go->pos.x - go->scale.x < m_worldWidth*0.03) && (go->vel.x < 0)) ||
-				//	((go->pos.x + go->scale.x > m_worldWidth* 0.97) && (go->vel.x > 0)))
-				//{
-				//	//go->vel.x = -go->vel.x;
-				//}
 
-				if ((go->pos.x < 0 || go->pos.x > m_worldWidth) && go->type != GameObject::GO_BOSS_SLIME) {
-					if (go->type != GameObject::GO_TREE)
-					{
-						ReturnGO(go);
-						continue;
-					}
-				}
 
-				// Handle Y-Axis Bound
-				if (go->thickWall == 0) {
-					/*	if (((go->pos.y + go->scale.y > m_worldHeight) && go->vel.y > 0))
-						{
-							go->vel.y = -go->vel.y;
-						}*/
-
-					if ((go->pos.y < 0 || go->pos.y > m_worldHeight) && go->type != GameObject::GO_BOSS_SLIME)
-					{
-						if (go->type != GameObject::GO_TREE)
-						{
-							ReturnGO(go);
-							continue;
-						}
-					}
-				}
-				else {
-					if (go->pos.y < 0 && go->type != GameObject::GO_BOSS_SLIME)
-					{
-						if (go->type != GameObject::GO_TREE)
-						{
-							ReturnGO(go);
-							continue;
-						}
-					}
-
-				}
-					
 				if (go->type == GameObject::GO_COMPANION)
 					{
 
