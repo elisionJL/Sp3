@@ -12,6 +12,8 @@ void CPlayer2D::Init()
 	vel.Set(0, 0, 0);
 	sFacingDirection = RIGHT;
 	sCurrentState = IDLE;
+	xp = 0;
+	level = 1;
 }
 
 void CPlayer2D::Update(double dt)
@@ -19,6 +21,14 @@ void CPlayer2D::Update(double dt)
 	SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(playerMesh);
 	if (Application::IsKeyPressed('L')) {
 		hp = 0;
+	}
+	if (Application::IsKeyPressed('K')) {
+		xp += 1;
+	}
+	if (xp >= ((level - 1) * 10) + 5)
+	{
+		xp -= ((level - 1) * 10) + 5;
+		level += 1;
 	}
 	if (hp <= 0) {
 		sa->PlayAnimation("death", 0, 2.f);
