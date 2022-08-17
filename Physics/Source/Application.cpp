@@ -84,13 +84,16 @@ void Application::Init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //Request a specific OpenGL version
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); //Request a specific OpenGL version
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL 
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL
+
+
 
 
 	//Create a window and create its OpenGL context
 	m_width = 1920;
 	m_height = 1080;
 	m_window = glfwCreateWindow(m_width, m_height, "Physics", NULL, NULL);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 
 	//If the window couldn't be created
 	if (!m_window)
@@ -121,6 +124,7 @@ void Application::Init()
 
 void Application::Run()
 {
+	glfwWindowHint(GLFW_MAXIMIZED, 1);
 	//Main Loop
 	Scene *scene = new SceneCollision();
 	scene->Init();
