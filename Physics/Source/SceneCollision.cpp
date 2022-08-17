@@ -439,10 +439,6 @@ void SceneCollision::Update(double dt)
 			go->type = GameObject::GO_BOSS_SLIME;
 			go->scale.Set(10, 10, 1);
 			go->pos = Epos;
-			//Vector3 EnemyVel = Vector3(x, y, 0) - cPlayer2D->pos;
-			//go->vel = EnemyVel.Normalized() * 20;
-
-
 
 			cout << Epos.x << endl;
 			cout << Epos.y << endl;
@@ -552,9 +548,17 @@ void SceneCollision::Update(double dt)
 						needtofinishanimation = false;
 				}
 			}
-			else if (!shooting && !needtofinishanimation)
+			else if (shooting && !needtofinishanimation)
 			{
+				float Xaxis = mousePos.x - Gun->pos.x;
+				if (Xaxis < 0)
+				{
+					G->PlayAnimation("ShootR", 0, 1.0f);
+				}
+				else
+					G->PlayAnimation("Shoot", 0, 1.0f);
 
+				G->Reset();
 			}
 
 
@@ -742,18 +746,21 @@ void SceneCollision::Update(double dt)
 					}
 					go->angle = Angle;
 				}
-				/*else if (Gun->type == GameObject::GO_SHOTGUN)
+				else if (go->type == GameObject::GO_PROJECTILE)
 				{
-					if (elapsedTime > timerforbullets[go->lifetime])
+					if (Gun->type == GameObject::GO_SHOTGUN)
+					{
+						if (elapsedTime > timerforbullets[go->lifetime])
+						{
+							ReturnGO(go);
+							timerforbullets[go->lifetime] = 0;
+						}
+					}
+					if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
+						go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
 					{
 						ReturnGO(go);
-						timerforbullets[go->lifetime] = 0;
 					}
-				}*/
-				if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
-					go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
-				{
-					ReturnGO(go);
 				}
 			
 
@@ -782,10 +789,11 @@ void SceneCollision::Update(double dt)
 				}				
 			}
 		}
-		for (unsigned i = 0; i < enemyList.size(); ++i) {
+		for (unsigned i = 0; i < enemyList.size(); ++i)
+		{
 			Enemy* enemy = enemyList[i];
 			enemy->vel = cPlayer2D->pos - enemy->pos;
-			enemy->vel.Normalize() *= 20;
+			enemy->vel.Normalized() *= 20;
 			enemy->pos += enemy->vel * dt;
 		}
 		break;
