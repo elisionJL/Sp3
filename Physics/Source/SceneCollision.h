@@ -55,6 +55,7 @@ protected:
 	int score;
 	int minutes;
 	float seconds;
+	vector<Enemy*> enemyList;
 	CPlayer2D* cPlayer2D;
 	gameStates currentState;
 	Vector3 m_gravity;
@@ -90,6 +91,12 @@ protected:
 	bool CurrentTextWrite, TextFinished;
 	int CurrentCharText;
 	int randomDialogue;
+	int shootonceonly;
+	bool GunShoot;
+	int GunFrameWhereItStarts;
+	bool needtofinishanimation;
+	bool xisneg;
+	float zaxis;
 };
 
 #endif
