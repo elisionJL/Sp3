@@ -361,38 +361,6 @@ void SceneCollision::Update(double dt)
 		}
 
 
-		if (Application::IsKeyPressed(VK_F1))
-		{
-			Gun->type = GameObject::GO_GL;
-			Gun->scale.Set(5, 2, 1);
-			CurrentGun = meshList[GEO_GL];
-			GunFrameWhereItStarts = 6;
-		}
-		else if (Application::IsKeyPressed(VK_F2))
-		{
-			Gun->type = GameObject::GO_BOW;
-			Gun->scale.Set(7, 7, 1);
-			CurrentGun = meshList[GEO_BOW];
-		}
-		else if (Application::IsKeyPressed(VK_F3))
-		{
-			Gun->type = GameObject::GO_SHOTGUN;
-			Gun->scale.Set(7, 3.5, 1);
-			CurrentGun = meshList[GEO_SHOTGUN];
-		}
-		else if (Application::IsKeyPressed(VK_F4))
-		{
-			Gun->type = GameObject::GO_SNIPER;
-			Gun->scale.Set(15, 5, 1);
-			CurrentGun = meshList[GEO_SNIPER];
-		}
-		else if (Application::IsKeyPressed(VK_F5))
-		{
-			Gun->type = GameObject::GO_PISTOL;
-			Gun->scale.Set(3, 1, 1);
-			CurrentGun = meshList[GEO_PISTOL];
-		}
-
 		//Enemy Spawn
 		static bool blMButtonState = false;
 		if (Application::IsKeyPressed('M') && blMButtonState == false)
