@@ -96,6 +96,7 @@ protected:
 	int GunFrameWhereItStarts;
 	bool needtofinishanimation;
 	bool xisneg;
+	float zaxis;
 };
 
 #endif
