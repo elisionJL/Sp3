@@ -428,29 +428,6 @@ void SceneCollision::Update(double dt)
 			{
 				if (Gun->type == GameObject::GO_BOW)
 				{
-					if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
-					{
-						if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
-						{
-							Vector3 TempPos;
-							TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
-							Vector3 NegativeX = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
-							Vector3 PositiveX = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
-							Vector3 NegativeY = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
-							Vector3 PositiveY = TempPos - cPlayer2D->pos;
-
-							if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
-								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
-							else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
-								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
-							else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
-								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
-							else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
-								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
-						}
 					G->PlayAnimation("Shoot", 0, 2.0f);
 
 					G->Update(dt);
@@ -603,31 +580,32 @@ void SceneCollision::Update(double dt)
 			if (go->active)
 			{
 				if (go->type == GameObject::GO_TREE)
+				{
+					if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
 					{
-						if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
-							cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+						if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
 						{
-							if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
-								cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
-							{
-								cPlayer2D->CollisionDetectedHorizontal(true);
-							}
+							Vector3 TempPos;
+							TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
+							Vector3 NegativeX = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
+							Vector3 PositiveX = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
+							Vector3 NegativeY = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
+							Vector3 PositiveY = TempPos - cPlayer2D->pos;
 
-							else
-								cPlayer2D->CollisionDetectedHorizontal(false);
-						}
-						else if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) && cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
-						{
-							if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
-								cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
-							{
-								cPlayer2D->CollisionDetectedVertical(true);
-							}
-
-							else
-								cPlayer2D->CollisionDetectedVertical(false);
+							if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
+								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
+							else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
+							else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
+							else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
 						}
 					}
+				}
 			}
 		}
 
