@@ -489,7 +489,7 @@ void SceneCollision::Update(double dt)
 					G->truereset();
 				}
 			}
-			else if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
+			if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
 			{
 				if (!xisneg)
 				{

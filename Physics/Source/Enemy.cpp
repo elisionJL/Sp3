@@ -18,7 +18,19 @@ void Enemy::Update(const double dElapsedTime)
 {
 	//Update enemy movement to chase player
 	
-	//Change enemy states in response to the direction they are moving	
+	//Change enemy states in response to the direction they are moving
+	//int direction = 0;
+	//switch (direction)
+	//{
+	//case LEFT:
+	//	break;
+	//case RIGHT:
+	//	break;
+	//case UP:
+	//	break;
+	//case DOWN:
+	//	break;
+	//}
 
 }
 
