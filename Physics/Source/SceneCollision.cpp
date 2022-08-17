@@ -263,6 +263,7 @@ void SceneCollision::Update(double dt)
 				Gun->vel.SetZero();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
+				SpawnTree();
 			}
 
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
@@ -521,20 +522,6 @@ void SceneCollision::Update(double dt)
 						needtofinishanimation = false;
 				}
 			}
-			else if (Gun->type != GameObject::GO_BOW)
-			{				
-				float Xaxis = mousePos.x - Gun->pos.x;
-				if (Xaxis < 0)
-				{
-					G->PlayAnimation("ShootR", 0, 1.0f);
-					G->Reset();
-				}				
-				if (Xaxis >= 0)
-				{
-					G->PlayAnimation("Shoot", 0, 1.0f);
-					G->Reset();
-				}
-			}
 
 
 
@@ -623,20 +610,7 @@ void SceneCollision::Update(double dt)
 			GameObject* go = m_goList[i];
 			if (go->active)
 			{
-				if (go->PUIFrame > 0) {
-					go->PUIFrame -= dt;
-					if (go->PUIFrame <= 0) {
-							go->active = false;
-							continue;
-						}
-				}
-				if (go->placed == true && go->activeTime > 0 && go->thinWall > 0) {
-					go->activeTime -= dt;
-				}
-				else if (go->placed == true && go->activeTime < 0 && go->thinWall > 0) {
-					go->active = false;
-					continue;
-				}
+
 				go->pos += go->vel * dt * m_speed;
 				if (go->pos.y < m_worldHeight * 0.4 && go->thickWall > 0) {
 					int target = go->thickWall;
@@ -680,16 +654,13 @@ void SceneCollision::Update(double dt)
 				//	//go->vel.x = -go->vel.x;
 				//}
 
-						if ((go->pos.x < 0 || go->pos.x > m_worldWidth) && go->type != GameObject::GO_BOSS_SLIME) {
-							if (go->type != GameObject::GO_TREE)
-							{
-								ReturnGO(go);
-								continue;
-							}
-						}
+				if ((go->pos.x < 0 || go->pos.x > m_worldWidth) && go->type != GameObject::GO_BOSS_SLIME) {
+					if (go->type != GameObject::GO_TREE)
+					{
 						ReturnGO(go);
 						continue;
 					}
+				}
 
 				// Handle Y-Axis Bound
 				if (go->thickWall == 0) {
@@ -698,7 +669,7 @@ void SceneCollision::Update(double dt)
 							go->vel.y = -go->vel.y;
 						}*/
 
-					if ((go->pos.y < 0 || go->pos.y > m_worldHeight ) && go->type != GameObject::GO_BOSS_SLIME)
+					if ((go->pos.y < 0 || go->pos.y > m_worldHeight) && go->type != GameObject::GO_BOSS_SLIME)
 					{
 						if (go->type != GameObject::GO_TREE)
 						{
@@ -716,6 +687,9 @@ void SceneCollision::Update(double dt)
 							continue;
 						}
 					}
+
+				}
+					
 				if (go->type == GameObject::GO_COMPANION)
 					{
 
@@ -815,7 +789,6 @@ void SceneCollision::Update(double dt)
 						Angle = 0;
 					}
 					go->angle = Angle;
-
 				}
 				else if (go->type == GameObject::GO_PROJECTILE)
 				{
@@ -828,29 +801,31 @@ void SceneCollision::Update(double dt)
 						}
 					}
 				}
+
+
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
-				{
-					go2 = m_goList[j];
-					GameObject* actor(go);
-					GameObject* actee(go2);
-					if (go->type != GameObject::GO_BALL)
 					{
-						actor = go2;
-						actee = go;
+						go2 = m_goList[j];
+						GameObject* actor(go);
+						GameObject* actee(go2);
+						if (go->type != GameObject::GO_BALL)
+						{
+							actor = go2;
+							actee = go;
+						}
+						if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
+							continue;
+						}
+						if (go2->active && CheckCollision(actor, actee))
+						{
+							CollisionResponse(actor, actee);
+						}
 					}
-					if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
-						continue;
-					}
-					if (go2->active && CheckCollision(actor, actee))
-					{
-						CollisionResponse(actor, actee);
-					}
-				}
+				if (cPlayer2D->getState() == cPlayer2D->DEAD) {
+					currentState = lose;
+				}				
 			}
-		}
-		if (cPlayer2D->getState() == cPlayer2D->DEAD) {
-			currentState = lose;
 		}
 		break;
 	}
@@ -1452,7 +1427,6 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_TREE:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
 		modelStack.Scale(go->scale.x, go->scale.y, 1);
 		RenderMesh(meshList[GEO_TREE], false);
@@ -1667,8 +1641,8 @@ void SceneCollision::Render()
 			for (int y = 1; y <= 6; ++y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
@@ -1676,8 +1650,8 @@ void SceneCollision::Render()
 			for (int y = -1; y >= -6; --y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
@@ -1687,8 +1661,8 @@ void SceneCollision::Render()
 			for (int y = -1; y >= -6; --y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
@@ -1696,21 +1670,15 @@ void SceneCollision::Render()
 			for (int y = 1; y <= 6; ++y)
 			{
 				modelStack.PushMatrix();
-				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
-				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0.5f);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 				RenderMesh(meshList[GEO_BG], false);
 				modelStack.PopMatrix();
 			}
 		}
-		//Render Background
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.4f, 1);
-		modelStack.Scale(m_worldWidth, 1, 0);
-		RenderMesh(meshList[GEO_LINE], false);
-		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, 1.0001f);
 		modelStack.Scale(10, 10, 1);
 		RenderMesh(meshList[GEO_PLAYER], false);
 		modelStack.PopMatrix();
@@ -1751,8 +1719,8 @@ void SceneCollision::Render()
 			ss << minutes << ":0" << seconds;
 		}
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1,0,0), 3, 3, 56);
+		break;
 	}
-	break;
 	case win:
 	{
 		modelStack.PushMatrix();
