@@ -489,7 +489,7 @@ void SceneCollision::Update(double dt)
 					G->truereset();
 				}
 			}
-			else if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
+			if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
 			{
 				if (!xisneg)
 				{
@@ -523,9 +523,17 @@ void SceneCollision::Update(double dt)
 						needtofinishanimation = false;
 				}
 			}
-			else if (!shooting && !needtofinishanimation)
+			else if (shooting && !needtofinishanimation)
 			{
+				float Xaxis = mousePos.x - Gun->pos.x;
+				if (Xaxis < 0)
+				{
+					G->PlayAnimation("ShootR", 0, 1.0f);
+				}
+				else
+					G->PlayAnimation("Shoot", 0, 1.0f);
 
+				G->Reset();
 			}
 
 
@@ -728,6 +736,11 @@ void SceneCollision::Update(double dt)
 							ReturnGO(go);
 							timerforbullets[go->lifetime] = 0;
 						}
+					}
+					if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
+						go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+					{
+						ReturnGO(go);
 					}
 				}
 
