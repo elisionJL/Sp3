@@ -90,7 +90,7 @@ void SceneCollision::ReturnGO(GameObject *go)
 	}
 }
 
-void SceneCollision::shooting (double elapsedTime, int numberofshots, GameObject* Gun)
+void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject* Gun)
 {
 	double x = 0, y = 0;
 	if (numberofshots > 1)
@@ -100,12 +100,16 @@ void SceneCollision::shooting (double elapsedTime, int numberofshots, GameObject
 		unsigned h = Application::GetWindowHeight();
 		float posX = (x / w * m_worldWidth) + camera.position.x;
 		float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
-
-
+		Vector3 center = Vector3(posX, posY, 0) - cPlayer2D->pos;
+		float angle = calculateAngle(center.x, center.y);
+		float magnitude = center.Length();
 		for (int i = -20; i <= 20; i += 10)
 		{
 			GameObject* go = FetchGO();
+			go->pos = cPlayer2D->pos;
+			go->scale.Set(4, 2, 1);
 			go->type = GameObject::GO_PROJECTILE;
+			go->angle = angle + i;
 			switch (Gun->type) {
 			case GameObject::GO_PISTOL:
 				go->proj = GameObject::pistol;
@@ -123,55 +127,83 @@ void SceneCollision::shooting (double elapsedTime, int numberofshots, GameObject
 				go->proj = GameObject::sniper;
 				break;
 			}
-
-			go->pos = cPlayer2D->pos;
-			go->pos.z += 0.01;			
-			
-			
-			go->scale.Set(4.5f, 2.f, 1.0f);
-
-			float Xaxis = posX - cPlayer2D->pos.x;
-			float Yaxis = posY - cPlayer2D->pos.y;
-
-			if (Yaxis >= 0 && Xaxis >= 0)
-			{
-				go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-				go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+			if (go->angle > 360) {
+				go->angle -= 360;
 			}
-			else if (Yaxis < 0 && Xaxis >= 0)
-			{
-				go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-				go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			}
-			else if (Yaxis < 0 && Xaxis < 0)
-			{
-				go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-				go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			}
-			else if (Yaxis >= 0 && Xaxis < 0)
-			{
-				go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-				go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			}
+			go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+			go->vel.Normalize() *= 20;
 
-			go->vel = go->vel.Normalized() * 20;
-			go->angle = calculateAngle(go->vel.x, go->vel.y);
-
+			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 			{
-				for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+				if (timerforbullets[arraynumber] != 0)
 				{
-					if (timerforbullets[arraynumber] != 0)
-					{
-						continue;
-					}
-					timerforbullets[arraynumber] = elapsedTime + 2.0f;
-					go->lifetime = arraynumber;
-					break;
+					continue;
 				}
-				timerforbullets.push_back(elapsedTime + 2.0f);
-				go->lifetime = timerforbullets.size() - 1; 
+				timerforbullets[arraynumber] = elapsedTime + 2.0f;
+				go->lifetime = arraynumber;
+				break;
 			}
+			timerforbullets.push_back(elapsedTime + 2.0f);
+			go->lifetime = timerforbullets.size() - 1;
 		}
+		//for (int i = -20; i <= 20; i += 10)
+		//{
+		//	GameObject* go = FetchGO();
+		//	go->type = GameObject::GO_PROJECTILE;
+		//	switch (Gun->type) {
+		//	case GameObject::GO_PISTOL:
+		//		go->proj = GameObject::pistol;
+		//		break;
+		//	case GameObject::GO_BOW:
+		//		go->proj = GameObject::bow;
+		//		break;
+		//	case GameObject::GO_GL:
+		//		go->proj = GameObject::GL;
+		//		break;
+		//	case GameObject::GO_SHOTGUN:
+		//		go->proj = GameObject::shotgun;
+		//		break;
+		//	case GameObject::GO_SNIPER:
+		//		go->proj = GameObject::sniper;
+		//		break;
+		//	}
+
+		//	go->pos = cPlayer2D->pos;
+		//	go->pos.z += 0.01;			
+		//	go->scale.Set(4.5f, 2.f, 1.0f);
+		//	go->angle = angle + i;
+		//	go->vel = 
+		//	//find where the player has clicked
+		//	//float Xaxis = posX - cPlayer2D->pos.x;
+		//	//float Yaxis = posY - cPlayer2D->pos.y;
+		//	////upper right
+		//	//if (Yaxis >= 0 && Xaxis >= 0)
+		//	//{
+		//	//	go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//	go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//}
+		//	////bottom right
+		//	//else if (Yaxis < 0 && Xaxis >= 0)
+		//	//{
+		//	//	go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//	go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//}
+		//	////bottom left
+		//	//else if (Yaxis < 0 && Xaxis < 0)
+		//	//{
+		//	//	go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//	go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//}
+		//	////upper right
+		//	//else if (Yaxis >= 0 && Xaxis < 0)
+		//	//{
+		//	//	go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//	go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
+		//	//}
+
+		//	//go->vel = go->vel.Normalized() * 20;
+		//	//go->angle = calculateAngle(go->vel.x, go->vel.y);
 	}
 	else
 	{
@@ -254,7 +286,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_GL;
+				Gun->type = GameObject::GO_SHOTGUN;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -486,7 +518,7 @@ void SceneCollision::Update(double dt)
 					G->truereset();
 				}
 			}
-			else if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
+			if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
 			{
 				if (!xisneg)
 				{
@@ -603,7 +635,7 @@ void SceneCollision::Update(double dt)
 		//Physics Simulation Section
 		for (unsigned i = 0; i < size; ++i)
 		{
-			GameObject* go = m_goList[i];
+			GameObject* go = m_goList[i];	
 			if (go->active)
 			{
 
@@ -611,86 +643,86 @@ void SceneCollision::Update(double dt)
 
 
 				if (go->type == GameObject::GO_COMPANION)
-					{
+				{
 
-						float moveXby;
-						float moveYby;
+					float moveXby;
+					float moveYby;
+					{
+						if (rotationorder == 1)
 						{
-							if (rotationorder == 1)
-							{
-								moveXby = -0.5;
-								moveYby = 0.2;
-								if (companionX <= 0)
-									rotationorder++;
-							}
-							else if (rotationorder == 2)
-							{
-								moveXby = -0.5;
-								moveYby = -0.2;
-								if (companionX <= -9)
-									rotationorder++;
-							}
-							else if (rotationorder == 3)
-							{
-								moveXby = -0.2;
-								moveYby = -0.5;
-								if (companionY <= 0)
-									rotationorder++;
-							}
-							else if (rotationorder == 4)
-							{
-								moveXby = 0.2;
-								moveYby = -0.5;
-								if (companionY <= -9)
-									rotationorder++;
-							}
-							else if (rotationorder == 5)
-							{
-								moveXby = 0.5;
-								moveYby = -0.2;
-								if (companionX >= 0)
-									rotationorder++;
-							}
-							else if (rotationorder == 6)
-							{
-								moveXby = 0.5;
-								moveYby = 0.2;
-								if (companionX >= 9)
-									rotationorder++;
-							}
-							else if (rotationorder == 7)
-							{
-								moveXby = 0.2;
-								moveYby = 0.5;
-								if (companionY >= 0)
-									rotationorder++;
-							}
-							else
-							{
-								moveXby = -0.2;
-								moveYby = 0.5;
-								if (companionY >= 9)
-									rotationorder = 1;
-							}
+							moveXby = -0.5;
+							moveYby = 0.2;
+							if (companionX <= 0)
+								rotationorder++;
 						}
-						companionX += moveXby;
-						companionY += moveYby;
-
-
-						SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
-						//Play the animation �ROW1� that is looping infinitely and
-						//each animation completes in 2 sec
-						if (flip == 1)
-							Companion->PlayAnimation("RunningR", -1, 2.0f);
+						else if (rotationorder == 2)
+						{
+							moveXby = -0.5;
+							moveYby = -0.2;
+							if (companionX <= -9)
+								rotationorder++;
+						}
+						else if (rotationorder == 3)
+						{
+							moveXby = -0.2;
+							moveYby = -0.5;
+							if (companionY <= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 4)
+						{
+							moveXby = 0.2;
+							moveYby = -0.5;
+							if (companionY <= -9)
+								rotationorder++;
+						}
+						else if (rotationorder == 5)
+						{
+							moveXby = 0.5;
+							moveYby = -0.2;
+							if (companionX >= 0)
+								rotationorder++;
+						}
+						else if (rotationorder == 6)
+						{
+							moveXby = 0.5;
+							moveYby = 0.2;
+							if (companionX >= 9)
+								rotationorder++;
+						}
+						else if (rotationorder == 7)
+						{
+							moveXby = 0.2;
+							moveYby = 0.5;
+							if (companionY >= 0)
+								rotationorder++;
+						}
 						else
-							Companion->PlayAnimation("RunningL", -1, 2.0f);
-
-						Companion->Update(dt);
+						{
+							moveXby = -0.2;
+							moveYby = 0.5;
+							if (companionY >= 9)
+								rotationorder = 1;
+						}
 					}
-					else if (go == Gun)
-					{
-						float Xaxis = mousePos.x - go->pos.x;
-						float Yaxis = mousePos.y - go->pos.y;
+					companionX += moveXby;
+					companionY += moveYby;
+
+
+					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
+					//Play the animation �ROW1� that is looping infinitely and
+					//each animation completes in 2 sec
+					if (flip == 1)
+						Companion->PlayAnimation("RunningR", -1, 2.0f);
+					else
+						Companion->PlayAnimation("RunningL", -1, 2.0f);
+
+					Companion->Update(dt);
+				}
+				else if (go == Gun)
+				{
+					float Xaxis = mousePos.x - go->pos.x;
+					float Yaxis = mousePos.y - go->pos.y;
 
 					float Angle;
 					if (Xaxis <= 0 && Yaxis <= 0) {
@@ -710,17 +742,20 @@ void SceneCollision::Update(double dt)
 					}
 					go->angle = Angle;
 				}
-				else if (go->type == GameObject::GO_PROJECTILE)
+				/*else if (Gun->type == GameObject::GO_SHOTGUN)
 				{
-					if (Gun->type == GameObject::GO_SHOTGUN)
+					if (elapsedTime > timerforbullets[go->lifetime])
 					{
-						if (elapsedTime > timerforbullets[go->lifetime])
-						{
-							ReturnGO(go);
-							timerforbullets[go->lifetime] = 0;
-						}
+						ReturnGO(go);
+						timerforbullets[go->lifetime] = 0;
 					}
+				}*/
+				if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
+					go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+				{
+					ReturnGO(go);
 				}
+			
 
 
 				GameObject* go2 = nullptr;
@@ -746,6 +781,12 @@ void SceneCollision::Update(double dt)
 					currentState = lose;
 				}				
 			}
+		}
+		for (unsigned i = 0; i < enemyList.size(); ++i) {
+			Enemy* enemy = enemyList[i];
+			enemy->vel = cPlayer2D->pos - enemy->pos;
+			enemy->vel.Normalize() *= 20;
+			enemy->pos += enemy->vel * dt;
 		}
 		break;
 	}
@@ -1469,6 +1510,7 @@ void SceneCollision::RenderGO(GameObject *go)
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
 			break;
 		}
+
 		RenderMesh(meshList[GEO_PROJECTILE], false);
 		modelStack.PopMatrix();
 		break;
@@ -1727,7 +1769,7 @@ void SceneCollision::Exit()
 	}
 	while (enemyList.size() > 0)
 	{
-		GameObject* go = m_goList.back();
+		Enemy* go = enemyList.back();
 		delete go;
 		enemyList.pop_back();
 	}
