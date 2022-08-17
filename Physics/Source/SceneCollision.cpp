@@ -1591,6 +1591,23 @@ void SceneCollision::Render()
 			RenderMesh(meshList[GEO_BOSS_SLIME], false);
 			modelStack.PopMatrix();
 		}
+		float expX = cPlayer2D->pos.x , expY = cPlayer2D->pos.y - (m_worldHeight*0.4);
+		float expScaleX = m_worldWidth*0.95, expScaleY =2;
+		modelStack.PushMatrix();
+		modelStack.Translate(expX, expY, 3);
+		modelStack.Scale(expScaleX, expScaleY, 1);
+		RenderMesh(meshList[GEO_EXPBG], false);
+		modelStack.PopMatrix();
+
+		expScaleX = m_worldWidth * 0.75;
+		//expScaleX
+		modelStack.PushMatrix();
+		modelStack.Translate(expX, expY, 4);
+		modelStack.Scale(expScaleX, expScaleY, 1);
+		RenderMesh(meshList[GEO_EXP], false);
+		modelStack.PopMatrix();
+
+
 		//On screen text
 		std::ostringstream ss;
 		ss.precision(5);
@@ -1677,5 +1694,13 @@ void SceneCollision::Exit()
 		delete go;
 		m_goList.pop_back();
 	}
+	while (enemyList.size() > 0)
+	{
+		GameObject* go = m_goList.back();
+		delete go;
+		enemyList.pop_back();
+	}
+	cPlayer2D->Destroy();
+
 	
 }
