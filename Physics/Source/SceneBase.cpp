@@ -223,6 +223,7 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	GL->AddAnimation("Shoot", 0, 6);
 	GL->AddAnimation("ShootR", 6, 12);
+	GL->AddAnimation("Idle", 5, 6);
 
 	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
@@ -231,6 +232,7 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Shotgun->AddAnimation("Shoot", 0, 6);
 	Shotgun->AddAnimation("ShootR", 6, 12);
+	Shotgun->AddAnimation("Idle", 5, 6);
 
 	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 2, 3);
 	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
@@ -239,6 +241,7 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Pistol->AddAnimation("Shoot", 0, 3);
 	Pistol->AddAnimation("ShootR", 3, 6);
+	Pistol->AddAnimation("Idle", 2, 3);
 
 	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 3);
 	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
@@ -247,6 +250,7 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Sniper->AddAnimation("Shoot", 0, 3);
 	Sniper->AddAnimation("ShootR", 3, 6);
+	Sniper->AddAnimation("Idle", 2, 3);
 
 
 	//Shopkeeper
