@@ -35,6 +35,7 @@ public:
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
 	void RenderGronkDialogue();
+	void SpawnTree();
 	void shooting(double elapsedTime, double prevTime, GameObject* Gun);
 protected:
 	Vector3 m_lineStart;
@@ -54,6 +55,7 @@ protected:
 	int score;
 	int minutes;
 	float seconds;
+	vector<Enemy*> enemyList;
 	CPlayer2D* cPlayer2D;
 	gameStates currentState;
 	Vector3 m_gravity;
@@ -89,6 +91,12 @@ protected:
 	bool CurrentTextWrite, TextFinished;
 	int CurrentCharText;
 	int randomDialogue;
+	int shootonceonly;
+	bool GunShoot;
+	int GunFrameWhereItStarts;
+	bool needtofinishanimation;
+	bool xisneg;
+	float zaxis;
 };
 
 #endif

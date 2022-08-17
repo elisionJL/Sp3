@@ -296,11 +296,9 @@ void SpriteAnimation::Reset()
 	playCount = 0;
 }
 
-void SpriteAnimation::reset2(std::string anim_name)
+int SpriteAnimation::getcurrentanimationframe(std::string anim_name)
 {
-	currentFrame = animationList[currentAnimation]->frames[0];
-	playCount = 0;
-	animationList[anim_name]->ended = false;
+	return currentFrame;
 }
 
 void SpriteAnimation::truereset()
