@@ -221,7 +221,7 @@ void SceneBase::Init()
 	meshList[GEO_GL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* GL = dynamic_cast<SpriteAnimation*>(meshList[GEO_GL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	GL->AddAnimation("Shoot", 0, 5);
+	GL->AddAnimation("Shoot", 0, 6);
 	GL->AddAnimation("ShootR", 6, 12);
 
 	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
@@ -229,7 +229,7 @@ void SceneBase::Init()
 	meshList[GEO_SHOTGUN]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Shotgun = dynamic_cast<SpriteAnimation*>(meshList[GEO_SHOTGUN]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Shotgun->AddAnimation("Shoot", 0, 5);
+	Shotgun->AddAnimation("Shoot", 0, 6);
 	Shotgun->AddAnimation("ShootR", 6, 12);
 
 	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 2, 3);
@@ -237,7 +237,7 @@ void SceneBase::Init()
 	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Pistol->AddAnimation("Shoot", 0, 2);
+	Pistol->AddAnimation("Shoot", 0, 3);
 	Pistol->AddAnimation("ShootR", 3, 6);
 
 	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 3);
@@ -245,7 +245,7 @@ void SceneBase::Init()
 	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Sniper->AddAnimation("Shoot", 0, 2);
+	Sniper->AddAnimation("Shoot", 0, 3);
 	Sniper->AddAnimation("ShootR", 3, 6);
 
 

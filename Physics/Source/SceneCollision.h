@@ -93,6 +93,8 @@ protected:
 	int shootonceonly;
 	bool GunShoot;
 	int GunFrameWhereItStarts;
+	bool needtofinishanimation;
+	bool xisneg;
 };
 
 #endif
