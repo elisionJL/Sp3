@@ -178,7 +178,7 @@ void SceneBase::Init()
 	meshList[GEO_GRONK_BACK_BUTTON]->textureID = LoadTexture("Image//Gronk_Back_Button.png", true);
 
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
-	meshList[GEO_BG]->textureID = LoadTexture("Image//background.psd", true);
+	meshList[GEO_BG]->textureID = LoadTexture("Image//Grass_BG.png", true);
 
 	meshList[GEO_TREE] = MeshBuilder::GenerateQuad("tree", Color(1, 1, 1), 1.f);
 	meshList[GEO_TREE]->textureID = LoadTexture("Image//Tree.png", true);

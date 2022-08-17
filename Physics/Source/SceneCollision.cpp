@@ -398,29 +398,29 @@ void SceneCollision::Update(double dt)
 			{
 				if (go->type == GameObject::GO_TREE)
 				{
-					if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) && 
-						cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
+					if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
 					{
-						if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
-							cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
+						if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
 						{
-							cPlayer2D->CollisionDetectedHorizontal(true);
-						}
+							Vector3 TempPos;
+							TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
+							Vector3 NegativeX = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
+							Vector3 PositiveX = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
+							Vector3 NegativeY = TempPos - cPlayer2D->pos;
+							TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
+							Vector3 PositiveY = TempPos - cPlayer2D->pos;
 
-						else
-							cPlayer2D->CollisionDetectedHorizontal(false);
-					}
-					else if (cPlayer2D->pos.y + 5 >= go->pos.y - (go->scale.y / 3) &&
-						cPlayer2D->pos.y - 5 <= go->pos.y + (go->scale.y / 5))
-					{
-						if (cPlayer2D->pos.x + 5 >= go->pos.x - (go->scale.x / 2) &&
-							cPlayer2D->pos.x - 5 <= go->pos.x + (go->scale.x / 2))
-						{
-							cPlayer2D->CollisionDetectedVertical(true);
+							if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
+								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
+							else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
+							else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
+							else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
 						}
-
-						else
-							cPlayer2D->CollisionDetectedVertical(false);
 					}
 				}
 
@@ -496,8 +496,11 @@ void SceneCollision::Update(double dt)
 
 				if (go->pos.x < 0 || go->pos.x > m_worldWidth) {
 
-					ReturnGO(go);
-					continue;
+					if (go->type != GameObject::GO_TREE)
+					{
+						ReturnGO(go);
+						continue;
+					}
 				}
 
 				// Handle Y-Axis Bound
@@ -509,15 +512,21 @@ void SceneCollision::Update(double dt)
 
 					if (go->pos.y < 0 || go->pos.y > m_worldHeight)
 					{
-						ReturnGO(go);
-						continue;
+						if (go->type != GameObject::GO_TREE)
+						{
+							ReturnGO(go);
+							continue;
+						}
 					}
 				}
 				else {
 					if (go->pos.y < 0)
 					{
-						ReturnGO(go);
-						continue;
+						if (go->type != GameObject::GO_TREE)
+						{
+							ReturnGO(go);
+							continue;
+						}
 					}
 				}
 				if (go->type == GameObject::GO_COMPANION)
@@ -1133,6 +1142,83 @@ void SceneCollision::RenderGronkDialogue()
 	modelStack.PopMatrix();
 }
 
+void SceneCollision::SpawnTree()
+{
+	int TreeCount;
+	TreeCount = 0;
+
+	while (TreeCount < 200)
+	{
+		bool TreeCollided;
+		TreeCollided = false;
+		float CheckSpawn;
+		CheckSpawn = 0;
+		float SpawnX, SpawnY;
+		Vector3 TreeSpawnPos;
+		TreeSpawnPos = { 0, 0, 0 };
+
+		unsigned size = m_goList.size();
+
+		SpawnX = ((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth)) + static_cast<float>(rand()) * static_cast<float>(((m_worldWidth + m_worldWidth + m_worldWidth))-((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth)))  / RAND_MAX;
+		SpawnY = ((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight)) + static_cast<float>(rand()) * static_cast<float>(((m_worldHeight + m_worldHeight + m_worldHeight))-((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight))) / RAND_MAX;
+
+		//TreeSpawnPos.Set(SpawnX, SpawnY, 4.f);
+		for (unsigned i = 0; i < size; ++i)
+		{
+			GameObject* go = m_goList[i];
+
+			if (go->type == GameObject::GO_TREE)
+			{
+				float NegX = go->pos.x - 9;
+				float PosX = go->pos.x + 9;
+				float NegY = go->pos.y - 12;
+				float PosY = go->pos.y + 7.5f;
+
+				if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
+				{
+					if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
+						TreeCollided = true;
+				}
+				else if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
+				{
+					if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
+						TreeCollided = true;
+				}
+			}
+
+			if (i == size - 1)
+			{
+				if (TreeCount == 0)
+				{
+					GameObject* Tree = FetchGO();
+					Tree->type = GameObject::GO_TREE;
+					Tree->scale.Set(10, 20, 1.0f);
+					Tree->pos.Set(SpawnX, SpawnY, 4.f);
+					Tree->normal.Set(0, 1, 0);
+					Tree->vel.SetZero();
+				}
+
+				else if (TreeCount > 0)
+				{
+					if (TreeCollided == false)
+					{
+						GameObject* Tree = FetchGO();
+						Tree->type = GameObject::GO_TREE;
+						Tree->scale.Set(10, 20, 1.0f);
+						Tree->pos.Set(SpawnX, SpawnY, 4.f);
+						Tree->normal.Set(0, 1, 0);
+						Tree->vel.SetZero();
+					}
+				}
+
+				break;
+			}
+		}
+
+		TreeCount++;
+	}
+}
+
 float SceneCollision::calculateAngle(float x, float y)
 {
 	float angle;
@@ -1177,7 +1263,7 @@ void SceneCollision::RenderGO(GameObject *go)
 		break;
 	case GameObject::GO_TREE:
 		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, 3);
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
 		modelStack.Scale(go->scale.x, go->scale.y, 1);
 		RenderMesh(meshList[GEO_TREE], false);
 		modelStack.PopMatrix();
@@ -1385,12 +1471,48 @@ void SceneCollision::Render()
 		break;
 	case main:
 	{
-		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
-		modelStack.Scale(m_worldWidth, m_worldHeight, 0);
-		RenderMesh(meshList[GEO_BG], false);
-		modelStack.PopMatrix();
+		//Render Background
+		for (int x = 1; x <= 4; ++x)
+		{
+			for (int y = 1; y <= 6; ++y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
 
+			for (int y = -1; y >= -6; --y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
+		}
+		for (int x = -1; x >= -4; --x)
+		{
+			for (int y = -1; y >= -6; --y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
+
+			for (int y = 1; y <= 6; ++y)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((m_worldWidth / 2) * x, (m_worldHeight * 0.5f) * y, 0);
+				modelStack.Scale(m_worldWidth, m_worldHeight, 0);
+				RenderMesh(meshList[GEO_BG], false);
+				modelStack.PopMatrix();
+			}
+		}
+		//Render Background
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.4f, 1);
 		modelStack.Scale(m_worldWidth, 1, 0);

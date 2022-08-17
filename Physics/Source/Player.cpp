@@ -10,10 +10,6 @@ void CPlayer2D::Init()
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	pos.Set(m_worldWidth * 0.5, m_worldHeight * 0.5, 1);
 	vel.Set(0, 0, 0);
-	for (int i = 0; i < 2; i++)
-	{
-		collided[i] = false;
-	}
 	sFacingDirection = RIGHT;
 	sCurrentState = IDLE;
 }
@@ -36,18 +32,12 @@ void CPlayer2D::Update(double dt)
 			sCurrentState = DODGING;
 		}
 		if (Application::IsKeyPressed('W')) {
-			if (collided[1] == false)
-				vel.y = 10;
-			else
-				vel.y = 0;
+			vel.y = 10;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
 		}
 		else if (Application::IsKeyPressed('S')) {
-			if (collided[1] == false)
-				vel.y = -10;
-			else
-				vel.y = 0;
+			vel.y = -10;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
 		}
@@ -60,19 +50,13 @@ void CPlayer2D::Update(double dt)
 			sFacingDirection = RIGHT;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
-			if (collided[0] == false)
-				vel.x = 10;
-			else
-				vel.x = 0;
+			vel.x = 10;
 		}
 		else if (Application::IsKeyPressed('A')) {
 			sFacingDirection = LEFT;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
-			if (collided[0] == false)
-				vel.x = -10;
-			else
-				vel.x = 0;
+			vel.x = -10;
 		}
 		else {
 			if (sCurrentState == IDLE && sCurrentState != DODGING) {
@@ -145,16 +129,6 @@ void CPlayer2D::Render()
 	modelStack.Scale(10, 10, 1);
 	RenderMesh(playerMesh, false);
 	modelStack.PopMatrix();
-}
-
-void CPlayer2D::CollisionDetectedHorizontal(bool Collided)
-{
-	collided[0] = Collided;
-}
-
-void CPlayer2D::CollisionDetectedVertical(bool Collided)
-{
-	collided[1] = Collided;
 }
 
 void CPlayer2D::Exit()
