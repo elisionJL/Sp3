@@ -36,7 +36,7 @@ public:
 	void RenderTitleScreen();
 	void RenderGronkDialogue();
 	void SpawnTree();
-	void shooting(double elapsedTime, double prevTime, GameObject* Gun);
+	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
 protected:
 	Vector3 m_lineStart;
 	//Physics
@@ -97,6 +97,8 @@ protected:
 	bool needtofinishanimation;
 	bool xisneg;
 	float zaxis;
+	std::vector<double> timerforbullets;
+	int numberofbullets;
 };
 
 #endif
