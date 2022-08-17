@@ -3,6 +3,7 @@
 #include "SceneBase.h"
 #include "GameObject.h"
 #include "Application.h"
+//#include "Player.h"
 
 class Enemy
 {
@@ -19,7 +20,11 @@ public:
 	static void setSpawn(float x, float y,Vector3& pos);
 
 	//public vars
-	float x, y;
+	Vector3 pos;
+	Vector3 vel;
+	Vector3 scale;
+	int type;
+
 protected:
 	enum DIRECTION
 	{
@@ -38,5 +43,7 @@ protected:
 		WEST = 3,
 		NUM_LOCATIONS
 	};
+
+	//CPlayer2D* cPlayer2D
 };
 
