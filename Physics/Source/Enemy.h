@@ -23,6 +23,7 @@ public:
 	Vector3 vel;
 	Vector3 scale;
 	int type;
+	int hp;
 
 protected:
 	enum DIRECTION
