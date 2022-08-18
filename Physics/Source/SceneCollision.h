@@ -99,6 +99,7 @@ protected:
 	float zaxis;
 	std::vector<double> timerforbullets;
 	int numberofbullets;
+	float testingexpbar, hptestingbar;
 };
 
 #endif
