@@ -69,6 +69,8 @@ void SceneCollision::Init()
 	}
 
 	dmgofgun = 0;
+
+	velocityofbullet = 20;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -150,29 +152,35 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			}
 			go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
 			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
-			go->vel.Normalize() *= 20;
+			go->vel.Normalize() *= velocityofbullet;
+			go->amountofpierleft = pierceforbullet;
 
-			if (Gun->type != GameObject::GO_SNIPER)
+			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 			{
-				for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+				if (timerforbullets[arraynumber] != 0)
 				{
-					if (timerforbullets[arraynumber] != 0)
-					{
-						continue;
-					}
-					timerforbullets[arraynumber] = elapsedTime + 2.0f;
-					go->lifetime = arraynumber;
-					break;
+					continue;
 				}
-				timerforbullets.push_back(elapsedTime + 2.0f);
-				go->lifetime = timerforbullets.size() - 1;
+				timerforbullets[arraynumber] = elapsedTime + 2.0f;
+				go->lifetime = arraynumber;
+				break;
 			}
+			timerforbullets.push_back(elapsedTime + 2.0f);
+			go->lifetime = timerforbullets.size() - 1;
 		}
 	}
 }
 
 bool SceneCollision::bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2)
 {
+	for (int i = 0; i < Bullet->pier.size(); ++i)
+	{
+		if (Bullet->pier[i] == go2->address)
+		{
+			return false;
+		}
+	}
+
 	{
 		Vector3 relativeVel = Bullet->vel - go2->vel;
 
@@ -217,20 +225,48 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	{
 		go2->sethp(go2->gethp() - dmgofgun);
 
+		cout << go2->gethp() << endl;
+
 		Bullet->amountofpierleft -= 1;
 		
 		if (go2->gethp() <= 0)
 		{
 			DeleteEnemy(go2);
 		}
-		if (Bullet->amountofpierleft < 1)
+		if (Bullet->amountofpierleft <= 0)
 		{
+			if (Bullet->proj == GameObject::GL)
+			{
+				GameObject* Explosion = FetchGO();
+				Explosion->type = GameObject::GO_EXPLOSION;
+				Explosion->pos = Bullet->pos;
+				Explosion->scale.Set(8, 8, 1);
+				for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+				{
+					if (timerforbullets[arraynumber] != 0)
+					{
+						continue;
+					}
+					timerforbullets[arraynumber] = elapsedTime + 0.5f;
+					Explosion->lifetime = arraynumber;
+					break;
+				}
+				timerforbullets.push_back(elapsedTime + 0.5f);
+				Explosion->lifetime = timerforbullets.size() - 1;
+			}
 			ReturnGO(Bullet);
 		}
 		else
-			cout << go2 << endl;
+		{
+			const void* address = static_cast<const void*>(go2);
+			std::stringstream ss;
+			ss << address;
+			Bullet->pier.push_back(ss.str());
+			cout << ss.str() << endl;
+		}
 
-		SceneCollision(dmgofgun);
+		DamageNumbers(dmgofgun, go2);
+
 		break;
 	}
 	default:
@@ -249,9 +285,33 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 	}
 }
 
-void SceneCollision::DamageNumbers(int damage)
+void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
 {
+	for (int arraynumber = 0; arraynumber < dmgandtimefordmgnumber.size(); ++arraynumber)
+	{
+		if (dmgandtimefordmgnumber[arraynumber] != 0)
+		{
+			continue;
+		}
+		dmgandtimefordmgnumber[arraynumber] = Vector3(Enem->pos.x, Enem->pos.y, damage);
+		timerfordmgnumber[arraynumber] = elapsedTime + 0.5f;
+		break;
+	}
+	dmgandtimefordmgnumber.push_back(Vector3(Enem->pos.x, Enem->pos.y, damage));
+	timerfordmgnumber.push_back(elapsedTime + 0.5f);
+}
 
+void SceneCollision::RenderDmgNum(Vector3 posanddmg)
+{
+	unsigned w = Application::GetWindowWidth();
+	unsigned h = Application::GetWindowHeight();
+	float posX = (posanddmg.x / w * m_worldWidth) + camera.position.x;
+	float posY = m_worldHeight - (posanddmg.y / h * m_worldHeight) + camera.position.y;
+
+	std::ostringstream ss;
+	ss << posanddmg.z;
+	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 1), 2, posX, posY);
+	cout << "pain" << endl;
 }
 
 void SceneCollision::Update(double dt)
@@ -305,7 +365,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_SHOTGUN;
+				Gun->type = GameObject::GO_GL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -336,12 +396,13 @@ void SceneCollision::Update(double dt)
 				}
 				else if (Gun->type == GameObject::GO_SNIPER)
 				{
-					Gun->scale.Set(7, 2.5, 1);
+					Gun->scale.Set(7, 1.44565217391, 1);
 					CurrentGun = meshList[GEO_SNIPER];
 					GunFrameWhereItStarts = 3;
 					numberofbullets = 1;
 					dmgofgun = 10;
 					pierceforbullet = 3;
+					velocityofbullet = 50;
 				}
 				else if (Gun->type == GameObject::GO_PISTOL)
 				{
@@ -453,6 +514,11 @@ void SceneCollision::Update(double dt)
 
 			enemyList.push_back(go);
 
+			const void* address = static_cast<const void*>(go);
+			std::stringstream ss;
+			ss << address;			
+			go->address = ss.str();
+
 			blMButtonState = true;
 		}
 		else if (!Application::IsKeyPressed('M') && blMButtonState)
@@ -460,6 +526,7 @@ void SceneCollision::Update(double dt)
 			blMButtonState = false;
 		}
 
+		
 		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 		bool shooting = true;
 		{
@@ -722,34 +789,31 @@ void SceneCollision::Update(double dt)
 				}
 				else if (go->type == GameObject::GO_PROJECTILE)
 				{
-					if (Gun->type != GameObject::GO_SNIPER)
+					if (elapsedTime > timerforbullets[go->lifetime])
 					{
-						if (elapsedTime > timerforbullets[go->lifetime])
+						if (go->proj == GameObject::GL)
 						{
-							if (go->proj == GameObject::GL)
+							GameObject* Explosion = FetchGO();
+							Explosion->type = GameObject::GO_EXPLOSION;
+							Explosion->pos = go->pos;
+							Explosion->scale.Set(8, 8, 1);
+							for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 							{
-								GameObject* Explosion = FetchGO();
-								Explosion->type = GameObject::GO_EXPLOSION;
-								Explosion->pos = go->pos;
-								Explosion->scale.Set(8, 8, 1);
-								for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+								if (timerforbullets[arraynumber] != 0)
 								{
-									if (timerforbullets[arraynumber] != 0)
-									{
-										continue;
-									}
-									timerforbullets[arraynumber] = elapsedTime + 0.5f;
-									Explosion->lifetime = arraynumber;
-									break;
+									continue;
 								}
-								timerforbullets.push_back(elapsedTime + 0.5f);
-								Explosion->lifetime = timerforbullets.size() - 1;
+								timerforbullets[arraynumber] = elapsedTime + 0.5f;
+								Explosion->lifetime = arraynumber;
+								break;
 							}
-
-							ReturnGO(go);
-							timerforbullets[go->lifetime] = 0;
+							timerforbullets.push_back(elapsedTime + 0.5f);
+							Explosion->lifetime = timerforbullets.size() - 1;
 						}
-					}
+
+						ReturnGO(go);
+						timerforbullets[go->lifetime] = 0;
+					}					
 					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
 						go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
 					{
@@ -771,7 +835,6 @@ void SceneCollision::Update(double dt)
 							}
 						}
 					}
-
 				}
 				else if (go->type == GameObject::GO_EXPLOSION)
 				{
@@ -2062,6 +2125,11 @@ void SceneCollision::Render()
 			modelStack.PopMatrix();
 		}
 
+		for (int i = 0; i < timerfordmgnumber.size(); ++i)
+		{
+
+		}
+
 		testingexpbar++;
 		hptestingbar++;
 
@@ -2105,11 +2173,11 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
+		/*modelStack.PushMatrix();
 		modelStack.Translate(camera.position.x , camera.position.y, 4.3f);
 		modelStack.Scale(1000, 1000, 1);
 		RenderMesh(meshList[GEO_LVLUPBG], false);
-		modelStack.PopMatrix();
+		modelStack.PopMatrix();*/
 
 		//On screen text
 		std::ostringstream ss;
