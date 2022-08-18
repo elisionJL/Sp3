@@ -1619,7 +1619,7 @@ void SceneCollision::Render()
 		{
 			Enemy* go = (Enemy*)*it;
 			modelStack.PushMatrix();
-			modelStack.Translate(go->pos.x, go->pos.y, 1);
+			modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 			modelStack.Scale(go->scale.x, go->scale.y, 1);
 			RenderMesh(meshList[GEO_BOSS_SLIME], false);
 			modelStack.PopMatrix();
