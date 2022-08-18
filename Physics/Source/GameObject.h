@@ -36,6 +36,7 @@ struct GameObject
 		GO_GRONK,
 		GO_BOSS_SLIME,
 		GO_TREE,
+		GO_ROCK,
 		GO_EXPLOSION,
 		GO_TOTAL, //must be last
 	};
@@ -54,6 +55,7 @@ struct GameObject
 	int thickWall;
 	int thinWall;
 	int lifetime;
+	float damage;
 	//Rotation variables
 	Vector3 direction;
 	Vector3 linestart;

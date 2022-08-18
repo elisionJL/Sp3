@@ -40,8 +40,9 @@ protected:
 	Mesh* playerMesh;
 	float m_worldWidth;
 	float m_worldHeight;
-	float hp;
+	float hp, maxHP;
 	float dmg;
+	int Walk_Speed;
 	Vector3 vel;
 
 };
