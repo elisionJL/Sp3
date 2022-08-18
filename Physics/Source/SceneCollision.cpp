@@ -162,65 +162,6 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 				go->lifetime = timerforbullets.size() - 1;
 			}
 		}
-		{
-			//for (int i = -20; i <= 20; i += 10)
-			//{
-			//	GameObject* go = FetchGO();
-			//	go->type = GameObject::GO_PROJECTILE;
-			//	switch (Gun->type) {
-			//	case GameObject::GO_PISTOL:
-			//		go->proj = GameObject::pistol;
-			//		break;
-			//	case GameObject::GO_BOW:
-			//		go->proj = GameObject::bow;
-			//		break;
-			//	case GameObject::GO_GL:
-			//		go->proj = GameObject::GL;
-			//		break;
-			//	case GameObject::GO_SHOTGUN:
-			//		go->proj = GameObject::shotgun;
-			//		break;
-			//	case GameObject::GO_SNIPER:
-			//		go->proj = GameObject::sniper;
-			//		break;
-			//	}
-
-			//	go->pos = cPlayer2D->pos;
-			//	go->pos.z += 0.01;			
-			//	go->scale.Set(4.5f, 2.f, 1.0f);
-			//	go->angle = angle + i;
-			//	go->vel = 
-			//	//find where the player has clicked
-			//	//float Xaxis = posX - cPlayer2D->pos.x;
-			//	//float Yaxis = posY - cPlayer2D->pos.y;
-			//	////upper right
-			//	//if (Yaxis >= 0 && Xaxis >= 0)
-			//	//{
-			//	//	go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-			//	////bottom right
-			//	//else if (Yaxis < 0 && Xaxis >= 0)
-			//	//{
-			//	//	go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-			//	////bottom left
-			//	//else if (Yaxis < 0 && Xaxis < 0)
-			//	//{
-			//	//	go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-			//	////upper right
-			//	//else if (Yaxis >= 0 && Xaxis < 0)
-			//	//{
-			//	//	go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-
-			//	//go->vel = go->vel.Normalized() * 20;
-			//	//go->angle = calculateAngle(go->vel.x, go->vel.y);
-		}
 	}
 }
 
@@ -859,7 +800,6 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) {
 		return false;
 	}
 	if (go1->type == GameObject::GO_WALL && go2->type == GameObject::GO_PILLAR)
-		std::cout << "collide" <<std::endl;
 	switch (go2->type) {
 	case GameObject::GO_PILLAR:
 	case GameObject::GO_BALL:
@@ -997,7 +937,6 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 				prev = i;
 			}
 		}
-		std::cout << "collided wall" << std::endl;
 		break;
 	}
 	case GameObject::GO_PILLAR:
@@ -1058,7 +997,6 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 				}
 				prev = i;
 			}
-			std::cout << "collided pillar" << std::endl;
 		}
 		break;
 	}
@@ -1736,12 +1674,10 @@ void SceneCollision::Render()
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(hptestingbar / 2 + hpX - m_worldWidth * 0.08, hpY, 4.1f);
+		modelStack.Translate(hptestingbar / 2 + hpX - m_worldWidth * 0.075, hpY, 4.1f);
 		modelStack.Scale(hptestingbar, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
-
-		cout << m_worldWidth << endl;
 
 		//On screen text
 		std::ostringstream ss;
