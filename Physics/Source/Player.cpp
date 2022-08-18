@@ -165,6 +165,13 @@ int CPlayer2D::getLevel()
 	return level;
 }
 
+void CPlayer2D::increaseLevel()
+{
+	xp -= ((level - 1) * 10) + 5;
+	level += 1;
+	leveledUp = false;
+}
+
 int CPlayer2D::getState()
 {
 	return sCurrentState;

@@ -870,10 +870,10 @@ void SceneCollision::Update(double dt)
 		}
 		else if (cPlayer2D->leveledUp == true) {
 			static bool LMPressed = false;
-			if (Application::IsMousePressed('0') && !LMPressed) {
+			if (Application::IsMousePressed(0) && !LMPressed) {
 				LMPressed = true;
 			}
-			else if (!Application::IsMousePressed('0') && LMPressed) {
+			else if (!Application::IsMousePressed(0) && LMPressed) {
 				LMPressed = false;
 				for (int i = 1; i < 4; ++i) {
 					float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
@@ -883,7 +883,9 @@ void SceneCollision::Update(double dt)
 					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth *0.28) &&
 						(mousePos.y <= m_worldHeight * 0.73  && mousePos.y >= m_worldHeight * 0.17) ){
 
-						/*switch (levelUpgrades[i - 1]) {
+						cPlayer2D->increaseLevel();
+						
+						switch (levelUpgrades[i - 1]) {
 						case pierce:
 							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
 							break;
@@ -907,7 +909,7 @@ void SceneCollision::Update(double dt)
 							break;
 						case dragon:
 							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
-						}*/
+						}
 					}
 				}
 			}
@@ -2014,6 +2016,8 @@ void SceneCollision::Render()
 			ss << minutes << ":0" << seconds;
 		}
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1,0,0), 3, 3, 56);
+
+		//render if player has leveled up
 		if (cPlayer2D->leveledUp == true) {
 			modelStack.PushMatrix();
 			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);

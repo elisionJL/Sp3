@@ -26,6 +26,7 @@ public:
 	float xp;
 	bool leveledUp;
 	int getLevel();
+	void increaseLevel();
 	int getState();
 protected:
 	enum DIRECTION {
