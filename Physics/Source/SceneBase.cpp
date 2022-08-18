@@ -135,6 +135,11 @@ void SceneBase::Init()
 	sa->AddAnimation("rollR", 50, 58);
 	sa->AddAnimation("death", 60, 67);
 
+	meshList[GEO_TRANSLUCENT] = MeshBuilder::GenerateQuad("pause", Color(1, 1, 1), 1.f);
+	meshList[GEO_TRANSLUCENT]->textureID = LoadTexture("Image//Translucent.png", false);
+
+	meshList[GEO_CARD] = MeshBuilder::GenerateQuad("card", Color(1, 1, 1), 1.f);
+	meshList[GEO_CARD]->textureID = LoadTexture("Image//upgrades//card.png", false);
 
 	meshList[GEO_BOUNCE] = MeshBuilder::GenerateQuad("bounce", Color(1, 1, 1), 1.f);
 	meshList[GEO_BOUNCE]->textureID = LoadTexture("Image//bounceWall.png", true);
