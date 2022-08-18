@@ -771,7 +771,10 @@ void SceneCollision::Update(double dt)
 					if (elapsedTime > timerforbullets[go->lifetime])
 						ReturnGO(go);
 				}
-
+				else if (go->type == GameObject::GO_BOSS_SLIME)
+				{
+					
+				}
 
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -797,6 +800,7 @@ void SceneCollision::Update(double dt)
 				}				
 			}
 		}
+		//Enemy List
 		for (unsigned i = 0; i < enemyList.size(); ++i)
 		{
 			Enemy* enemy = enemyList[i];
@@ -1060,6 +1064,12 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 	}
 	case GameObject::GO_POWERUP:
 		go2->active = false;
+		break;
+	case GameObject::GO_BOSS_SLIME:
+		Vector3 n = go1->pos - go2->pos;
+		Vector3 vec = (u1 - u2).Dot(n) / (n).LengthSquared() * n;
+		go1->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
+		go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
 		break;
 	}
 } 
