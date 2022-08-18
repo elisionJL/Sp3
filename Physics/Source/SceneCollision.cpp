@@ -927,7 +927,7 @@ bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
 
 bool SceneCollision::CheckCollision(Enemy* enemy, GameObject* go)
 {
-
+	return false;
 }
 
 
