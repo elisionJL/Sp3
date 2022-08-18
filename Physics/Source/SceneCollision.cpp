@@ -671,7 +671,7 @@ void SceneCollision::Update(double dt)
 					}
 					go->angle = Angle;
 				}
-				else if (go->type == GameObject::GO_PROJECTILE || go->type ==  GameObject::GO_EXPLOSION)
+				else if (go->type == GameObject::GO_PROJECTILE)
 				{
 					if (Gun->type != GameObject::GO_SNIPER)
 					{
@@ -706,7 +706,12 @@ void SceneCollision::Update(double dt)
 					{
 						ReturnGO(go);
 					}
-				}		
+				}
+				else if (go->type == GameObject::GO_EXPLOSION)
+				{
+					if (elapsedTime > timerforbullets[go->lifetime])
+						ReturnGO(go);
+				}
 
 
 				GameObject* go2 = nullptr;
@@ -1615,7 +1620,7 @@ void SceneCollision::Render()
 		{
 			Enemy* go = (Enemy*)*it;
 			modelStack.PushMatrix();
-			modelStack.Translate(go->pos.x, go->pos.y, 1);
+			modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 			modelStack.Scale(go->scale.x, go->scale.y, 1);
 			RenderMesh(meshList[GEO_BOSS_SLIME], false);
 			modelStack.PopMatrix();
