@@ -1,6 +1,7 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
+#include <vector>
 #include "Vector3.h"
 
 struct GameObject
@@ -40,6 +41,7 @@ struct GameObject
 		GO_EXPLOSION,
 		GO_TOTAL, //must be last
 	};
+
 	GAMEOBJECT_TYPE type;
 	powerUp PU;
 	projectile proj;
@@ -48,6 +50,10 @@ struct GameObject
 	Vector3 scale;
 	Vector3 normal;
 	Vector3 color;
+
+	std::vector<int*> pier;
+	int amountofpierleft;
+
 	float angle;
 	bool active;
 	float mass;
@@ -55,6 +61,7 @@ struct GameObject
 	int thickWall;
 	int thinWall;
 	int lifetime;
+	float damage;
 	//Rotation variables
 	Vector3 direction;
 	Vector3 linestart;

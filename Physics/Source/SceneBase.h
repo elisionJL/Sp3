@@ -96,6 +96,7 @@ public:
 		GEO_GRONK,
 		GEO_BOSS_SLIME,
 		GEO_EXPLOSION,
+		GEO_LVLUPBG,
 		NUM_GEOMETRY,
 	};
 public:

@@ -30,6 +30,8 @@ public:
 	GameObject* FetchGO();
 	void ReturnGO(GameObject *go);
 	bool CheckCollision(GameObject* go1, GameObject* go2);
+	bool CheckCollision(Enemy* enemy1, Enemy* enemy2);
+	bool CheckCollision(Enemy* enemy, GameObject* go);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
@@ -40,6 +42,10 @@ public:
 	void SpawnMapObjects();
 	void PlayerMapCheck();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
+	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
+	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
+	void DeleteEnemy(Enemy* Enemy);
+	void DamageNumbers(int damage);
 protected:
 	Vector3 m_lineStart;
 	//Physics
@@ -104,6 +110,8 @@ protected:
 	int numberofbullets;
 	int ShopUpgrades[6];
 	float testingexpbar, hptestingbar;
+	float dmgofgun;
+	int pierceforbullet;
 };
 
 #endif
