@@ -162,9 +162,11 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 				go->amountofpierleft = bowframe;
 			}
 			else
+			{
 				go->vel.Normalize() *= velocityofbullet;
+				go->amountofpierleft = pierceforbullet;
+			}
 
-			go->amountofpierleft = pierceforbullet;
 
 			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 			{
@@ -366,7 +368,12 @@ void SceneCollision::RenderDmgNum(Vector3 posanddmg)
 
 	if (posanddmg.z > 9)
 	{
-		posY += displaynumberoffsety;
+		if (switchdmgnum % 2 == 0)
+		{
+			posY -= displaynumberoffsety;
+		}
+		else
+			posY += displaynumberoffsety;
 	}
 
 	std::ostringstream ss;
@@ -638,6 +645,7 @@ void SceneCollision::Update(double dt)
 
 			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
 			{
+				bowframe = 12;
 				SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 				shootonceonly = 0;
 			}
