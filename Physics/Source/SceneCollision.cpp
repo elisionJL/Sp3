@@ -224,6 +224,55 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 	}
 }
 
+bool SceneCollision::bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2)
+{
+	{
+		Vector3 relativeVel = Bullet->vel - go2->vel;
+		Vector3 disDiff = go2->pos - Bullet->pos;
+
+		if (relativeVel.Dot(disDiff) <= 0) {
+			return false;
+		}
+		return disDiff.LengthSquared() <= (Bullet->scale.x + go2->scale.x) * (Bullet->scale.x + go2->scale.x);
+	}
+}
+
+void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2)
+{
+	u1 = Bullet->vel;
+	u2 = go2->vel;
+	m1 = Bullet->mass;
+	//m2 = go2->mass;
+
+	switch (go2->type)
+	{
+	case GameObject::GO_BOSS_SLIME:
+	{
+		go2->sethp(go2->gethp() - 1);
+		if (go2->gethp() <= 0)
+		{
+			DeleteEnemy(go2);
+		}
+		ReturnGO(Bullet);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void SceneCollision::DeleteEnemy(Enemy* Enemy)
+{
+
+	for (int i = 0; i < enemyList.size(); ++i)
+	{
+		if (enemyList[i] == Enemy)
+		{
+			enemyList.erase(enemyList.begin() + i);
+		}
+	}
+}
+
 void SceneCollision::Update(double dt)
 {
 	SceneBase::Update(dt);
@@ -272,7 +321,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_GL;
+				Gun->type = GameObject::GO_SHOTGUN;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -760,11 +809,28 @@ void SceneCollision::Update(double dt)
 							timerforbullets[go->lifetime] = 0;
 						}
 					}
-					if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
+					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
 						go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
 					{
 						ReturnGO(go);
 					}
+					
+					//collision check and response
+					{
+						for (unsigned x = 0; x < enemyList.size(); ++x)
+						{
+							Enemy* go2 = enemyList[x];
+							if (go2->gethp() > 0)
+							{
+								if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
+								{
+
+									SceneCollision::dobulletcollision(Gun, go, go2);
+								}
+							}
+						}
+					}
+
 				}
 				else if (go->type == GameObject::GO_EXPLOSION)
 				{
@@ -1522,7 +1588,7 @@ void SceneCollision::RenderGO(GameObject *go)
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
 		case GameObject::bow:
-			modelStack.Scale(1.2, 1, 1);
+			modelStack.Scale(1, 0.5, 1);
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
 			break;
 		}
@@ -1730,8 +1796,6 @@ void SceneCollision::Render()
 		modelStack.Scale(hptestingbar, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
-
-		cout << m_worldWidth << endl;
 
 		//On screen text
 		std::ostringstream ss;

@@ -3,6 +3,7 @@
 Enemy::Enemy()
 {
 	vel = 0;
+	hp = 5;
 }
 
 Enemy::~Enemy()
@@ -65,4 +66,14 @@ void Enemy::setSpawn(float playerX, float playerY, Vector3& pos)
 	}
 
 	std::cout << "pos.x : " << pos.x << " pos.y: " << pos.y << std::endl;
+}
+
+void Enemy::sethp(float Nhp)
+{
+	hp = Nhp;
+}
+
+float Enemy::gethp()
+{
+	return hp;
 }

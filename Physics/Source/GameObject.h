@@ -54,6 +54,7 @@ struct GameObject
 	int thickWall;
 	int thinWall;
 	int lifetime;
+	float damage;
 	//Rotation variables
 	Vector3 direction;
 	Vector3 linestart;

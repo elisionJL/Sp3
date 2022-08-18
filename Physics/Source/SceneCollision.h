@@ -37,6 +37,9 @@ public:
 	void RenderGronkDialogue();
 	void SpawnTree();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
+	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
+	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
+	void DeleteEnemy(Enemy* Enemy);
 protected:
 	Vector3 m_lineStart;
 	//Physics
