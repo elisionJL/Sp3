@@ -35,6 +35,7 @@ public:
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
 	void ShopInteraction();
+	void ShopUI();
 	void RenderGronkDialogue();
 	void SpawnMapObjects();
 	void PlayerMapCheck();
@@ -101,6 +102,7 @@ protected:
 	float zaxis;
 	std::vector<double> timerforbullets;
 	int numberofbullets;
+	int ShopUpgrades[6];
 	float testingexpbar, hptestingbar;
 };
 

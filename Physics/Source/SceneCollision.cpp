@@ -63,6 +63,11 @@ void SceneCollision::Init()
 	testingexpbar = 0;
 
 	hptestingbar = 0;
+
+	for (int i = 0; i < 6; ++i)
+	{
+		ShopUpgrades[i] = 0;
+	}
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -184,7 +189,10 @@ void SceneCollision::Update(double dt)
 	{
 		currentState = win;
 	}
-
+	if (Application::IsKeyPressed('G'))
+	{
+		cPlayer2D->UseGold(-9999);
+	}
 	//Mouse Section
 	double x, y, windowwidth, windowheight;
 	Application::GetCursorPos(&x, &y);
@@ -295,27 +303,7 @@ void SceneCollision::Update(double dt)
 			dialogueTime = 0;
 		}
 
-		if (Application::IsMousePressed(0)) {
-			if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
-			{
-				OutputDialogue = "";
-				CurrentTextWrite = false, TextFinished = false;
-				CurrentCharText = 0;
-				randomDialogue = 0;
-
-				for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-				{
-					GameObject* go = (GameObject*)*it;
-					if (go->active)
-						if (go->type == GameObject::GO_GRONK)
-							ReturnGO(go);
-				}
-
-				cSoundController->StopAllSound();
-				cSoundController->PlaySoundByID(1);
-				currentState = start;
-			}
-		}
+		ShopInteraction();
 		break;
 	}
 	case main:
@@ -1144,6 +1132,178 @@ void SceneCollision::ShopInteraction()
 	windowwidth = Application::GetWindowWidth();
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+	static bool bLButtonState = false;
+
+	if (!bLButtonState && Application::IsMousePressed(0)) 
+	{
+		if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+		{
+			OutputDialogue = "";
+			CurrentTextWrite = false, TextFinished = false;
+			CurrentCharText = 0;
+			randomDialogue = 0;
+
+			for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+			{
+				GameObject* go = (GameObject*)*it;
+				if (go->active)
+					if (go->type == GameObject::GO_GRONK)
+						ReturnGO(go);
+			}
+
+			cSoundController->StopAllSound();
+			cSoundController->PlaySoundByID(1);
+			currentState = start;
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+		{
+			if (cPlayer2D->GetGold() < 200 * pow(1.75, ShopUpgrades[0]) || ShopUpgrades[0] >= 5)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Speed
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseSpd();
+				cPlayer2D->UseGold(200 * pow(1.1, ShopUpgrades[0]));
+				ShopUpgrades[0] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+		{
+			if (cPlayer2D->GetGold() < 100 * pow(1.3, ShopUpgrades[1]) || ShopUpgrades[1] >= 10)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Health
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseHP();
+				cPlayer2D->UseGold(100 * pow(1.1, ShopUpgrades[1]));
+				ShopUpgrades[1] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+		{
+			if (cPlayer2D->GetGold() < 150 * pow(2.0, ShopUpgrades[2]) || ShopUpgrades[2] >= 5)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Defence
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->DecreaseShieldCooldown();
+				cPlayer2D->UseGold(150 * pow(2.0, ShopUpgrades[2]));
+				ShopUpgrades[2] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+		{
+			if(cPlayer2D->GetGold() < 100 * pow(1.5, ShopUpgrades[3]) || ShopUpgrades[3] >= 4)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Dmg
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseDmg();
+				cPlayer2D->UseGold(100 * pow(1.5, ShopUpgrades[3]));
+				ShopUpgrades[3] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+		{
+			if(cPlayer2D->GetGold() < 2000 || ShopUpgrades[4] >= 1)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Lives count
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseLifeCount();
+				cPlayer2D->UseGold(2000);
+				ShopUpgrades[4] += 1;
+			}
+
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+		{
+			if(cPlayer2D->GetGold() < 500 * pow(1.1, ShopUpgrades[5]) || ShopUpgrades[5] >= 5)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else//Increase exp earned
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseEXPGain();
+				cPlayer2D->UseGold(500 * pow(1.5, ShopUpgrades[5]));
+				ShopUpgrades[5] += 1;
+			}
+		}
+
+		bLButtonState = true;
+	}
+
+	else if (bLButtonState && !Application::IsMousePressed(0))
+		bLButtonState = false;
+}
+void SceneCollision::ShopUI()
+{
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth * 0.4, m_worldHeight * 0.45f, 4);
+	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.4, 0);
+	RenderMesh(meshList[GEO_SHOP_UI_BG], false);
+	modelStack.PopMatrix();
+
+	for (int y = 0; y < 2; ++y)
+	{
+		for (int x = 0; x < 3; ++x)
+		{
+			modelStack.PushMatrix();
+
+			modelStack.Translate(m_worldWidth * (0.25f + (0.15f * x)), m_worldHeight * (0.5f - (0.125f * y)), 5);
+			modelStack.Scale(m_worldWidth * 0.1f, m_worldHeight * 0.1f, 0);
+
+			if (x == 0 && y == 0)
+				RenderMesh(meshList[GEO_SPEED_UPGRADE], false);
+			else if (x == 1 && y == 0)
+				RenderMesh(meshList[GEO_MAXHP_UPGRADE], false);
+			else if(x == 2 && y == 0)
+				RenderMesh(meshList[GEO_SHIELD_UPGRADE], false);
+			else if (x == 0 && y == 1)
+				RenderMesh(meshList[GEO_ATTACK_UPGRADE], false);
+			else if (x == 1 && y == 1)
+				RenderMesh(meshList[GEO_EXTRALIFE_UPGRADE], false);
+			else if (x == 2 && y == 1)
+				RenderMesh(meshList[GEO_EXPGAIN_UPGRADE], false);
+
+			modelStack.PopMatrix();
+		}
+	}
 }
 void SceneCollision::RenderGronkDialogue()
 {
@@ -1632,7 +1792,7 @@ void SceneCollision::Render()
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.8f, 1);
+		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.9f, 1);
 		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.5, 0);
 		RenderMesh(meshList[GEO_SHOP_SIGN], false);
 		modelStack.PopMatrix();
@@ -1641,6 +1801,24 @@ void SceneCollision::Render()
 		modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
 		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
 		RenderMesh(meshList[GEO_DIALOGUE_BOX], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.15, m_worldHeight * 0.95, 1.1f);
+		modelStack.Scale(m_worldWidth * 0.35, m_worldHeight * 0.1, 0);
+		RenderMesh(meshList[GEO_GOLD_BG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.05, m_worldHeight * 0.95, 1.2);
+		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 0);
+		RenderMesh(meshList[GEO_GOLD], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1.3);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+		RenderTextOnScreen(meshList[GEO_TEXT], "X" + std::to_string(cPlayer2D->GetGold()), Color(1, 1, 0), 2.5, 7.5, 55.75);
 		modelStack.PopMatrix();
 
 		RenderGronkDialogue();
@@ -1654,6 +1832,8 @@ void SceneCollision::Render()
 		else
 			meshList[GEO_GRONK_BACK_BUTTON]->material.kAmbient.Set(0.4, 0.4, 0.4);
 		modelStack.PopMatrix();
+
+		ShopUI();
 
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
