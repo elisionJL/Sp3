@@ -177,6 +177,9 @@ void SceneBase::Init()
 	meshList[GEO_GRONK_BACK_BUTTON] = MeshBuilder::GenerateQuad("gronkbackbutton", Color(1, 1, 1), 1.f);
 	meshList[GEO_GRONK_BACK_BUTTON]->textureID = LoadTexture("Image//Gronk_Back_Button.png", true);
 
+	meshList[GEO_EXPLOSION] = MeshBuilder::GenerateQuad("explosion", Color(1, 1, 1), 1.f);
+	meshList[GEO_EXPLOSION]->textureID = LoadTexture("Image//Explosion.png", true);
+
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("bg", Color(1, 1, 1), 1.f);
 	meshList[GEO_BG]->textureID = LoadTexture("Image//Grass_BG.png", true);
 
@@ -185,6 +188,12 @@ void SceneBase::Init()
 
 	meshList[GEO_EXP] = MeshBuilder::GenerateQuad("expBar", Color(1, 1, 1), 1.f);
 	meshList[GEO_EXP]->textureID = LoadTexture("Image//expBar.png", true);
+
+	meshList[GEO_HEALTHBG] = MeshBuilder::GenerateQuad("healthBG", Color(1, 1, 1), 1.f);
+	meshList[GEO_HEALTHBG]->textureID = LoadTexture("Image//healthBarBG.png", true);
+
+	meshList[GEO_HEALTH] = MeshBuilder::GenerateQuad("Health", Color(1, 1, 1), 1.f);
+	meshList[GEO_HEALTH]->textureID = LoadTexture("Image//healthBar.png", true);
 
 	meshList[GEO_TREE] = MeshBuilder::GenerateQuad("tree", Color(1, 1, 1), 1.f);
 	meshList[GEO_TREE]->textureID = LoadTexture("Image//Tree.png", true);
@@ -277,6 +286,9 @@ void SceneBase::Init()
 	boss_slime->AddAnimation("Jump", 4, 15);
 	boss_slime->AddAnimation("Move Right", 16, 22);
 	boss_slime->AddAnimation("Move Left", 23, 30);
+
+
+
 
 	bLightEnabled = true;
 }
