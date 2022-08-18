@@ -42,6 +42,7 @@ public:
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void DeleteEnemy(Enemy* Enemy);
+	void DamageNumbers(int damage);
 protected:
 	Vector3 m_lineStart;
 	//Physics
@@ -105,6 +106,8 @@ protected:
 	std::vector<double> timerforbullets;
 	int numberofbullets;
 	float testingexpbar, hptestingbar;
+	float dmgofgun;
+	int pierceforbullet;
 };
 
 #endif

@@ -63,6 +63,8 @@ void SceneCollision::Init()
 	testingexpbar = 0;
 
 	hptestingbar = 0;
+
+	dmgofgun = 0;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -169,7 +171,27 @@ bool SceneCollision::bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, E
 {
 	{
 		Vector3 relativeVel = Bullet->vel - go2->vel;
+
 		Vector3 disDiff = go2->pos - Bullet->pos;
+
+		if (Bullet->pos.y > go2->pos.y)
+		{
+			disDiff -= Vector3(0, go2->scale.y / 2, 0);
+		}
+		else
+		{
+			disDiff += Vector3(0, go2->scale.y / 2, 0);
+		}
+
+		if (Bullet->pos.x > go2->pos.x)
+		{
+			disDiff -= Vector3(go2->scale.x / 2, 0, 0);
+		}
+		else
+		{
+			disDiff += Vector3(go2->scale.x / 2, 0, 0);
+		}
+
 
 		if (relativeVel.Dot(disDiff) <= 0) {
 			return false;
@@ -189,12 +211,15 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	{
 	case GameObject::GO_BOSS_SLIME:
 	{
-		go2->sethp(go2->gethp() - 1);
+		go2->sethp(go2->gethp() - dmgofgun);
+		
 		if (go2->gethp() <= 0)
 		{
 			DeleteEnemy(go2);
 		}
 		ReturnGO(Bullet);
+
+		SceneCollision(dmgofgun);
 		break;
 	}
 	default:
@@ -204,7 +229,6 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 void SceneCollision::DeleteEnemy(Enemy* Enemy)
 {
-
 	for (int i = 0; i < enemyList.size(); ++i)
 	{
 		if (enemyList[i] == Enemy)
@@ -212,6 +236,11 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 			enemyList.erase(enemyList.begin() + i);
 		}
 	}
+}
+
+void SceneCollision::DamageNumbers(int damage)
+{
+
 }
 
 void SceneCollision::Update(double dt)
@@ -270,6 +299,8 @@ void SceneCollision::Update(double dt)
 					CurrentGun = meshList[GEO_GL];
 					GunFrameWhereItStarts = 6;
 					numberofbullets = 1;
+					dmgofgun = 3; //explosion does 5
+					pierceforbullet = 1;
 				}
 				else if (Gun->type == GameObject::GO_BOW)
 				{
@@ -277,13 +308,17 @@ void SceneCollision::Update(double dt)
 					CurrentGun = meshList[GEO_BOW];
 					GunFrameWhereItStarts = 0;
 					numberofbullets = 1;
+					dmgofgun = 1;
+					pierceforbullet = 1;
 				}
 				else if (Gun->type == GameObject::GO_SHOTGUN)
 				{
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_SHOTGUN];
 					GunFrameWhereItStarts = 6;
-					numberofbullets = 10;
+					numberofbullets = 4;
+					dmgofgun = 3;
+					pierceforbullet = 1;
 				}
 				else if (Gun->type == GameObject::GO_SNIPER)
 				{
@@ -291,6 +326,8 @@ void SceneCollision::Update(double dt)
 					CurrentGun = meshList[GEO_SNIPER];
 					GunFrameWhereItStarts = 3;
 					numberofbullets = 1;
+					dmgofgun = 10;
+					pierceforbullet = 3;
 				}
 				else if (Gun->type == GameObject::GO_PISTOL)
 				{
@@ -298,6 +335,8 @@ void SceneCollision::Update(double dt)
 					CurrentGun = meshList[GEO_PISTOL];
 					GunFrameWhereItStarts = 3;
 					numberofbullets = 1;
+					dmgofgun = 4;
+					pierceforbullet = 1;
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();

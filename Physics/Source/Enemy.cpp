@@ -3,7 +3,7 @@
 Enemy::Enemy()
 {
 	vel = 0;
-	hp = 5;
+	hp = 10;
 }
 
 Enemy::~Enemy()
