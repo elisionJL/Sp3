@@ -24,9 +24,11 @@ public:
 	Vector3 scale;
 	int type;
 	float hp;
+	std::string address;
 
 	void sethp(float Nhp);
 	float gethp();
+	void setaddress(std::string ad);
 
 protected:
 	enum DIRECTION

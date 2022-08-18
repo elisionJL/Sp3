@@ -28,6 +28,14 @@ public:
 	int getLevel();
 	void increaseLevel();
 	int getState();
+	void IncreaseSpd();
+	void IncreaseHP();
+	void DecreaseShieldCooldown();
+	void IncreaseDmg();
+	void IncreaseLifeCount();
+	void IncreaseEXPGain();
+	int GetGold();
+	void UseGold(int Gold_Used);
 protected:
 	enum DIRECTION {
 		RIGHT = 0,
@@ -36,6 +44,8 @@ protected:
 	CPlayer2D();
 	~CPlayer2D();
 	int level;
+	int Lives;
+	int Gold;
 	STATES sCurrentState;
 	DIRECTION sFacingDirection;
 	Mesh* playerMesh;

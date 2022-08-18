@@ -37,6 +37,7 @@ public:
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
 	void ShopInteraction();
+	void ShopUI();
 	void RenderGronkDialogue();
 	void SpawnMapObjects();
 	void PlayerMapCheck();
@@ -44,7 +45,8 @@ public:
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void DeleteEnemy(Enemy* Enemy);
-	void DamageNumbers(int damage);
+	void DamageNumbers(int damage, Enemy* Enem);
+	void RenderDmgNum(Vector3 dmgandtime);
 protected:
 	enum upgrades {
 		atk = 0,
@@ -116,10 +118,15 @@ protected:
 	bool xisneg;
 	float zaxis;
 	std::vector<double> timerforbullets;
+	std::vector<Vector3> dmgandtimefordmgnumber;
+	std::vector<double> timerfordmgnumber;
 	int numberofbullets;
+	int ShopUpgrades[6];
 	float testingexpbar, hptestingbar;
 	float dmgofgun;
 	int pierceforbullet;
+	float velocityofbullet;
+	float bowdrawstring;
 };
 
 #endif

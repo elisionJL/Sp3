@@ -177,6 +177,33 @@ void SceneBase::Init()
 	meshList[GEO_SHOP_BG] = MeshBuilder::GenerateQuad("shopbg", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHOP_BG]->textureID = LoadTexture("Image//Shop_BG.png", true);
 
+	meshList[GEO_SHOP_UI_BG] = MeshBuilder::GenerateQuad("shopuibg", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHOP_UI_BG]->textureID = LoadTexture("Image//Shop_UI_BG.png", true);
+
+	meshList[GEO_SPEED_UPGRADE] = MeshBuilder::GenerateQuad("upgradespd", Color(1, 1, 1), 1.f);
+	meshList[GEO_SPEED_UPGRADE]->textureID = LoadTexture("Image//Shoe_Upgrade_UI.png", true);
+
+	meshList[GEO_MAXHP_UPGRADE] = MeshBuilder::GenerateQuad("upgradehp", Color(1, 1, 1), 1.f);
+	meshList[GEO_MAXHP_UPGRADE]->textureID = LoadTexture("Image//Heart_Upgrade_UI.png", true);
+
+	meshList[GEO_SHIELD_UPGRADE] = MeshBuilder::GenerateQuad("shield", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHIELD_UPGRADE]->textureID = LoadTexture("Image//Shield_Upgrade_UI.png", true);
+
+	meshList[GEO_ATTACK_UPGRADE] = MeshBuilder::GenerateQuad("attack", Color(1, 1, 1), 1.f);
+	meshList[GEO_ATTACK_UPGRADE]->textureID = LoadTexture("Image//Attack_Upgrade_UI.png", true);
+
+	meshList[GEO_EXTRALIFE_UPGRADE] = MeshBuilder::GenerateQuad("extralife", Color(1, 1, 1), 1.f);
+	meshList[GEO_EXTRALIFE_UPGRADE]->textureID = LoadTexture("Image//ExtraLife_Upgrade_UI.png", true);
+
+	meshList[GEO_EXPGAIN_UPGRADE] = MeshBuilder::GenerateQuad("expgainup", Color(1, 1, 1), 1.f);
+	meshList[GEO_EXPGAIN_UPGRADE]->textureID = LoadTexture("Image//EXPGain_Upgrade_UI.png", true);
+
+	meshList[GEO_GOLD] = MeshBuilder::GenerateQuad("gold", Color(1, 1, 1), 1.f);
+	meshList[GEO_GOLD]->textureID = LoadTexture("Image//Gold.png", true);
+
+	meshList[GEO_GOLD_BG] = MeshBuilder::GenerateQuad("goldbg", Color(1, 1, 1), 1.f);
+	meshList[GEO_GOLD_BG]->textureID = LoadTexture("Image//Gold_BG.png", true);
+
 	meshList[GEO_SHOP_SIGN] = MeshBuilder::GenerateQuad("signboard", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHOP_SIGN]->textureID = LoadTexture("Image//Wooden_Sign.png", true);
 
@@ -227,6 +254,8 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Boss_Music.ogg"), 3, true, true); //Boss Music
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Shop_Menu.ogg"), 4, true, true); //Shop Music
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Battle_Music.ogg"), 5, true, true); //Battle Music
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Buying.ogg"), 6, true); //Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\CannotBuy.ogg"), 7, true); //Cannot Buy SFX
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 3, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
