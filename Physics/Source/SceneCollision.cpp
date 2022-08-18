@@ -253,7 +253,6 @@ void SceneCollision::Update(double dt)
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
 				cSoundController->StopAllSound();
-				SpawnTree();
 				cSoundController->PlaySoundByID(5);
 				SpawnMapObjects();
 			}
