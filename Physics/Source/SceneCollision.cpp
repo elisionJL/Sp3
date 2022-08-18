@@ -730,7 +730,7 @@ void SceneCollision::Update(double dt)
 					}
 					go->angle = Angle;
 				}
-				else if (go->type == GameObject::GO_PROJECTILE || go->type ==  GameObject::GO_EXPLOSION)
+				else if (go->type == GameObject::GO_PROJECTILE)
 				{
 					if (Gun->type != GameObject::GO_SNIPER)
 					{
@@ -765,7 +765,12 @@ void SceneCollision::Update(double dt)
 					{
 						ReturnGO(go);
 					}
-				}		
+				}
+				else if (go->type == GameObject::GO_EXPLOSION)
+				{
+					if (elapsedTime > timerforbullets[go->lifetime])
+						ReturnGO(go);
+				}
 
 
 				GameObject* go2 = nullptr;
