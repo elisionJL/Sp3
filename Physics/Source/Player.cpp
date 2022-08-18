@@ -14,6 +14,7 @@ void CPlayer2D::Init()
 	sCurrentState = IDLE;
 	xp = 0;
 	level = 1;
+	leveledUp = false;
 }
 
 void CPlayer2D::Update(double dt)
@@ -25,11 +26,18 @@ void CPlayer2D::Update(double dt)
 	if (Application::IsKeyPressed('K')) {
 		xp += 1;
 	}
-	if (xp >= ((level - 1) * 10) + 5)
+	/*if (xp >= ((level - 1) * 10) + 5 && !leveledUp)
 	{
+		leveledUp = true;
 		xp -= ((level - 1) * 10) + 5;
 		level += 1;
 	}
+	if (xp >= ((level - 1) * 10) + 5 && leveledUp)
+	{
+		leveledUp = true;
+		xp -= ((level - 1) * 10) + 5;
+		level += 1;
+	}*/
 	if (hp <= 0) {
 		sa->PlayAnimation("death", 0, 2.f);
 		sa->Update(dt);
