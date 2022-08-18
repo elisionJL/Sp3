@@ -212,12 +212,19 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	case GameObject::GO_BOSS_SLIME:
 	{
 		go2->sethp(go2->gethp() - dmgofgun);
+
+		Bullet->amountofpierleft -= 1;
 		
 		if (go2->gethp() <= 0)
 		{
 			DeleteEnemy(go2);
 		}
-		ReturnGO(Bullet);
+		if (Bullet->amountofpierleft < 1)
+		{
+			ReturnGO(Bullet);
+		}
+		else
+			cout << go2 << endl;
 
 		SceneCollision(dmgofgun);
 		break;
@@ -1912,6 +1919,12 @@ void SceneCollision::Render()
 		modelStack.Translate(hptestingbar / 2 + hpX - m_worldWidth * 0.075, hpY, 4.1f);
 		modelStack.Scale(hptestingbar, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTH], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(camera.position.x , camera.position.y, 4.3f);
+		modelStack.Scale(1000, 1000, 1);
+		RenderMesh(meshList[GEO_LVLUPBG], false);
 		modelStack.PopMatrix();
 
 		//On screen text
