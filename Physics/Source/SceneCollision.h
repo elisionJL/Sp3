@@ -46,11 +46,21 @@ public:
 	void DeleteEnemy(Enemy* Enemy);
 	void DamageNumbers(int damage);
 protected:
+	enum upgrades {
+		atk = 0,
+		hp,
+		fireRate,
+		pierce,
+		moveSpeed,
+		multishot,
+		velocity,
+		dragon
+	};
 	Vector3 m_lineStart;
 	//Physics
 	std::vector<GameObject *> m_goList;
 	std::vector<GameObject*> m_thickWallList;
-
+	upgrades levelUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
 	float m_speed;

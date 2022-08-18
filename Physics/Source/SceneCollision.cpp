@@ -422,15 +422,44 @@ void SceneCollision::Update(double dt)
 			minutes -= 1;
 			seconds += 60;
 		}
-		elapsedTime += dt;
 
 		if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
 		{
 			cPlayer2D->leveledUp = true;
+			//generate 3 random upgrades for the player to choose
+			for (int i = 0; i < 3; ++i) {
+				switch (Math::RandIntMinMax(0, 6)) {
+				case 0:
+					levelUpgrades[i] = pierce;
+					break;
+				case 1:
+					levelUpgrades[i] = multishot;
+					break;
+				case 2:
+					levelUpgrades[i] = atk;
+					break;
+				case 3:
+					levelUpgrades[i] = hp;
+					break;
+				case 4:
+					levelUpgrades[i] = velocity;
+					break;
+				case 5:
+					levelUpgrades[i] = moveSpeed;
+					break;
+				case 6:
+					levelUpgrades[i] = fireRate;
+					break;
+				}
+
+			}
+
 		}
 		if (cPlayer2D->leveledUp == false) {
 			cPlayer2D->Update(dt);
 			cPlayer2D->xp++;
+
+			elapsedTime += dt;
 			if (Application::IsKeyPressed('E') && Companion->mass == 1)
 			{
 				Companion->type = GameObject::GO_COMPANION;
@@ -839,6 +868,52 @@ void SceneCollision::Update(double dt)
 			}
 			break;
 		}
+		else if (cPlayer2D->leveledUp == true) {
+			static bool LMPressed = false;
+			if (Application::IsMousePressed('0') && !LMPressed) {
+				LMPressed = true;
+			}
+			else if (!Application::IsMousePressed('0') && LMPressed) {
+				LMPressed = false;
+				for (int i = 1; i < 4; ++i) {
+					float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
+					float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+
+
+					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth *0.28) &&
+						(mousePos.y <= m_worldHeight * 0.73  && mousePos.y >= m_worldHeight * 0.17) ){
+
+						/*switch (levelUpgrades[i - 1]) {
+						case pierce:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
+							break;
+						case atk:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+							break;
+						case hp:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+							break;
+						case multishot:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+							break;
+						case moveSpeed:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+							break;
+						case velocity:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+							break;
+						case fireRate:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
+							break;
+						case dragon:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+						}*/
+					}
+				}
+			}
+
+		}
+	}
 	case win:
 	{
 		static bool bLButtonState = false;
@@ -879,7 +954,6 @@ void SceneCollision::Update(double dt)
 		}
 	}
 	break;
-	}
 	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
@@ -1921,12 +1995,6 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		modelStack.Translate(camera.position.x , camera.position.y, 4.3f);
-		modelStack.Scale(1000, 1000, 1);
-		RenderMesh(meshList[GEO_LVLUPBG], false);
-		modelStack.PopMatrix();
-
 		//On screen text
 		std::ostringstream ss;
 		ss.precision(5);
@@ -1948,17 +2016,83 @@ void SceneCollision::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1,0,0), 3, 3, 56);
 		if (cPlayer2D->leveledUp == true) {
 			modelStack.PushMatrix();
-			modelStack.Translate(0,0,6);
-			modelStack.Scale(200, 200, 1);
-			RenderMesh(meshList[GEO_TRANSLUCENT], false);
+			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);
+			modelStack.Scale(1000, 1000, 1);
+			RenderMesh(meshList[GEO_LVLUPBG], false);
 			modelStack.PopMatrix();
 
 			for (int i = 1; i < 4; ++i) {
+				float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth*0.14);
+				float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+				float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
+				float textx;
+				switch (i) {
+				case 1:
+					textx = 8;
+					break;
+				case 2:
+					textx = 34;
+					break;
+				case 3:
+					textx = 60;
+					break;
+				}
+
 				modelStack.PushMatrix();
-				modelStack.Translate((i * 0.04*m_worldWidth) +(i*0.28*m_worldWidth) + (m_worldWidth *0.14) , 0, 6.01);
-				modelStack.Scale(m_worldWidth*0.28, m_worldHeight* 0.8, 1);
+				modelStack.Translate(x + cameramoveX, m_worldHeight*0.45 + cameramoveY, 6.01);
+				modelStack.Scale(m_worldWidth*0.28, m_worldHeight* 0.56, 1);
 				RenderMesh(meshList[GEO_CARD], false);
 				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(x + cameramoveX, m_worldHeight * 0.6 + cameramoveY,6.02);
+				modelStack.Scale(m_worldWidth * 0.14, m_worldHeight * 0.14, 1);
+				ss.str("");
+				switch (levelUpgrades[i - 1]) {
+				case pierce:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png" , true);
+					ss << "pierce +1";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					break;
+				case atk:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+					ss << "damage +10%";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+					break;
+				case hp:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+					ss << "110% hp";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					break;
+				case multishot:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+					ss << "bulletcount +1";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					break;
+				case moveSpeed:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+					ss << "105% movespeed";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					break;
+				case velocity:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+					ss << "velocity +5";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+					break;
+				case fireRate:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
+					ss << "110% firerate";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					break;
+				case dragon:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					ss << "grants a dragon companion";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+				}
+				RenderMesh(meshList[GEO_UPGRADEICON], false);
+				modelStack.PopMatrix();
+
+				//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1, 2, 20);
 			}
 		}
 		break;
