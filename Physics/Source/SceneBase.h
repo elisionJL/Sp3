@@ -85,6 +85,7 @@ public:
 		GEO_MANA,
 		GEO_GRONK,
 		GEO_BOSS_SLIME,
+		GEO_EXPLOSION,
 		NUM_GEOMETRY,
 	};
 public:
