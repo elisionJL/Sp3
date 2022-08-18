@@ -784,35 +784,49 @@ void SceneCollision::Update(double dt)
 					if (elapsedTime > timerforbullets[go->lifetime])
 						ReturnGO(go);
 				}
-				else if (go->type == GameObject::GO_BOSS_SLIME)
-				{
-					
-				}
+				
+				
+				
+				
 
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
+				{
+					go2 = m_goList[j];
+					GameObject* actor(go);
+					GameObject* actee(go2);
+					if (go->type != GameObject::GO_BALL)
 					{
-						go2 = m_goList[j];
-						GameObject* actor(go);
-						GameObject* actee(go2);
-						if (go->type != GameObject::GO_BALL)
-						{
-							actor = go2;
-							actee = go;
-						}
-						if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
-							continue;
-						}
-						if (go2->active && CheckCollision(actor, actee))
-						{
-							CollisionResponse(actor, actee);
-						}
+						actor = go2;
+						actee = go;
 					}
+					if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
+						continue;
+					}
+					if (go2->active && CheckCollision(actor, actee))
+					{
+						CollisionResponse(actor, actee);
+					}
+				}
 				if (cPlayer2D->getState() == cPlayer2D->DEAD) {
 					currentState = lose;
 				}				
 			}
 		}
+
+		for (unsigned i = 0; i < enemyList.size(); ++i)
+		{
+			Enemy* go1 = enemyList[i];
+			for (unsigned x = i; x < enemyList.size(); ++x)
+			{
+				Enemy* go2 = enemyList[x];
+				if (go2->gethp() > 0 && go2 != go1)
+				{
+					CheckCollision(go1, go2);
+				}
+			}
+		}
+
 		//Enemy List
 		for (unsigned i = 0; i < enemyList.size(); ++i)
 		{
@@ -867,10 +881,8 @@ void SceneCollision::Update(double dt)
 }
 
 
-bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) {
-	if (go1->type != GameObject::GO_BALL) {
-		return false;
-	}
+bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
+{
 	if (go1->type == GameObject::GO_WALL && go2->type == GameObject::GO_PILLAR)
 	switch (go2->type) {
 	case GameObject::GO_PILLAR:
@@ -926,11 +938,38 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) {
 		return disDiff.LengthSquared() <= (go1->scale.x + go2->scale.x) * (go1->scale.x + go2->scale.x);
 	}
 	break;
+	case GameObject::GO_BOSS_SLIME:
+	{
+		Vector3 distdiff = go2->pos - go1->pos;
+		Vector3 minimum = (0, 0, 1);
+		if (distdiff.x <= minimum.x || distdiff.y <= minimum.y)
+		{
+			return false;
+		}
+	}
+	break;
 	default:
 		return false;
 		break;
 	}
 }
+
+bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
+{
+	Vector3 distdiff = enemy2->pos - enemy1->pos;
+	Vector3 minimum = (0, 0, 1);
+	if (distdiff.x <= minimum.x || distdiff.y <= minimum.y)
+	{
+		return false;
+	}
+}
+
+bool SceneCollision::CheckCollision(Enemy* enemy, GameObject* go)
+{
+	return false;
+}
+
+
 void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 {
 	u1 = go1->vel;
@@ -940,7 +979,6 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 
 	switch (go2->type)
 	{
-
 	case GameObject::GO_BALL:
 	{
 		// 2D Version 2
