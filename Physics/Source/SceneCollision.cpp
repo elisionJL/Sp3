@@ -162,65 +162,6 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 				go->lifetime = timerforbullets.size() - 1;
 			}
 		}
-		{
-			//for (int i = -20; i <= 20; i += 10)
-			//{
-			//	GameObject* go = FetchGO();
-			//	go->type = GameObject::GO_PROJECTILE;
-			//	switch (Gun->type) {
-			//	case GameObject::GO_PISTOL:
-			//		go->proj = GameObject::pistol;
-			//		break;
-			//	case GameObject::GO_BOW:
-			//		go->proj = GameObject::bow;
-			//		break;
-			//	case GameObject::GO_GL:
-			//		go->proj = GameObject::GL;
-			//		break;
-			//	case GameObject::GO_SHOTGUN:
-			//		go->proj = GameObject::shotgun;
-			//		break;
-			//	case GameObject::GO_SNIPER:
-			//		go->proj = GameObject::sniper;
-			//		break;
-			//	}
-
-			//	go->pos = cPlayer2D->pos;
-			//	go->pos.z += 0.01;			
-			//	go->scale.Set(4.5f, 2.f, 1.0f);
-			//	go->angle = angle + i;
-			//	go->vel = 
-			//	//find where the player has clicked
-			//	//float Xaxis = posX - cPlayer2D->pos.x;
-			//	//float Yaxis = posY - cPlayer2D->pos.y;
-			//	////upper right
-			//	//if (Yaxis >= 0 && Xaxis >= 0)
-			//	//{
-			//	//	go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-			//	////bottom right
-			//	//else if (Yaxis < 0 && Xaxis >= 0)
-			//	//{
-			//	//	go->vel.x = cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-			//	////bottom left
-			//	//else if (Yaxis < 0 && Xaxis < 0)
-			//	//{
-			//	//	go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = -sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-			//	////upper right
-			//	//else if (Yaxis >= 0 && Xaxis < 0)
-			//	//{
-			//	//	go->vel.x = -cos((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//	go->vel.y = sin((Gun->angle + i) * Math::TWO_PI / 180.f);
-			//	//}
-
-			//	//go->vel = go->vel.Normalized() * 20;
-			//	//go->angle = calculateAngle(go->vel.x, go->vel.y);
-		}
 	}
 }
 
@@ -361,9 +302,8 @@ void SceneCollision::Update(double dt)
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
 				cSoundController->StopAllSound();
-				SpawnTree();
 				cSoundController->PlaySoundByID(5);
-				SpawnTree();
+				SpawnMapObjects();
 			}
 
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
@@ -636,41 +576,9 @@ void SceneCollision::Update(double dt)
 		}
 
 		unsigned size = m_goList.size();
-		//Player collision
-		for (unsigned i = 0; i < size; ++i)
-		{
-			GameObject* go = m_goList[i];
-			if (go->active)
-			{
-				if (go->type == GameObject::GO_TREE)
-				{
-					if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
-					{
-						if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
-						{
-							Vector3 TempPos;
-							TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
-							Vector3 NegativeX = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
-							Vector3 PositiveX = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
-							Vector3 NegativeY = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
-							Vector3 PositiveY = TempPos - cPlayer2D->pos;
 
-							if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
-								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
-							else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
-								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
-							else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
-								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
-							else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
-								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
-						}
-					}
-				}
-			}
-		}
+		PlayerMapCheck();
+
 		//Physics Simulation Section
 		for (unsigned i = 0; i < size; ++i)
 		{
@@ -837,7 +745,10 @@ void SceneCollision::Update(double dt)
 					if (elapsedTime > timerforbullets[go->lifetime])
 						ReturnGO(go);
 				}
-
+				else if (go->type == GameObject::GO_BOSS_SLIME)
+				{
+					
+				}
 
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -863,6 +774,7 @@ void SceneCollision::Update(double dt)
 				}				
 			}
 		}
+		//Enemy List
 		for (unsigned i = 0; i < enemyList.size(); ++i)
 		{
 			Enemy* enemy = enemyList[i];
@@ -921,7 +833,6 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) {
 		return false;
 	}
 	if (go1->type == GameObject::GO_WALL && go2->type == GameObject::GO_PILLAR)
-		std::cout << "collide" <<std::endl;
 	switch (go2->type) {
 	case GameObject::GO_PILLAR:
 	case GameObject::GO_BALL:
@@ -1059,7 +970,6 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 				prev = i;
 			}
 		}
-		std::cout << "collided wall" << std::endl;
 		break;
 	}
 	case GameObject::GO_PILLAR:
@@ -1120,12 +1030,17 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 				}
 				prev = i;
 			}
-			std::cout << "collided pillar" << std::endl;
 		}
 		break;
 	}
 	case GameObject::GO_POWERUP:
 		go2->active = false;
+		break;
+	case GameObject::GO_BOSS_SLIME:
+		Vector3 n = go1->pos - go2->pos;
+		Vector3 vec = (u1 - u2).Dot(n) / (n).LengthSquared() * n;
+		go1->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
+		go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
 		break;
 	}
 } 
@@ -1288,6 +1203,14 @@ void SceneCollision::RenderTitleScreen()
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);
 	modelStack.PopMatrix();
 }
+void SceneCollision::ShopInteraction()
+{
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+}
 void SceneCollision::RenderGronkDialogue()
 {
 	string GronkDialogue[50] = { "Welcome to Gronk Shop!", "Gronk has many stuff!", "What human want? Gronk can help find!",
@@ -1350,15 +1273,17 @@ void SceneCollision::RenderGronkDialogue()
 	modelStack.PopMatrix();
 }
 
-void SceneCollision::SpawnTree()
+void SceneCollision::SpawnMapObjects()
 {
-	int TreeCount;
-	TreeCount = 0;
+	int ObjectCount;
+	ObjectCount = 0;
+	int ObjectType;
 
-	while (TreeCount < 200)
+	while (ObjectCount < 200)
 	{
-		bool TreeCollided;
-		TreeCollided = false;
+		ObjectType = rand() % 100 + 1; //Value between 1 and 100
+		bool ObjectCollided;
+		ObjectCollided = false;
 		float CheckSpawn;
 		CheckSpawn = 0;
 		float SpawnX, SpawnY;
@@ -1385,30 +1310,39 @@ void SceneCollision::SpawnTree()
 				if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
 				{
 					if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
-						TreeCollided = true;
+						ObjectCollided = true;
 				}
 				else if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
 				{
 					if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
-						TreeCollided = true;
+						ObjectCollided = true;
+				}
+			}
+
+			else if (go->type == GameObject::GO_ROCK)
+			{
+				float NegX = go->pos.x - 7.5f;
+				float PosX = go->pos.x + 7.5f;
+				float NegY = go->pos.y - 5.5f;
+				float PosY = go->pos.y + 3.5f;
+
+				if (SpawnX + 7.5f >= NegX && SpawnX - 7.5f <= PosX)
+				{
+					if (SpawnY + 3.5f >= NegY && SpawnY - 5.5f <= PosY)
+						ObjectCollided = true;
+				}
+				else if (SpawnY + 3.5f >= NegY && SpawnY - 5.5f <= PosY)
+				{
+					if (SpawnX + 7.5f >= NegX && SpawnX - 7.5f <= PosX)
+						ObjectCollided = true;
 				}
 			}
 
 			if (i == size - 1)
 			{
-				if (TreeCount == 0)
+				if (ObjectCount == 0)
 				{
-					GameObject* Tree = FetchGO();
-					Tree->type = GameObject::GO_TREE;
-					Tree->scale.Set(10, 20, 1.0f);
-					Tree->pos.Set(SpawnX, SpawnY, 4.f);
-					Tree->normal.Set(0, 1, 0);
-					Tree->vel.SetZero();
-				}
-
-				else if (TreeCount > 0)
-				{
-					if (TreeCollided == false)
+					if (ObjectType >= 1 && ObjectType <= 60) //Tree
 					{
 						GameObject* Tree = FetchGO();
 						Tree->type = GameObject::GO_TREE;
@@ -1417,13 +1351,118 @@ void SceneCollision::SpawnTree()
 						Tree->normal.Set(0, 1, 0);
 						Tree->vel.SetZero();
 					}
+
+					else if (ObjectType > 60 && ObjectType <= 100) //Rock
+					{
+						GameObject* Tree = FetchGO();
+						Tree->type = GameObject::GO_ROCK;
+						Tree->scale.Set(5, 5, 1.0f);
+						Tree->pos.Set(SpawnX, SpawnY, 4.f);
+						Tree->normal.Set(0, 1, 0);
+						Tree->vel.SetZero();
+					}
+				}
+
+				else if (ObjectCount > 0)
+				{
+					if (ObjectCollided == false)
+					{
+						if (ObjectType >= 1 && ObjectType <= 60) //Tree
+						{
+							GameObject* Tree = FetchGO();
+							Tree->type = GameObject::GO_TREE;
+							Tree->scale.Set(10, 20, 1.0f);
+							Tree->pos.Set(SpawnX, SpawnY, 4.f);
+							Tree->normal.Set(0, 1, 0);
+							Tree->vel.SetZero();
+						}
+
+						else if (ObjectType > 60 && ObjectType <= 100) //Rock
+						{
+							GameObject* Tree = FetchGO();
+							Tree->type = GameObject::GO_ROCK;
+							Tree->scale.Set(5, 5, 1.0f);
+							Tree->pos.Set(SpawnX, SpawnY, 4.f);
+							Tree->normal.Set(0, 1, 0);
+							Tree->vel.SetZero();
+						}
+					}
 				}
 
 				break;
 			}
 		}
 
-		TreeCount++;
+		ObjectCount++;
+	}
+}
+
+void SceneCollision::PlayerMapCheck()
+{
+	unsigned size = m_goList.size();
+
+	//Player collision
+	for (unsigned i = 0; i < size; ++i)
+	{
+		GameObject* go = m_goList[i];
+		if (go->active)
+		{
+			if (go->type == GameObject::GO_TREE)
+			{
+				if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
+				{
+					if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
+					{
+						Vector3 TempPos;
+						TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
+						Vector3 NegativeX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
+						Vector3 PositiveX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
+						Vector3 NegativeY = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
+						Vector3 PositiveY = TempPos - cPlayer2D->pos;
+
+						if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
+						else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
+						else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
+						else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
+					}
+				}
+			}
+
+			if (go->type == GameObject::GO_ROCK)
+			{
+				if (cPlayer2D->pos.x >= go->pos.x - 7.5f && cPlayer2D->pos.x <= go->pos.x + 7.5f)
+				{
+					if (cPlayer2D->pos.y >= go->pos.y - 5.5f && cPlayer2D->pos.y <= go->pos.y + 3.5f)
+					{
+						Vector3 TempPos;
+						TempPos = { go->pos.x - 7.5f, go->pos.y, go->pos.z };
+						Vector3 NegativeX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x + 7.5f, go->pos.y, go->pos.z };
+						Vector3 PositiveX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y - 5.5f, go->pos.z };
+						Vector3 NegativeY = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y + 3.5f, go->pos.z };
+						Vector3 PositiveY = TempPos - cPlayer2D->pos;
+
+						if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 7.5f, go->pos.x + 7.5f);
+						else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 7.5f, go->pos.x - 7.5f);
+						else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 3.5f, go->pos.y + 3.5f);
+						else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 5.5f, go->pos.y - 5.5f);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -1476,7 +1515,13 @@ void SceneCollision::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_TREE], false);
 		modelStack.PopMatrix();
 		break;
-
+	case GameObject::GO_ROCK:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+		modelStack.Scale(go->scale.x, go->scale.y, 1);
+		RenderMesh(meshList[GEO_ROCK], false);
+		modelStack.PopMatrix();
+		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, zaxis);
@@ -1689,7 +1734,7 @@ void SceneCollision::Render()
 	case main:
 	{
 		//Render Background
-		for (int x = 1; x <= 4; ++x)
+		for (int x = 1; x <= 5; ++x)
 		{
 			for (int y = 1; y <= 6; ++y)
 			{
@@ -1709,7 +1754,7 @@ void SceneCollision::Render()
 				modelStack.PopMatrix();
 			}
 		}
-		for (int x = -1; x >= -4; --x)
+		for (int x = -1; x >= -5; --x)
 		{
 			for (int y = -1; y >= -6; --y)
 			{
@@ -1792,7 +1837,7 @@ void SceneCollision::Render()
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(hptestingbar / 2 + hpX - m_worldWidth * 0.08, hpY, 4.1f);
+		modelStack.Translate(hptestingbar / 2 + hpX - m_worldWidth * 0.075, hpY, 4.1f);
 		modelStack.Scale(hptestingbar, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();

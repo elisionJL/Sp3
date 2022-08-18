@@ -4,7 +4,8 @@
 #include "iostream"
 void CPlayer2D::Init()
 {
-	hp = 30;
+	maxHP = hp = 30;
+	Walk_Speed = 10;
 	dmg = 2;
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -42,12 +43,12 @@ void CPlayer2D::Update(double dt)
 			sCurrentState = DODGING;
 		}
 		if (Application::IsKeyPressed('W')) {
-			vel.y = 10;
+			vel.y = Walk_Speed;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
 		}
 		else if (Application::IsKeyPressed('S')) {
-			vel.y = -10;
+			vel.y = -Walk_Speed;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
 		}
@@ -61,13 +62,13 @@ void CPlayer2D::Update(double dt)
 			sFacingDirection = RIGHT;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
-			vel.x = 10;
+			vel.x = Walk_Speed;
 		}
 		else if (Application::IsKeyPressed('A')) {
 			sFacingDirection = LEFT;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
-			vel.x = -10;
+			vel.x = -Walk_Speed;
 		}
 		else {
 			vel.x = 0;
