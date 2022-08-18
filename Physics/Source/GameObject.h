@@ -51,7 +51,7 @@ struct GameObject
 	Vector3 normal;
 	Vector3 color;
 
-	std::vector<int*> pier;
+	std::vector<std::string> pier;
 	int amountofpierleft;
 
 	float angle;

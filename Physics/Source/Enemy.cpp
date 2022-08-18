@@ -77,3 +77,7 @@ float Enemy::gethp()
 {
 	return hp;
 }
+
+void Enemy::setaddress(std::string ad)
+{
+}
