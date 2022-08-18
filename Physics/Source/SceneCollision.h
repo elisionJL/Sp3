@@ -36,9 +36,14 @@ public:
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
+	void ShopInteraction();
 	void RenderGronkDialogue();
-	void SpawnTree();
+	void SpawnMapObjects();
+	void PlayerMapCheck();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
+	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
+	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
+	void DeleteEnemy(Enemy* Enemy);
 protected:
 	Vector3 m_lineStart;
 	//Physics

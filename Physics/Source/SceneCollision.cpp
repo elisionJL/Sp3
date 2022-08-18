@@ -165,6 +165,55 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 	}
 }
 
+bool SceneCollision::bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2)
+{
+	{
+		Vector3 relativeVel = Bullet->vel - go2->vel;
+		Vector3 disDiff = go2->pos - Bullet->pos;
+
+		if (relativeVel.Dot(disDiff) <= 0) {
+			return false;
+		}
+		return disDiff.LengthSquared() <= (Bullet->scale.x + go2->scale.x) * (Bullet->scale.x + go2->scale.x);
+	}
+}
+
+void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2)
+{
+	u1 = Bullet->vel;
+	u2 = go2->vel;
+	m1 = Bullet->mass;
+	//m2 = go2->mass;
+
+	switch (go2->type)
+	{
+	case GameObject::GO_BOSS_SLIME:
+	{
+		go2->sethp(go2->gethp() - 1);
+		if (go2->gethp() <= 0)
+		{
+			DeleteEnemy(go2);
+		}
+		ReturnGO(Bullet);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void SceneCollision::DeleteEnemy(Enemy* Enemy)
+{
+
+	for (int i = 0; i < enemyList.size(); ++i)
+	{
+		if (enemyList[i] == Enemy)
+		{
+			enemyList.erase(enemyList.begin() + i);
+		}
+	}
+}
+
 void SceneCollision::Update(double dt)
 {
 	SceneBase::Update(dt);
@@ -213,7 +262,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_GL;
+				Gun->type = GameObject::GO_SHOTGUN;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -253,9 +302,8 @@ void SceneCollision::Update(double dt)
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
 				cSoundController->StopAllSound();
-				SpawnTree();
 				cSoundController->PlaySoundByID(5);
-				SpawnTree();
+				SpawnMapObjects();
 			}
 
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
@@ -528,41 +576,9 @@ void SceneCollision::Update(double dt)
 		}
 
 		unsigned size = m_goList.size();
-		//Player collision
-		for (unsigned i = 0; i < size; ++i)
-		{
-			GameObject* go = m_goList[i];
-			if (go->active)
-			{
-				if (go->type == GameObject::GO_TREE)
-				{
-					if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
-					{
-						if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
-						{
-							Vector3 TempPos;
-							TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
-							Vector3 NegativeX = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
-							Vector3 PositiveX = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
-							Vector3 NegativeY = TempPos - cPlayer2D->pos;
-							TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
-							Vector3 PositiveY = TempPos - cPlayer2D->pos;
 
-							if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
-								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
-							else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
-								cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
-							else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
-								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
-							else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
-								cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
-						}
-					}
-				}
-			}
-		}
+		PlayerMapCheck();
+
 		//Physics Simulation Section
 		for (unsigned i = 0; i < size; ++i)
 		{
@@ -701,11 +717,28 @@ void SceneCollision::Update(double dt)
 							timerforbullets[go->lifetime] = 0;
 						}
 					}
-					if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
+					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
 						go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
 					{
 						ReturnGO(go);
 					}
+					
+					//collision check and response
+					{
+						for (unsigned x = 0; x < enemyList.size(); ++x)
+						{
+							Enemy* go2 = enemyList[x];
+							if (go2->gethp() > 0)
+							{
+								if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
+								{
+
+									SceneCollision::dobulletcollision(Gun, go, go2);
+								}
+							}
+						}
+					}
+
 				}
 				else if (go->type == GameObject::GO_EXPLOSION)
 				{
@@ -1208,6 +1241,14 @@ void SceneCollision::RenderTitleScreen()
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);
 	modelStack.PopMatrix();
 }
+void SceneCollision::ShopInteraction()
+{
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+}
 void SceneCollision::RenderGronkDialogue()
 {
 	string GronkDialogue[50] = { "Welcome to Gronk Shop!", "Gronk has many stuff!", "What human want? Gronk can help find!",
@@ -1270,15 +1311,17 @@ void SceneCollision::RenderGronkDialogue()
 	modelStack.PopMatrix();
 }
 
-void SceneCollision::SpawnTree()
+void SceneCollision::SpawnMapObjects()
 {
-	int TreeCount;
-	TreeCount = 0;
+	int ObjectCount;
+	ObjectCount = 0;
+	int ObjectType;
 
-	while (TreeCount < 200)
+	while (ObjectCount < 200)
 	{
-		bool TreeCollided;
-		TreeCollided = false;
+		ObjectType = rand() % 100 + 1; //Value between 1 and 100
+		bool ObjectCollided;
+		ObjectCollided = false;
 		float CheckSpawn;
 		CheckSpawn = 0;
 		float SpawnX, SpawnY;
@@ -1305,30 +1348,39 @@ void SceneCollision::SpawnTree()
 				if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
 				{
 					if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
-						TreeCollided = true;
+						ObjectCollided = true;
 				}
 				else if (SpawnY + 7.5f >= NegY && SpawnY - 12 <= PosY)
 				{
 					if (SpawnX + 9 >= NegX && SpawnX - 9 <= PosX)
-						TreeCollided = true;
+						ObjectCollided = true;
+				}
+			}
+
+			else if (go->type == GameObject::GO_ROCK)
+			{
+				float NegX = go->pos.x - 7.5f;
+				float PosX = go->pos.x + 7.5f;
+				float NegY = go->pos.y - 5.5f;
+				float PosY = go->pos.y + 3.5f;
+
+				if (SpawnX + 7.5f >= NegX && SpawnX - 7.5f <= PosX)
+				{
+					if (SpawnY + 3.5f >= NegY && SpawnY - 5.5f <= PosY)
+						ObjectCollided = true;
+				}
+				else if (SpawnY + 3.5f >= NegY && SpawnY - 5.5f <= PosY)
+				{
+					if (SpawnX + 7.5f >= NegX && SpawnX - 7.5f <= PosX)
+						ObjectCollided = true;
 				}
 			}
 
 			if (i == size - 1)
 			{
-				if (TreeCount == 0)
+				if (ObjectCount == 0)
 				{
-					GameObject* Tree = FetchGO();
-					Tree->type = GameObject::GO_TREE;
-					Tree->scale.Set(10, 20, 1.0f);
-					Tree->pos.Set(SpawnX, SpawnY, 4.f);
-					Tree->normal.Set(0, 1, 0);
-					Tree->vel.SetZero();
-				}
-
-				else if (TreeCount > 0)
-				{
-					if (TreeCollided == false)
+					if (ObjectType >= 1 && ObjectType <= 60) //Tree
 					{
 						GameObject* Tree = FetchGO();
 						Tree->type = GameObject::GO_TREE;
@@ -1337,13 +1389,118 @@ void SceneCollision::SpawnTree()
 						Tree->normal.Set(0, 1, 0);
 						Tree->vel.SetZero();
 					}
+
+					else if (ObjectType > 60 && ObjectType <= 100) //Rock
+					{
+						GameObject* Tree = FetchGO();
+						Tree->type = GameObject::GO_ROCK;
+						Tree->scale.Set(5, 5, 1.0f);
+						Tree->pos.Set(SpawnX, SpawnY, 4.f);
+						Tree->normal.Set(0, 1, 0);
+						Tree->vel.SetZero();
+					}
+				}
+
+				else if (ObjectCount > 0)
+				{
+					if (ObjectCollided == false)
+					{
+						if (ObjectType >= 1 && ObjectType <= 60) //Tree
+						{
+							GameObject* Tree = FetchGO();
+							Tree->type = GameObject::GO_TREE;
+							Tree->scale.Set(10, 20, 1.0f);
+							Tree->pos.Set(SpawnX, SpawnY, 4.f);
+							Tree->normal.Set(0, 1, 0);
+							Tree->vel.SetZero();
+						}
+
+						else if (ObjectType > 60 && ObjectType <= 100) //Rock
+						{
+							GameObject* Tree = FetchGO();
+							Tree->type = GameObject::GO_ROCK;
+							Tree->scale.Set(5, 5, 1.0f);
+							Tree->pos.Set(SpawnX, SpawnY, 4.f);
+							Tree->normal.Set(0, 1, 0);
+							Tree->vel.SetZero();
+						}
+					}
 				}
 
 				break;
 			}
 		}
 
-		TreeCount++;
+		ObjectCount++;
+	}
+}
+
+void SceneCollision::PlayerMapCheck()
+{
+	unsigned size = m_goList.size();
+
+	//Player collision
+	for (unsigned i = 0; i < size; ++i)
+	{
+		GameObject* go = m_goList[i];
+		if (go->active)
+		{
+			if (go->type == GameObject::GO_TREE)
+			{
+				if (cPlayer2D->pos.x >= go->pos.x - 9 && cPlayer2D->pos.x <= go->pos.x + 9)
+				{
+					if (cPlayer2D->pos.y >= go->pos.y - 12 && cPlayer2D->pos.y <= go->pos.y + 7.5)
+					{
+						Vector3 TempPos;
+						TempPos = { go->pos.x - 9, go->pos.y, go->pos.z };
+						Vector3 NegativeX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x + 9, go->pos.y, go->pos.z };
+						Vector3 PositiveX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y - 12, go->pos.z };
+						Vector3 NegativeY = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
+						Vector3 PositiveY = TempPos - cPlayer2D->pos;
+
+						if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 9, go->pos.x + 9);
+						else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 9, go->pos.x - 9);
+						else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 7.5f, go->pos.y + 7.5f);
+						else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 12, go->pos.y - 12);
+					}
+				}
+			}
+
+			if (go->type == GameObject::GO_ROCK)
+			{
+				if (cPlayer2D->pos.x >= go->pos.x - 7.5f && cPlayer2D->pos.x <= go->pos.x + 7.5f)
+				{
+					if (cPlayer2D->pos.y >= go->pos.y - 5.5f && cPlayer2D->pos.y <= go->pos.y + 3.5f)
+					{
+						Vector3 TempPos;
+						TempPos = { go->pos.x - 7.5f, go->pos.y, go->pos.z };
+						Vector3 NegativeX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x + 7.5f, go->pos.y, go->pos.z };
+						Vector3 PositiveX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y - 5.5f, go->pos.z };
+						Vector3 NegativeY = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y + 3.5f, go->pos.z };
+						Vector3 PositiveY = TempPos - cPlayer2D->pos;
+
+						if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x + 7.5f, go->pos.x + 7.5f);
+						else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+							cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, go->pos.x - 7.5f, go->pos.x - 7.5f);
+						else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y + 3.5f, go->pos.y + 3.5f);
+						else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+							cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.z, go->pos.y - 5.5f, go->pos.y - 5.5f);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -1396,7 +1553,13 @@ void SceneCollision::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_TREE], false);
 		modelStack.PopMatrix();
 		break;
-
+	case GameObject::GO_ROCK:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+		modelStack.Scale(go->scale.x, go->scale.y, 1);
+		RenderMesh(meshList[GEO_ROCK], false);
+		modelStack.PopMatrix();
+		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
 		modelStack.Translate(cPlayer2D->pos.x + companionX, cPlayer2D->pos.y + companionY, zaxis);
@@ -1508,7 +1671,7 @@ void SceneCollision::RenderGO(GameObject *go)
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
 			break;
 		case GameObject::bow:
-			modelStack.Scale(1.2, 1, 1);
+			modelStack.Scale(1, 0.5, 1);
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
 			break;
 		}
@@ -1609,7 +1772,7 @@ void SceneCollision::Render()
 	case main:
 	{
 		//Render Background
-		for (int x = 1; x <= 4; ++x)
+		for (int x = 1; x <= 5; ++x)
 		{
 			for (int y = 1; y <= 6; ++y)
 			{
@@ -1629,7 +1792,7 @@ void SceneCollision::Render()
 				modelStack.PopMatrix();
 			}
 		}
-		for (int x = -1; x >= -4; --x)
+		for (int x = -1; x >= -5; --x)
 		{
 			for (int y = -1; y >= -6; --y)
 			{

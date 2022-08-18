@@ -23,7 +23,10 @@ public:
 	Vector3 vel;
 	Vector3 scale;
 	int type;
-	int hp;
+	float hp;
+
+	void sethp(float Nhp);
+	float gethp();
 
 protected:
 	enum DIRECTION
