@@ -270,6 +270,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 				timerforbullets.push_back(elapsedTime + 0.5f);
 				Explosion->lifetime = timerforbullets.size() - 1;
 			}
+			Bullet->pier.clear();
 			ReturnGO(Bullet);
 		}
 		else
@@ -303,6 +304,7 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 
 void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
 {
+	cPlayer2D->xp += 1;
 	for (int arraynumber = 0; arraynumber < dmgandtimefordmgnumber.size(); ++arraynumber)
 	{
 		if (dmgandtimefordmgnumber[arraynumber] != 0)
@@ -429,7 +431,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_BOW;
+				Gun->type = GameObject::GO_GL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
