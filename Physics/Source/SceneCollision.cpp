@@ -271,6 +271,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 				timerforbullets.push_back(elapsedTime + 0.5f);
 				Explosion->lifetime = timerforbullets.size() - 1;
 			}
+			Bullet->pier.clear();
 			ReturnGO(Bullet);
 		}
 		else
@@ -304,6 +305,7 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 
 void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
 {
+	cPlayer2D->xp += 1;
 	for (int arraynumber = 0; arraynumber < dmgandtimefordmgnumber.size(); ++arraynumber)
 	{
 		if (dmgandtimefordmgnumber[arraynumber] != 0)
@@ -433,7 +435,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_BOW;
+				Gun->type = GameObject::GO_GL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -2232,13 +2234,13 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_EXPBG], false);
 		modelStack.PopMatrix();
 
-		expScaleX = Math::Max((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
+		expScaleX = Math::Min((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
 
 		//expScaleX
 		//just replace the testing expbar with the actual exp lmao
 		modelStack.PushMatrix();
-		modelStack.Translate(testingexpbar / 2 + m_worldWidth * 0.12 + camera.position.x, expY, 4.1f);
-		modelStack.Scale(testingexpbar, expScaleY, 1);
+		modelStack.Translate(expScaleX / 2 + m_worldWidth * 0.12 + camera.position.x, expY, 4.1f);
+		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXP], false);
 		modelStack.PopMatrix();
 
