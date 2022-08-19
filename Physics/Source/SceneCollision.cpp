@@ -783,7 +783,15 @@ void SceneCollision::Update(double dt)
 				Enemy* go2 = enemyList[x];
 				if (go2->gethp() > 0 && go2 != go1)
 				{
-					CheckCollision(go1, go2);
+					if (CheckCollision(go1, go2))
+					{
+						CollisionResponse(go1, go2);
+						cout << "collided" << endl;
+					}
+					else
+					{
+						go2->previousCoord = go2->pos;
+					}
 				}
 			}
 		}
@@ -794,6 +802,7 @@ void SceneCollision::Update(double dt)
 			Enemy* enemy = enemyList[i];
 			enemy->vel = cPlayer2D->pos - enemy->pos;
 			enemy->vel.Normalized() *= 20;
+			enemy->previousCoord = enemy->pos;
 			enemy->pos += enemy->vel * dt;
 		}
 		break;
@@ -917,12 +926,78 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2)
 
 bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
 {
-	Vector3 distdiff = enemy2->pos - enemy1->pos;
-	Vector3 minimum = (0, 0, 1);
-	if (distdiff.x <= minimum.x || distdiff.y <= minimum.y)
-	{
+	//Vector3 distdiffX = enemy2->pos + enemy2->scale.x / 2 - enemy1->pos + enemy1->scale.x / 2;
+	//Vector3 distdiffY = enemy2->pos + enemy2->scale.y / 2 - enemy1->pos + enemy1->scale.y / 2;
+	//if (distdiffX.x <= enemy2->scale.x)
+	//{
+	//	enemy2->usePrevX = true;
+	//	cout << "collided" << endl;
+	//	return true;
+	//}
+	//else if (distdiffY.y <= enemy2->scale.y)
+	//{
+	//	enemy2->usePrevY = true;
+	//	cout << "collided" << endl;
+	//	return true;
+	//}
+	//else
+	//{
+	//	enemy2->usePrevX = false;
+	//	enemy2->usePrevY = false;
+	//	return false;
+	//}
+	Vector3 relativeVel = enemy1->vel - enemy2->vel;
+
+	Vector3 disDiff = enemy2->pos - enemy1->pos;
+	if (relativeVel.Dot(disDiff) <= 0) {
 		return false;
 	}
+	if (enemy1->pos.y > enemy2->pos.y)
+	{
+		if (enemy1->pos.y - enemy1->scale.y <= enemy2->pos.y)
+		{
+			enemy2->usePrevY = true;
+		}
+		else
+		{
+			enemy2->usePrevY = false;
+		}
+	}
+	else
+	{
+		if (enemy1->pos.y + enemy1->scale.y >= enemy2->pos.y)
+		{
+			enemy2->usePrevY = true;
+		}
+		else
+		{
+			enemy2->usePrevY = false;
+		}
+	}
+	if (enemy1->pos.x > enemy2->pos.x)
+	{
+		if (enemy1->pos.x - enemy1->scale.x <= enemy2->pos.x)
+		{
+			enemy2->usePrevX = true;
+		}
+		else
+		{
+			enemy2->usePrevX = false;
+		}
+	}
+	else
+	{
+		if (enemy1->pos.x + enemy1->scale.x >= enemy2->pos.x)
+		{
+			enemy2->usePrevX = true;
+		}
+		else
+		{
+			enemy2->usePrevX = false;
+		}
+	}
+	return disDiff.LengthSquared() <= (enemy1->scale.x + enemy2->scale.x) * (enemy1->scale.x + enemy2->scale.x);
+
 }
 
 bool SceneCollision::CheckCollision(Enemy* enemy, GameObject* go)
@@ -1082,6 +1157,24 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 		break;
 	}
 } 
+
+void SceneCollision::CollisionResponse(Enemy* go1, Enemy* go2)
+{
+	if (go2->usePrevX == true && go2->usePrevY == true)
+	{
+		go2->pos.x = go2->previousCoord.x;
+		go2->pos.y = go2->previousCoord.y;
+	}
+	else if (go2->usePrevY == true)
+	{
+		go2->pos.y = go2->previousCoord.y;
+	}
+	else if (go2->usePrevX == true)
+	{
+		go2->pos.x = go2->previousCoord.x;
+	}
+}
+
 
 void SceneCollision::MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos)
 {
@@ -1679,13 +1772,13 @@ void SceneCollision::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_PROJECTILE], false);
 		modelStack.PopMatrix();
 		break;
-	case GameObject::GO_BOSS_SLIME:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BOSS_SLIME], false);
-		modelStack.PopMatrix();
-		break;
+	//case GameObject::GO_BOSS_SLIME:
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+	//	modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+	//	RenderMesh(meshList[GEO_BOSS_SLIME], false);
+	//	modelStack.PopMatrix();
+	//	break;
 	case GameObject::GO_EXPLOSION:
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, zaxis);

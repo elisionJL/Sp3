@@ -22,6 +22,9 @@ public:
 	Vector3 pos;
 	Vector3 vel;
 	Vector3 scale;
+	Vector3 previousCoord;
+	bool usePrevX;
+	bool usePrevY;
 	int type;
 	float hp;
 
