@@ -150,6 +150,9 @@ void SceneBase::Init()
 	meshList[GEO_PAUSEQUIT] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
 	meshList[GEO_PAUSEQUIT]->textureID = LoadTexture("Image//pause//quit.psd", true);
 
+	meshList[GEO_STATPANEL] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
+	meshList[GEO_STATPANEL]->textureID = LoadTexture("Image//pause//statPanel.png", true);
+
 	meshList[GEO_BOUNCE] = MeshBuilder::GenerateQuad("bounce", Color(1, 1, 1), 1.f);
 	meshList[GEO_BOUNCE]->textureID = LoadTexture("Image//bounceWall.png", true);
 

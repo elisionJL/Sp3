@@ -383,7 +383,7 @@ void SceneCollision::RenderDmgNum(Vector3 posanddmg)
 	coordinatesofdamagenumbers.push_back(posX);
 }
 
-void SceneCollision::Update(double dt)
+void SceneCollision::Update (double dt)
 {
 	SceneBase::Update(dt);
 
@@ -636,7 +636,7 @@ void SceneCollision::Update(double dt)
 		if (cPlayer2D->leveledUp == false && pause == false) {
 			cPlayer2D->Update(dt);
 			//cPlayer2D->xp++;
-
+			
 			elapsedTime += dt;
 			static bool BPressed = false;
 			if (Application::IsKeyPressed('B') && !BPressed) {
@@ -1083,7 +1083,54 @@ void SceneCollision::Update(double dt)
 			}
 			break;
 		}
+		else if (cPlayer2D->leveledUp == true) {
+			static bool LMPressed = false;
+			if (Application::IsMousePressed(0) && !LMPressed) {
+				LMPressed = true;
+			}
+			else if (!Application::IsMousePressed(0) && LMPressed) {
+				LMPressed = false;
+				for (int i = 1; i < 4; ++i) {
+					float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
+					float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
 
+
+					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth *0.28) &&
+						(mousePos.y <= m_worldHeight * 0.73  && mousePos.y >= m_worldHeight * 0.17) ){
+
+						cPlayer2D->increaseLevel();
+						
+						switch (levelUpgrades[i - 1]) {
+						case pierce:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
+							break;
+						case atk:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+							break;
+						case hp:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+							break;
+						case multishot:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+							break;
+						case moveSpeed:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+							break;
+						case velocity:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+							break;
+						case fireRate:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
+							break;
+						case dragon:
+							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+						}
+					}
+				}
+			}
+
+		}
+	}
 	case win:
 	{
 		static bool bLButtonState = false;
@@ -1124,7 +1171,6 @@ void SceneCollision::Update(double dt)
 		}
 	}
 	break;
-	}
 	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
@@ -2455,6 +2501,7 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_EXPBG], false);
 		modelStack.PopMatrix();
 
+
 		expScaleX = Math::Min((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
 
 		//expScaleX
@@ -2611,6 +2658,36 @@ void SceneCollision::Render()
 			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight * 0.14, 1);
 			RenderMesh(meshList[GEO_PAUSEQUIT], false);
 			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.2 + cameramoveY, 4.42f);
+			modelStack.Scale(m_worldWidth *0.8, m_worldHeight * 0.2, 1);
+			RenderMesh(meshList[GEO_STATPANEL], false);
+			modelStack.PopMatrix();
+
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "max dmg:" << dmgofgun * 12;
+			}
+			else
+				ss << "dmg:" << dmgofgun;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(),Color(1,1,1), 2, 11, 14);
+
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "max vel:" << velocityofbullet;
+			}
+			else
+				ss << "vel:" << velocityofbullet * 6;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
+
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "vel:" << velocityofbullet;
+			}
+			else
+				ss << "vel:" << velocityofbullet * 6;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
 
 
 		}
