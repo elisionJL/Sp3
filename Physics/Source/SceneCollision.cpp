@@ -303,7 +303,6 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 		{
 			enemyList.erase(enemyList.begin() + i);
 			cPlayer2D->xp++;
-			cout << cPlayer2D->xp << endl;
 		}
 	}
 }
@@ -534,7 +533,7 @@ void SceneCollision::Update (double dt)
 				numberofbullets = 1;
 				dmgofgun = 1;
 				pierceforbullet = 1;
-				firerate = 1.0f;
+				firerate = 2.0f;
 			}
 			else if (Gun->type == GameObject::GO_SHOTGUN)
 			{
@@ -953,26 +952,18 @@ void SceneCollision::Update (double dt)
 					}
 					else if (go == Gun)
 					{
+						Application::GetCursorPos(&x, &y);
+						unsigned w = Application::GetWindowWidth();
+						unsigned h = Application::GetWindowHeight();
+						float posX = (x / w * m_worldWidth) + camera.position.x;
+						float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
+						Vector3 center = Vector3(posX, posY, 0) - cPlayer2D->pos;
+						float angle = calculateAngle(center.x, center.y);
+
 						float Xaxis = mousePos.x - go->pos.x;
 						float Yaxis = mousePos.y - go->pos.y;
 
-						float Angle;
-						if (Xaxis <= 0 && Yaxis <= 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis < 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis > 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else if (Xaxis > 0 && Yaxis < 0) {
-							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else {
-							Angle = 0;
-						}
-						go->angle = Angle;
+						go->angle = angle;
 					}
 					else if (go->type == GameObject::GO_PROJECTILE)
 					{
@@ -2534,6 +2525,7 @@ void SceneCollision::Render()
 	projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
 	projectionStack.LoadMatrix(projection);
 
+
 	// Camera matrix
 	viewStack.LoadIdentity();
 	viewStack.LookAt(
@@ -2541,6 +2533,13 @@ void SceneCollision::Render()
 		camera.target.x, camera.target.y, camera.target.z,
 		camera.up.x, camera.up.y, camera.up.z
 	);
+
+
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
 
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
