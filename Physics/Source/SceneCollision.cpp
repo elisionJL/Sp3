@@ -2596,7 +2596,7 @@ void SceneCollision::Render()
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
 					ss << "damage +10%";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
-					break;
+					break;	
 				case hp:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
 					ss << "110% hp";
@@ -2682,15 +2682,15 @@ void SceneCollision::Render()
 			}
 			else
 				ss << "vel:" << velocityofbullet * 6;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 11);
 
 			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
-				ss << "vel:" << velocityofbullet;
+				ss << "RoF:" << fireRate;
 			}
 			else
 				ss << "vel:" << velocityofbullet * 6;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 11);
 
 
 		}
