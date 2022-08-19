@@ -606,7 +606,7 @@ void SceneCollision::Update (double dt)
 			cPlayer2D->leveledUp = true;
 			//generate 3 random upgrades for the player to choose
 			for (int i = 0; i < 3; ++i) {
-				switch (Math::RandIntMinMax(0, 6)) {
+				switch (Math::RandIntMinMax(0, 7)) {
 				case 0:
 					levelUpgrades[i] = pierce;
 					break;
@@ -627,6 +627,9 @@ void SceneCollision::Update (double dt)
 					break;
 				case 6:
 					levelUpgrades[i] = fireRate;
+					break;
+				case 7:
+					levelUpgrades[i] = dragon;
 					break;
 				}
 
