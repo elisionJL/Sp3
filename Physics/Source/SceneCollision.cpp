@@ -596,6 +596,7 @@ void SceneCollision::Update (double dt)
 	}
 	case main:
 	{
+		PlayerMapCheck();
 		MapBoundary();
 		zaxis = 1;
 		displaynumberoffset = 0;
