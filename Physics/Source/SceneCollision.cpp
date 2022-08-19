@@ -158,7 +158,7 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			{
 				go->vel.Normalize() *= velocityofbullet * (0.5 * bowframe);
 				go->bowdrawamount = bowframe;
-				go->amountofpierleft = bowframe;
+				go->amountofpierleft = pierceforbullet * bowframe;
 			}
 			else
 			{
@@ -519,6 +519,7 @@ void SceneCollision::Update (double dt)
 				numberofbullets = 1;
 				dmgofgun = 3; //explosion does 5
 				pierceforbullet = 1;
+				firerate = 1.2f;
 			}
 			else if (Gun->type == GameObject::GO_BOW)
 			{
@@ -528,6 +529,7 @@ void SceneCollision::Update (double dt)
 				numberofbullets = 1;
 				dmgofgun = 1;
 				pierceforbullet = 1;
+				firerate = 2.0f;
 			}
 			else if (Gun->type == GameObject::GO_SHOTGUN)
 			{
@@ -537,6 +539,7 @@ void SceneCollision::Update (double dt)
 				numberofbullets = 4;
 				dmgofgun = 3;
 				pierceforbullet = 1;
+				firerate = 1.2f;
 			}
 			else if (Gun->type == GameObject::GO_SNIPER)
 			{
@@ -547,6 +550,7 @@ void SceneCollision::Update (double dt)
 				dmgofgun = 10;
 				pierceforbullet = 3;
 				velocityofbullet = 50;
+				firerate = 1.5f;
 			}
 			else if (Gun->type == GameObject::GO_PISTOL)
 			{
@@ -556,6 +560,7 @@ void SceneCollision::Update (double dt)
 				numberofbullets = 1;
 				dmgofgun = 4;
 				pierceforbullet = 1;
+				firerate = 1;
 			}
 			Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 			Gun->vel.SetZero();
@@ -705,7 +710,7 @@ void SceneCollision::Update (double dt)
 				{
 					if (Gun->type == GameObject::GO_BOW)
 					{
-						G->PlayAnimation("Shoot", 0, 2.0f);
+						G->PlayAnimation("Shoot", 0, firerate);
 
 						G->Update(dt);
 
@@ -719,9 +724,9 @@ void SceneCollision::Update (double dt)
 					{
 						float Xaxis = mousePos.x - Gun->pos.x;
 						if (Xaxis >= 0)
-							G->PlayAnimation("Shoot", 0, 1.0f);
+							G->PlayAnimation("Shoot", 0, firerate);
 						else
-							G->PlayAnimation("ShootR", 0, 1.0f);
+							G->PlayAnimation("ShootR", 0, firerate);
 
 						if (GunShoot == false)
 						{
@@ -757,9 +762,9 @@ void SceneCollision::Update (double dt)
 						GunShoot = false;
 
 						if (Xaxis >= 0)
-							G->PlayAnimation("Shoot", -1, 1.0f);
+							G->PlayAnimation("Shoot", -1, firerate);
 						else
-							G->PlayAnimation("ShootR", -1, 1.0f);
+							G->PlayAnimation("ShootR", -1, firerate);
 
 						G->truereset();
 					}
@@ -771,7 +776,7 @@ void SceneCollision::Update (double dt)
 						float Xaxis = mousePos.x - Gun->pos.x;
 						if (Xaxis < 0)
 						{
-							G->PlayAnimation("ShootR", 0, 1.0f);
+							G->PlayAnimation("ShootR", 0, firerate);
 							xisneg = true;
 						}
 					}
@@ -780,7 +785,7 @@ void SceneCollision::Update (double dt)
 						float Xaxis = mousePos.x - Gun->pos.x;
 						if (Xaxis >= 0)
 						{
-							G->PlayAnimation("Shoot", 0, 1.0f);
+							G->PlayAnimation("Shoot", 0, firerate);
 							xisneg = false;
 						}
 					}
@@ -803,14 +808,13 @@ void SceneCollision::Update (double dt)
 					float Xaxis = mousePos.x - Gun->pos.x;
 					if (Xaxis < 0)
 					{
-						G->PlayAnimation("ShootR", 0, 1.0f);
+						G->PlayAnimation("ShootR", 0, firerate);
 					}
 					else
-						G->PlayAnimation("Shoot", 0, 1.0f);
+						G->PlayAnimation("Shoot", 0, firerate);
 
 					G->Reset();
 				}
-
 
 
 				static bool bLButtonState = false;
@@ -828,7 +832,7 @@ void SceneCollision::Update (double dt)
 							SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 						}
 						shooting = false;
-						G->PlayAnimation("Shoot", 0, 2.0f);
+						G->PlayAnimation("Shoot", 0, firerate);
 						G->truereset();
 						shootonceonly = 1;
 					}
@@ -1124,6 +1128,42 @@ void SceneCollision::Update (double dt)
 							break;
 						case dragon:
 							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+							break;
+						}
+
+						static bool bLButtonState = false;
+						if (!bLButtonState && Application::IsMousePressed(0))
+						{
+							switch (levelUpgrades[i - 1]) {
+							case pierce:
+								pierceforbullet += 1;
+								break;
+							case atk:
+								dmgofgun *= 1.1;
+								break;
+							case hp:
+								cPlayer2D->IncreaseHP();
+								break;
+							case multishot:
+								numberofbullets++;
+								break;
+							case moveSpeed:
+								cPlayer2D->IncreaseSpd();
+								break;
+							case velocity:
+								velocityofbullet += 5;
+								break;
+							case fireRate:
+								firerate *= 1.1;
+								break;
+							case dragon:
+								break;
+							}
+							bLButtonState = true;
+						}
+						else if (bLButtonState && !Application::IsMousePressed(0))
+						{
+							bLButtonState = false;
 						}
 					}
 				}

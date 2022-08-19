@@ -136,6 +136,7 @@ protected:
 	int switchdmgnum;
 	std::vector<Vector3> coordinatesofdamagenumbers;
 	int bowframe;
+	float firerate;
 };
 
 #endif
