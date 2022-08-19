@@ -249,6 +249,8 @@ void SceneBase::Init()
 	meshList[GEO_ROCK] = MeshBuilder::GenerateQuad("rock", Color(1, 1, 1), 1.f);
 	meshList[GEO_ROCK]->textureID = LoadTexture("Image//Rock.png", true);
 
+	meshList[GEO_SELECTED] = MeshBuilder::GenerateQuad("selected", Color(1, 1, 1), 1.f);
+	meshList[GEO_SELECTED]->textureID = LoadTexture("Image//Selected_UI.png", true);
 
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
