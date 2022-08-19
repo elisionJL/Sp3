@@ -611,7 +611,7 @@ void SceneCollision::Update (double dt)
 			cPlayer2D->leveledUp = true;
 			//generate 3 random upgrades for the player to choose
 			for (int i = 0; i < 3; ++i) {
-				switch (Math::RandIntMinMax(0, 6)) {
+				switch (Math::RandIntMinMax(0, 7)) {
 				case 0:
 					levelUpgrades[i] = pierce;
 					break;
@@ -632,6 +632,9 @@ void SceneCollision::Update (double dt)
 					break;
 				case 6:
 					levelUpgrades[i] = fireRate;
+					break;
+				case 7:
+					levelUpgrades[i] = dragon;
 					break;
 				}
 
@@ -1097,7 +1100,7 @@ void SceneCollision::Update (double dt)
 				for (int i = 1; i < 4; ++i) {
 					float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
 					float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
-
+					cPlayer2D->increaseLevel();
 
 					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth *0.28) &&
 						(mousePos.y <= m_worldHeight * 0.73  && mousePos.y >= m_worldHeight * 0.17) ){
@@ -1106,70 +1109,35 @@ void SceneCollision::Update (double dt)
 						
 						switch (levelUpgrades[i - 1]) {
 						case pierce:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
+							pierceforbullet += 1;
 							break;
 						case atk:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+							dmgofgun *= 1.1;
 							break;
 						case hp:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+							cPlayer2D->IncreaseHP();
 							break;
 						case multishot:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+							numberofbullets++;
 							break;
 						case moveSpeed:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+							cPlayer2D->IncreaseSpd();
 							break;
 						case velocity:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+							velocityofbullet += 5;
 							break;
 						case fireRate:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
+							firerate *= 0.95;
 							break;
 						case dragon:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
 							break;
-						}
-
-						static bool bLButtonState = false;
-						if (!bLButtonState && Application::IsMousePressed(0))
-						{
-							switch (levelUpgrades[i - 1]) {
-							case pierce:
-								pierceforbullet += 1;
-								break;
-							case atk:
-								dmgofgun *= 1.1;
-								break;
-							case hp:
-								cPlayer2D->IncreaseHP();
-								break;
-							case multishot:
-								numberofbullets++;
-								break;
-							case moveSpeed:
-								cPlayer2D->IncreaseSpd();
-								break;
-							case velocity:
-								velocityofbullet += 5;
-								break;
-							case fireRate:
-								firerate *= 1.1;
-								break;
-							case dragon:
-								break;
-							}
-							bLButtonState = true;
-						}
-						else if (bLButtonState && !Application::IsMousePressed(0))
-						{
-							bLButtonState = false;
 						}
 					}
 				}
 			}
 
 		}
+		break;
 	}
 	case win:
 	{
@@ -2634,7 +2602,7 @@ void SceneCollision::Render()
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
 					ss << "damage +10%";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
-					break;
+					break;	
 				case hp:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
 					ss << "110% hp";
@@ -2708,7 +2676,7 @@ void SceneCollision::Render()
 
 			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
-				ss << "max dmg:" << dmgofgun * 12;
+				ss << "dmg:" << dmgofgun * 12;
 			}
 			else
 				ss << "dmg:" << dmgofgun;
@@ -2716,21 +2684,27 @@ void SceneCollision::Render()
 
 			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
-				ss << "max vel:" << velocityofbullet;
-			}
-			else
-				ss << "vel:" << velocityofbullet * 6;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
-
-			ss.str("");
-			if (Gun->type == GameObject::GO_BOW) {
 				ss << "vel:" << velocityofbullet;
 			}
 			else
 				ss << "vel:" << velocityofbullet * 6;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 11);
 
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "RoF:" << firerate << "s";
+			}
+			else
+				ss << "RoF:" << firerate << "s";
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 8);
 
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "RoF:" << firerate << "s";
+			}
+			else
+				ss << "RoF:" << firerate << "s";
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 8);
 		}
 		break;
 	}
