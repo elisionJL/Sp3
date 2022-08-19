@@ -2358,11 +2358,23 @@ void SceneCollision::RenderGO(GameObject *go)
 		//Exercise 11: think of a way to give balls different colors
 		break;
 	case GameObject::GO_TREE:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
-		modelStack.Scale(go->scale.x, go->scale.y, 1);
-		RenderMesh(meshList[GEO_TREE], false);
-		modelStack.PopMatrix();
+	{
+		float Distance = cPlayer2D->pos.Length() - go->pos.Length();
+
+		if (Distance < 0)
+			Distance = -Distance;
+
+		if (Distance > 75) {
+			//Do nothing
+		}
+		else{
+			modelStack.PushMatrix();
+			modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+			modelStack.Scale(go->scale.x, go->scale.y, 1);
+			RenderMesh(meshList[GEO_TREE], false);
+			modelStack.PopMatrix();
+		}
+	}
 		break;
 	case GameObject::GO_ROCK:
 		modelStack.PushMatrix();
@@ -2528,6 +2540,13 @@ void SceneCollision::Render()
 	modelStack.LoadIdentity();
 
 	RenderMesh(meshList[GEO_AXES], false);
+
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
 	switch (currentState) {
 	case start:
 		RenderTitleScreen();
@@ -2535,6 +2554,7 @@ void SceneCollision::Render()
 	case weaponselection:
 	{
 		float scalingthegun = m_worldWidth * 0.01;
+
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth * 0.2, m_worldHeight * 0.6, 0);
 		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
@@ -2565,16 +2585,63 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_PISTOL], false);
 		modelStack.PopMatrix();
 
+		if (!Application::IsMousePressed(0))
+		{
+			if ((mousePos.x >= (m_worldWidth * 0.2) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.2) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.1925, m_worldHeight * 0.6, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.5) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.5) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun * 2.5 && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun * 2.5))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.6, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 5, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.8) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.8) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.7925, m_worldHeight * 0.6, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.4) - scalingthegun * 3.5 && mousePos.x <= (m_worldWidth * 0.4) + scalingthegun * 3.5) &&
+				(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun * 0.72282608695 && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun * 0.72282608695))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.39, m_worldHeight * 0.4, 1);
+				modelStack.Scale(scalingthegun * 7, scalingthegun * 1.44565217391, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.6) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.6) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.5955, m_worldHeight * 0.4, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+		}
+
 		break;
 	}
 	case shop:
 	{
-		double x, y, windowwidth, windowheight;
-		Application::GetCursorPos(&x, &y);
-		windowwidth = Application::GetWindowWidth();
-		windowheight = Application::GetWindowHeight();
-		Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
-
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
 		modelStack.Scale(m_worldWidth, m_worldHeight, 0);
