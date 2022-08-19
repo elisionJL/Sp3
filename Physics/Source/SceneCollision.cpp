@@ -158,14 +158,14 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			{
 				go->vel.Normalize() *= velocityofbullet * (0.5 * bowframe);
 				go->bowdrawamount = bowframe;
-				go->amountofpierleft = pierceforbullet * bowframe;
+				go->amountofpierleft = pierceforbullet + bowframe;
 			}
 			else
 			{
 				go->vel.Normalize() *= velocityofbullet;
 				go->amountofpierleft = pierceforbullet;
 			}
-
+			go->pier.clear();
 
 			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 			{
@@ -249,6 +249,8 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 		{
 			DeleteEnemy(go2);
 		}
+
+
 		if (Bullet->amountofpierleft <= 0 && Bullet->type != GameObject::GO_EXPLOSION)
 		{
 			if (Bullet->proj == GameObject::GL)
@@ -279,9 +281,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 			std::stringstream ss;
 			ss << address;
 			Bullet->pier.push_back(ss.str());
-			cout << Bullet->amountofpierleft << endl;
 		}
-
 		DamageNumbers(dmg, go2);
 
 		break;
@@ -293,19 +293,19 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 void SceneCollision::DeleteEnemy(Enemy* Enemy)
 {
-	cPlayer2D->xp++;
 	for (int i = 0; i < enemyList.size(); ++i)
 	{
 		if (enemyList[i] == Enemy)
 		{
 			enemyList.erase(enemyList.begin() + i);
+			cPlayer2D->xp++;
+			cout << cPlayer2D->xp << endl;
 		}
 	}
 }
 
 void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
 {
-	cPlayer2D->xp += 1;
 	for (int arraynumber = 0; arraynumber < dmgandtimefordmgnumber.size(); ++arraynumber)
 	{
 		if (dmgandtimefordmgnumber[arraynumber] != 0)
@@ -1059,6 +1059,15 @@ void SceneCollision::Update (double dt)
 				}
 			}
 
+			//Enemy List
+			for (unsigned i = 0; i < enemyList.size(); ++i)
+			{
+				Enemy* enemy = enemyList[i];
+				enemy->vel = cPlayer2D->pos - enemy->pos;
+				enemy->vel.Normalized() *= 20;
+				enemy->pos += enemy->vel * dt;
+			}
+
 			for (unsigned i = 0; i < enemyList.size(); ++i)
 			{
 				Enemy* go1 = enemyList[i];
@@ -1070,7 +1079,6 @@ void SceneCollision::Update (double dt)
 						if (CheckCollision(go1, go2))
 						{
 							CollisionResponse(go1, go2, dt);
-							cout << "collided" << endl;
 						}
 						else
 						{
@@ -1079,17 +1087,6 @@ void SceneCollision::Update (double dt)
 					}
 				}
 			}
-
-			//Enemy List
-			for (unsigned i = 0; i < enemyList.size(); ++i)
-			{
-				Enemy* enemy = enemyList[i];
-				enemy->vel = cPlayer2D->pos - enemy->pos;
-				enemy->vel.Normalized() *= 20;
-				enemy->previousCoord = enemy->pos;
-				enemy->pos += enemy->vel * dt;
-			}
-			break;
 		}
 		else if (cPlayer2D->leveledUp == true) {
 			static bool LMPressed = false;
@@ -1101,7 +1098,6 @@ void SceneCollision::Update (double dt)
 				for (int i = 1; i < 4; ++i) {
 					float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
 					float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
-					cPlayer2D->increaseLevel();
 
 					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth *0.28) &&
 						(mousePos.y <= m_worldHeight * 0.73  && mousePos.y >= m_worldHeight * 0.17) ){
@@ -1178,8 +1174,10 @@ void SceneCollision::Update (double dt)
 				quit = true;
 			}
 		}
+		break;
 	}
-	break;
+	default:
+		break;
 	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
@@ -1280,6 +1278,26 @@ bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
 	Vector3 relativeVel = enemy1->vel - enemy2->vel;
 
 	Vector3 disDiff = enemy2->pos - enemy1->pos;
+
+	if (enemy1->pos.y > enemy2->pos.y)
+	{
+		disDiff -= Vector3(0, enemy1->scale.y / 2, 0);
+	}
+	else
+	{
+		disDiff += Vector3(0, enemy1->scale.y / 2, 0);
+	}
+
+	if (enemy1->pos.x > enemy2->pos.x)
+	{
+		disDiff -= Vector3(enemy1->scale.x / 2, 0, 0);
+	}
+	else
+	{
+		disDiff += Vector3(enemy1->scale.x / 2, 0, 0);
+	}
+
+
 	if (relativeVel.Dot(disDiff) <= 0) {
 		return false;
 	}
@@ -1491,20 +1509,7 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 
 void SceneCollision::CollisionResponse(Enemy* go1, Enemy* go2, double dt)
 {
-	//if (go2->usePrevX == true && go2->usePrevY == true)
-	//{
-	//	go2->pos.x = go2->previousCoord.x;
-	//	go2->pos.y = go2->previousCoord.y;
-	//}
-	//else if (go2->usePrevY == true)
-	//{
-	//	go2->pos.y = go2->previousCoord.y;
-	//}
-	//else if (go2->usePrevX == true)
-	//{
-	//	go2->pos.x = go2->previousCoord.x;
-	//}
-	go1->pos -= go1->vel * dt * m_speed;
+	go1->pos -= go1->vel * dt;
 }
 
 
