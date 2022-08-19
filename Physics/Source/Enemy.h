@@ -38,6 +38,7 @@ public:
 	float hp;
 	int amountoftimesitstayed;
 	bool enemytoleft, enemytoright, enemyup, enemydown;
+	float distFromPlayer;
 	
 	std::string address;
 
