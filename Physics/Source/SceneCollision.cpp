@@ -2382,11 +2382,23 @@ void SceneCollision::RenderGO(GameObject *go)
 	}
 		break;
 	case GameObject::GO_ROCK:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
-		modelStack.Scale(go->scale.x, go->scale.y, 1);
-		RenderMesh(meshList[GEO_ROCK], false);
-		modelStack.PopMatrix();
+	{
+		float Distance = cPlayer2D->pos.Length() - go->pos.Length();
+
+		if (Distance < 0)
+			Distance = -Distance;
+
+		if (Distance > 70) {
+			//Do nothing
+		}
+		else {
+			modelStack.PushMatrix();
+			modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+			modelStack.Scale(go->scale.x, go->scale.y, 1);
+			RenderMesh(meshList[GEO_ROCK], false);
+			modelStack.PopMatrix();
+		}
+	}
 		break;
 	case GameObject::GO_COMPANION:
 		modelStack.PushMatrix();
@@ -2769,11 +2781,22 @@ void SceneCollision::Render()
 		for (std::vector<Enemy*>::iterator it = enemyList.begin(); it != enemyList.end(); ++it)
 		{
 			Enemy* go = (Enemy*)*it;
-			modelStack.PushMatrix();
-			modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
-			modelStack.Scale(go->scale.x, go->scale.y, 1);
-			RenderMesh(meshList[GEO_BOSS_SLIME], false);
-			modelStack.PopMatrix();
+
+			float Distance = cPlayer2D->pos.Length() - go->pos.Length();
+
+			if (Distance < 0)
+				Distance = -Distance;
+
+			if (Distance > 100) {
+				//Do nothing
+			}
+			else {
+				modelStack.PushMatrix();
+				modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
+				modelStack.Scale(go->scale.x, go->scale.y, 1);
+				RenderMesh(meshList[GEO_BOSS_SLIME], false);
+				modelStack.PopMatrix();
+			}
 		}
 
 		for (int i = 0; i < timerfordmgnumber.size(); ++i)
