@@ -1083,6 +1083,7 @@ void SceneCollision::Update(double dt)
 			}
 			break;
 		}
+
 	case win:
 	{
 		static bool bLButtonState = false;
