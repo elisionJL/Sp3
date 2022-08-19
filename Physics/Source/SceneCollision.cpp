@@ -534,7 +534,7 @@ void SceneCollision::Update (double dt)
 				numberofbullets = 1;
 				dmgofgun = 1;
 				pierceforbullet = 1;
-				firerate = 2.0f;
+				firerate = 1.0f;
 			}
 			else if (Gun->type == GameObject::GO_SHOTGUN)
 			{
@@ -2388,7 +2388,8 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y , zaxis);
 		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
-		RenderMesh(meshList[GEO_BOW], true);
+		RenderMesh(meshList[GEO_BOW], false);
+		//meshList[GEO_BOW]->material.kAmbient.Set(1, 0, 0);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_GL:
@@ -2532,7 +2533,6 @@ void SceneCollision::Render()
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
 
-	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {
 	case start:
 		RenderTitleScreen();

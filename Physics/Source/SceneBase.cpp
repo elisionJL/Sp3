@@ -276,7 +276,7 @@ void SceneBase::Init()
 
 	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 3, 6);
 	meshList[GEO_BOW]->textureID = LoadTexture("Image//bow.png", true);
-	meshList[GEO_BOW]->material.kAmbient.Set(1, 1, 1);
+	meshList[GEO_BOW]->material.kAmbient.Set(1, 0, 0);
 	SpriteAnimation* Bow = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOW]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Bow->AddAnimation("Shoot", 0, 13);
