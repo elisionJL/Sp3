@@ -25,6 +25,7 @@ public:
 	Vector3 pos;
 	float xp;
 	bool leveledUp;
+	float hp, maxHP;
 	int getLevel();
 	void increaseLevel();
 	int getState();
@@ -46,12 +47,13 @@ protected:
 	int level;
 	int Lives;
 	int Gold;
+	float elapsedTime;
+	float prevTime;
 	STATES sCurrentState;
 	DIRECTION sFacingDirection;
 	Mesh* playerMesh;
 	float m_worldWidth;
 	float m_worldHeight;
-	float hp, maxHP;
 	float dmg;
 	int Walk_Speed;
 	Vector3 vel;
