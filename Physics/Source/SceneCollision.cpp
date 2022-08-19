@@ -942,58 +942,76 @@ void SceneCollision::Update(double dt)
 						float Xaxis = mousePos.x - go->pos.x;
 						float Yaxis = mousePos.y - go->pos.y;
 
-					float Angle;
-					if (Xaxis <= 0 && Yaxis <= 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						float Angle;
+						if (Xaxis <= 0 && Yaxis <= 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis < 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis > 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else if (Xaxis > 0 && Yaxis < 0) {
+							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else {
+							Angle = 0;
+						}
+						go->angle = Angle;
 					}
-					else if (Xaxis < 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-					}
-					else if (Xaxis > 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-					}
-					else if (Xaxis > 0 && Yaxis < 0) {
-						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
-					}
-					else {
-						Angle = 0;
-					}
-					go->angle = Angle;
-				}
-				else if (go->type == GameObject::GO_PROJECTILE)
-				{
-					if (elapsedTime > timerforbullets[go->lifetime])
+					else if (go->type == GameObject::GO_PROJECTILE)
 					{
-						if (go->proj == GameObject::GL)
+						if (elapsedTime > timerforbullets[go->lifetime])
 						{
-							GameObject* Explosion = FetchGO();
-							Explosion->type = GameObject::GO_EXPLOSION;
-							Explosion->pos = go->pos;
-							Explosion->scale.Set(8, 8, 1);
-							for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+							if (go->proj == GameObject::GL)
 							{
-								if (timerforbullets[arraynumber] != 0)
+								GameObject* Explosion = FetchGO();
+								Explosion->type = GameObject::GO_EXPLOSION;
+								Explosion->pos = go->pos;
+								Explosion->scale.Set(8, 8, 1);
+								for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 								{
-									continue;
+									if (timerforbullets[arraynumber] != 0)
+									{
+										continue;
+									}
+									timerforbullets[arraynumber] = elapsedTime + 0.5f;
+									Explosion->lifetime = arraynumber;
+									break;
 								}
-								timerforbullets[arraynumber] = elapsedTime + 0.5f;
-								Explosion->lifetime = arraynumber;
-								break;
+								timerforbullets.push_back(elapsedTime + 0.5f);
+								Explosion->lifetime = timerforbullets.size() - 1;
 							}
-							timerforbullets.push_back(elapsedTime + 0.5f);
-							Explosion->lifetime = timerforbullets.size() - 1;
+
+							ReturnGO(go);
+							timerforbullets[go->lifetime] = 0;
+						}
+						else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+						{
+							ReturnGO(go);
 						}
 
-						ReturnGO(go);
-						timerforbullets[go->lifetime] = 0;
-					}					
-					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
-					{
-						ReturnGO(go);
+						//collision check and response
+						{
+							for (unsigned x = 0; x < enemyList.size(); ++x)
+							{
+								Enemy* go2 = enemyList[x];
+								if (go2->gethp() > 0)
+								{
+									if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
+									{
+										SceneCollision::dobulletcollision(Gun, go, go2);
+									}
+								}
+							}
+						}
 					}
-					
-					//collision check and response
+					else if (go->type == GameObject::GO_EXPLOSION)
 					{
+						if (elapsedTime > timerforbullets[go->lifetime])
+							ReturnGO(go);
+
 						for (unsigned x = 0; x < enemyList.size(); ++x)
 						{
 							Enemy* go2 = enemyList[x];
@@ -1006,48 +1024,31 @@ void SceneCollision::Update(double dt)
 							}
 						}
 					}
-				}
-				else if (go->type == GameObject::GO_EXPLOSION)
-				{
-					if (elapsedTime > timerforbullets[go->lifetime])
-						ReturnGO(go);
 
-					for (unsigned x = 0; x < enemyList.size(); ++x)
+
+					GameObject* go2 = nullptr;
+					for (unsigned j = i + 1; j < size; ++j)
 					{
-						Enemy* go2 = enemyList[x];
-						if (go2->gethp() > 0)
+						go2 = m_goList[j];
+						GameObject* actor(go);
+						GameObject* actee(go2);
+						if (go->type != GameObject::GO_BALL)
 						{
-							if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
-							{
-								SceneCollision::dobulletcollision(Gun, go, go2);
-							}
+							actor = go2;
+							actee = go;
+						}
+						if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
+							continue;
+						}
+						if (go2->active && CheckCollision(actor, actee))
+						{
+							CollisionResponse(actor, actee);
 						}
 					}
-				}
-
-
-				GameObject* go2 = nullptr;
-				for (unsigned j = i + 1; j < size; ++j)
-				{
-					go2 = m_goList[j];
-					GameObject* actor(go);
-					GameObject* actee(go2);
-					if (go->type != GameObject::GO_BALL)
-					{
-						actor = go2;
-						actee = go;
-					}
-					if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
-						continue;
-					}
-					if (go2->active && CheckCollision(actor, actee))
-					{
-						CollisionResponse(actor, actee);
+					if (cPlayer2D->getState() == cPlayer2D->DEAD) {
+						currentState = lose;
 					}
 				}
-				if (cPlayer2D->getState() == cPlayer2D->DEAD) {
-					currentState = lose;
-				}				
 			}
 		}
 
