@@ -60,8 +60,6 @@ void SceneCollision::Init()
 
 	zaxis = 1;
 	pause = false;
-
-	hptestingbar = 0;
 	for (int i = 0; i < 6; ++i)
 	{
 		ShopUpgrades[i] = 0;
@@ -1088,7 +1086,6 @@ void SceneCollision::Update (double dt)
 				enemy->previousCoord = enemy->pos;
 				enemy->pos += enemy->vel * dt;
 			}
-			break;
 		}
 		else if (cPlayer2D->leveledUp == true) {
 			static bool LMPressed = false;
@@ -1102,8 +1099,8 @@ void SceneCollision::Update (double dt)
 					float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
 					cPlayer2D->increaseLevel();
 
-					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth *0.28) &&
-						(mousePos.y <= m_worldHeight * 0.73  && mousePos.y >= m_worldHeight * 0.17) ){
+					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
+						(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
 
 						static bool bLButtonState = false;
 						if (!bLButtonState && Application::IsMousePressed(0))
@@ -1142,7 +1139,27 @@ void SceneCollision::Update (double dt)
 					}
 				}
 			}
+		}
+		else if (pause == true) {
+			static bool LMPressed = false;
+			if (Application::IsMousePressed(0) && !LMPressed) {
+				LMPressed = true;
+			}
+			else if (!Application::IsMousePressed(0) && LMPressed) {
+				LMPressed = false;
+				float x = m_worldWidth * 0.5;
 
+				if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7) ){
+					pause = false;
+
+				}
+				else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+					mousePos.y <= m_worldHeight * 0.67 && mousePos.y >= m_worldHeight * 0.53)) {
+					pause = false;
+					currentState = lose;
+				}
+			}
 		}
 		break;
 	}
@@ -1263,26 +1280,7 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2)
 
 bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
 {
-	//Vector3 distdiffX = enemy2->pos + enemy2->scale.x / 2 - enemy1->pos + enemy1->scale.x / 2;
-	//Vector3 distdiffY = enemy2->pos + enemy2->scale.y / 2 - enemy1->pos + enemy1->scale.y / 2;
-	//if (distdiffX.x <= enemy2->scale.x)
-	//{
-	//	enemy2->usePrevX = true;
-	//	cout << "collided" << endl;
-	//	return true;
-	//}
-	//else if (distdiffY.y <= enemy2->scale.y)
-	//{
-	//	enemy2->usePrevY = true;
-	//	cout << "collided" << endl;
-	//	return true;
-	//}
-	//else
-	//{
-	//	enemy2->usePrevX = false;
-	//	enemy2->usePrevY = false;
-	//	return false;
-	//}
+
 	Vector3 relativeVel = enemy1->vel - enemy2->vel;
 
 	Vector3 disDiff = enemy2->pos - enemy1->pos;
@@ -2503,12 +2501,8 @@ void SceneCollision::Render()
 			}
 		}
 
-		hptestingbar++;
 
-		if (m_worldWidth * 0.3 * 0.73684210526 < hptestingbar)
-			hptestingbar = 0;
-
-		float expX = cPlayer2D->pos.x , expY = cPlayer2D->pos.y - (m_worldHeight*0.4);
+		float expX = cPlayer2D->pos.x , expY = cPlayer2D->pos.y - (m_worldHeight * 0.45);
 		float expScaleX = m_worldWidth * 0.95, expScaleY = 2;
 		modelStack.PushMatrix();
 		modelStack.Translate(expX, expY, 4);
@@ -2519,8 +2513,6 @@ void SceneCollision::Render()
 
 		expScaleX = Math::Min((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
 
-		//expScaleX
-		//just replace the testing expbar with the actual exp lmao
 		modelStack.PushMatrix();
 		modelStack.Translate(expScaleX / 2 + m_worldWidth * 0.12 + camera.position.x, expY, 4.1f);
 		modelStack.Scale(expScaleX, expScaleY, 1);
@@ -2537,9 +2529,12 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_HEALTHBG], false);
 		modelStack.PopMatrix();
 
+
+		hpScaleX = Math::Min(m_worldWidth * 0.3 * 0.73684210526, m_worldWidth * 0.3 * 0.73684210526 * (cPlayer2D->hp/cPlayer2D->maxHP));
+
 		modelStack.PushMatrix();
-		modelStack.Translate(hptestingbar / 2 + hpX - m_worldWidth * 0.075, hpY, 4.1f);
-		modelStack.Scale(hptestingbar, hpScaleY, 1);
+		modelStack.Translate(hpScaleX / 2 + hpX - m_worldWidth * 0.075, hpY, 4.1f);
+		modelStack.Scale(hpScaleX, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
 
@@ -2564,7 +2559,7 @@ void SceneCollision::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1,0,0), 3, 3, 56);
 
 		//render if player has leveled up
-		if (cPlayer2D->leveledUp == true) {
+		if (cPlayer2D->leveledUp == true)	 {
 			modelStack.PushMatrix();
 			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);
 			modelStack.Scale(1000, 1000, 1);
@@ -2637,7 +2632,7 @@ void SceneCollision::Render()
 				case dragon:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
 					ss << "grants a dragon companion";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);	
 				}
 				RenderMesh(meshList[GEO_UPGRADEICON], false);
 				modelStack.PopMatrix();
@@ -2658,19 +2653,19 @@ void SceneCollision::Render()
 
 			modelStack.PushMatrix();
 			modelStack.Translate(x + cameramoveX, m_worldHeight *0.7 + cameramoveY, 4.4f);
-			modelStack.Scale(m_worldHeight*0.4, m_worldHeight * 0.5, 1);
+			modelStack.Scale(m_worldWidth*0.3, m_worldHeight * 0.5, 1);
 			RenderMesh(meshList[GEO_PAUSEPANEL], false);
 			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
 			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.77 + cameramoveY, 4.41f);
-			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight *0.14, 1);
+			modelStack.Scale(m_worldWidth * 0.2, m_worldHeight *0.14, 1);
 			RenderMesh(meshList[GEO_PAUSERESUME], false);
 			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
 			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.60 + cameramoveY, 4.42f);
-			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight * 0.14, 1);
+			modelStack.Scale(m_worldWidth * 0.2, m_worldHeight * 0.14, 1);
 			RenderMesh(meshList[GEO_PAUSEQUIT], false);
 			modelStack.PopMatrix();
 
@@ -2705,12 +2700,24 @@ void SceneCollision::Render()
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 8);
 
 			ss.str("");
+			ss << "hp:" << cPlayer2D->maxHP;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 25, 14);
+
+			ss.str("");
+			ss << "Shots:" << numberofbullets;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 25, 11);
+
+			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
-				ss << "RoF:" << firerate << "s";
+				ss << "pierce:" << pierceforbullet + 12;
 			}
 			else
-				ss << "RoF:" << firerate << "s";
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 8);
+				ss << "pierce:" << pierceforbullet;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 25, 8);
+
+			ss.str("");
+			ss << "MS:" << moveSpeed;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 50, 14);
 		}
 		break;
 	}
