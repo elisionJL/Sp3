@@ -385,7 +385,7 @@ void SceneCollision::RenderDmgNum(Vector3 posanddmg)
 	coordinatesofdamagenumbers.push_back(posX);
 }
 
-void SceneCollision::Update (double dt)
+void SceneCollision::Update(double dt)
 {
 	SceneBase::Update(dt);
 
@@ -475,6 +475,11 @@ void SceneCollision::Update (double dt)
 			if (!bLButtonState && Application::IsMousePressed(0))
 			{
 				bLButtonState = true;
+				
+			}
+			else if (bLButtonState && !Application::IsMousePressed(0))
+			{
+				bLButtonState = false;
 				if ((mousePos.x >= (m_worldWidth * 0.2) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.2) + scalingthegun * 2.5) &&
 					(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
 				{
@@ -505,10 +510,6 @@ void SceneCollision::Update (double dt)
 					Startgame = true;
 					Gun->type = GameObject::GO_PISTOL;
 				}
-			}
-			else if (bLButtonState && !Application::IsMousePressed(0))
-			{
-				bLButtonState = false;
 			}
 
 
@@ -572,8 +573,9 @@ void SceneCollision::Update (double dt)
 				elapsedTime = 0;
 			}
 		}
-		break;
+		
 	}
+	break;
 	case shop:
 	{
 		zaxis = 1;
@@ -648,13 +650,13 @@ void SceneCollision::Update (double dt)
 		if (cPlayer2D->leveledUp == false && pause == false) {
 			cPlayer2D->Update(dt);
 			//cPlayer2D->xp++;
-			
+
 			elapsedTime += dt;
 			static bool BPressed = false;
-			if (Application::IsKeyPressed('B') && !BPressed) {
+			if (Application::IsKeyPressed('B') && BPressed == false) {
 				BPressed = true;
 			}
-			else if (!Application::IsKeyPressed('B') && BPressed) {
+			else if (!Application::IsKeyPressed('B') && BPressed == true) {
 				BPressed = false;
 				pause = true;
 				break;
@@ -1098,7 +1100,7 @@ void SceneCollision::Update (double dt)
 						(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
 
 						cPlayer2D->increaseLevel();
-						
+
 						switch (levelUpgrades[i - 1]) {
 						case pierce:
 							pierceforbullet += 1;
@@ -1127,16 +1129,17 @@ void SceneCollision::Update (double dt)
 					}
 				}
 			}
-			else if (pause == true) {
-				static bool LMPressed = false;
-				if (Application::IsMousePressed(0) && !LMPressed) {
-					LMPressed = true;
-				}
-				else if (!Application::IsMousePressed(0) && LMPressed) {
-					LMPressed = false;
-					float x = m_worldWidth * 0.5;
+		}
+		else if (pause == true) {
+			static bool LMPressed = false;
+			if (Application::IsMousePressed(0) && !LMPressed) {
+				LMPressed = true;
+			}
+			else if (!Application::IsMousePressed(0) && LMPressed) {
+				LMPressed = false;
+				float x = m_worldWidth * 0.5;
 				if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7) ){
+					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
 					pause = false;
 
 				}
@@ -1147,8 +1150,8 @@ void SceneCollision::Update (double dt)
 				}
 			}
 		}
+
 		break;
-	}
 	case win:
 	{
 		static bool bLButtonState = false;
@@ -1191,6 +1194,7 @@ void SceneCollision::Update (double dt)
 	}
 	default:
 		break;
+	}
 	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
