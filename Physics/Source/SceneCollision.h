@@ -12,6 +12,7 @@ public:
 
 	enum gameStates {
 		start = 0,
+		weaponselection,
 		main,
 		shop,
 		win,
@@ -73,6 +74,7 @@ protected:
 	
 	float elapsedTime;
 	float prevTime;
+	float timerbeforeweaponselect;
 
 	int score;
 	int minutes;

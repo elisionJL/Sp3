@@ -410,6 +410,7 @@ void SceneCollision::Update(double dt)
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
 
+
 	if (currentState == main)
 		camera.Update(dt, cPlayer2D->pos, m_worldWidth, m_worldHeight);
 	else {
@@ -424,63 +425,14 @@ void SceneCollision::Update(double dt)
 		if ((!bLButtonState && Application::IsMousePressed(0)) || Application::IsKeyPressed(VK_SPACE)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				currentState = main;
+				currentState = weaponselection;
+				timerbeforeweaponselect = 1.0f;
 				score = 0;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_GL;
-				Gun->mass = 2;
-				if (Gun->type == GameObject::GO_GL)
-				{
-					Gun->scale.Set(5, 2, 1);
-					CurrentGun = meshList[GEO_GL];
-					GunFrameWhereItStarts = 6;
-					numberofbullets = 1;
-					dmgofgun = 3; //explosion does 5
-					pierceforbullet = 1;
-				}
-				else if (Gun->type == GameObject::GO_BOW)
-				{
-					Gun->scale.Set(5, 5, 1);
-					CurrentGun = meshList[GEO_BOW];
-					GunFrameWhereItStarts = 0;
-					numberofbullets = 1;
-					dmgofgun = 1;
-					pierceforbullet = 1;
-				}
-				else if (Gun->type == GameObject::GO_SHOTGUN)
-				{
-					Gun->scale.Set(5, 2, 1);
-					CurrentGun = meshList[GEO_SHOTGUN];
-					GunFrameWhereItStarts = 6;
-					numberofbullets = 4;
-					dmgofgun = 3;
-					pierceforbullet = 1;
-				}
-				else if (Gun->type == GameObject::GO_SNIPER)
-				{
-					Gun->scale.Set(7, 1.44565217391, 1);
-					CurrentGun = meshList[GEO_SNIPER];
-					GunFrameWhereItStarts = 3;
-					numberofbullets = 1;
-					dmgofgun = 10;
-					pierceforbullet = 3;
-					velocityofbullet = 50;
-				}
-				else if (Gun->type == GameObject::GO_PISTOL)
-				{
-					Gun->scale.Set(5, 2, 1);
-					CurrentGun = meshList[GEO_PISTOL];
-					GunFrameWhereItStarts = 3;
-					numberofbullets = 1;
-					dmgofgun = 4;
-					pierceforbullet = 1;
-				}
-				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
-				Gun->vel.SetZero();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
 				SpawnMapObjects();
@@ -506,6 +458,112 @@ void SceneCollision::Update(double dt)
 		else if (bLButtonState && !Application::IsMousePressed(0))
 		{
 			bLButtonState = false;
+		}
+		break;
+	}
+	case weaponselection:
+	{
+		elapsedTime += dt;
+		float scalingthegun = m_worldWidth * 0.01;
+		bool Startgame = false;
+
+		if (elapsedTime > timerbeforeweaponselect)
+		{
+			static bool bLButtonState = false;
+			if (!bLButtonState && Application::IsMousePressed(0))
+			{
+				bLButtonState = true;
+				if ((mousePos.x >= (m_worldWidth * 0.2) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.2) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_GL;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.5) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.5) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun * 2.5 && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun * 2.5))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_BOW;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.8) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.8) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_SHOTGUN;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.4) - scalingthegun * 3.5 && mousePos.x <= (m_worldWidth * 0.4) + scalingthegun * 3.5) &&
+					(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun * 0.72282608695 && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun * 0.72282608695))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_SNIPER;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.6) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.6) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_PISTOL;
+				}
+			}
+			else if (bLButtonState && !Application::IsMousePressed(0))
+			{
+				bLButtonState = false;
+			}
+
+
+			Gun->mass = 2;
+			if (Gun->type == GameObject::GO_GL)
+			{
+				Gun->scale.Set(5, 2, 1);
+				CurrentGun = meshList[GEO_GL];
+				GunFrameWhereItStarts = 6;
+				numberofbullets = 1;
+				dmgofgun = 3; //explosion does 5
+				pierceforbullet = 1;
+			}
+			else if (Gun->type == GameObject::GO_BOW)
+			{
+				Gun->scale.Set(5, 5, 1);
+				CurrentGun = meshList[GEO_BOW];
+				GunFrameWhereItStarts = 0;
+				numberofbullets = 1;
+				dmgofgun = 1;
+				pierceforbullet = 1;
+			}
+			else if (Gun->type == GameObject::GO_SHOTGUN)
+			{
+				Gun->scale.Set(5, 2, 1);
+				CurrentGun = meshList[GEO_SHOTGUN];
+				GunFrameWhereItStarts = 6;
+				numberofbullets = 4;
+				dmgofgun = 3;
+				pierceforbullet = 1;
+			}
+			else if (Gun->type == GameObject::GO_SNIPER)
+			{
+				Gun->scale.Set(7, 1.44565217391, 1);
+				CurrentGun = meshList[GEO_SNIPER];
+				GunFrameWhereItStarts = 3;
+				numberofbullets = 1;
+				dmgofgun = 10;
+				pierceforbullet = 3;
+				velocityofbullet = 50;
+			}
+			else if (Gun->type == GameObject::GO_PISTOL)
+			{
+				Gun->scale.Set(5, 2, 1);
+				CurrentGun = meshList[GEO_PISTOL];
+				GunFrameWhereItStarts = 3;
+				numberofbullets = 1;
+				dmgofgun = 4;
+				pierceforbullet = 1;
+			}
+			Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
+			Gun->vel.SetZero();
+			if (Startgame)
+			{
+				currentState = main;
+				elapsedTime = 0;
+			}
 		}
 		break;
 	}
@@ -579,7 +637,6 @@ void SceneCollision::Update(double dt)
 			cPlayer2D->Update(dt);
 			//cPlayer2D->xp++;
 
-			elapsedTime += dt;
 			elapsedTime += dt;
 			static bool BPressed = false;
 			if (Application::IsKeyPressed('B') && !BPressed) {
@@ -2204,6 +2261,41 @@ void SceneCollision::Render()
 	case start:
 		RenderTitleScreen();
 		break;
+	case weaponselection:
+	{
+		float scalingthegun = m_worldWidth * 0.01;
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.2, m_worldHeight * 0.6, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+		RenderMesh(meshList[GEO_GL], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.6, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 5, 0);
+		RenderMesh(meshList[GEO_BOW], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.8, m_worldHeight * 0.6, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+		RenderMesh(meshList[GEO_SHOTGUN], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.4, m_worldHeight * 0.4, 0);
+		modelStack.Scale(scalingthegun * 7, scalingthegun * 1.44565217391, 0);
+		RenderMesh(meshList[GEO_SNIPER], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.6, m_worldHeight * 0.4, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+		RenderMesh(meshList[GEO_PISTOL], false);
+		modelStack.PopMatrix();
+
+		break;
+	}
 	case shop:
 	{
 		double x, y, windowwidth, windowheight;
@@ -2269,9 +2361,8 @@ void SceneCollision::Render()
 				if (go->type == GameObject::GO_GRONK)
 					RenderGO(go);
 		}
-
-	}
 		break;
+	}
 	case main:
 	{
 		//Render Background
