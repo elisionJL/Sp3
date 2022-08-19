@@ -1065,7 +1065,7 @@ void SceneCollision::Update (double dt)
 					{
 						if (CheckCollision(go1, go2))
 						{
-							CollisionResponse(go1, go2);
+							CollisionResponse(go1, go2, dt);
 							cout << "collided" << endl;
 						}
 						else
@@ -1511,30 +1511,31 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 	case GameObject::GO_POWERUP:
 		go2->active = false;
 		break;
-	case GameObject::GO_BOSS_SLIME:
-		Vector3 n = go1->pos - go2->pos;
-		Vector3 vec = (u1 - u2).Dot(n) / (n).LengthSquared() * n;
-		go1->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
-		go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
-		break;
+	//case GameObject::GO_BOSS_SLIME:
+	//	Vector3 n = go1->pos - go2->pos;
+	//	Vector3 vec = (u1 - u2).Dot(n) / (n).LengthSquared() * n;
+	//	go1->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
+	//	go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
+	//	break;
 	}
 } 
 
-void SceneCollision::CollisionResponse(Enemy* go1, Enemy* go2)
+void SceneCollision::CollisionResponse(Enemy* go1, Enemy* go2, double dt)
 {
-	if (go2->usePrevX == true && go2->usePrevY == true)
-	{
-		go2->pos.x = go2->previousCoord.x;
-		go2->pos.y = go2->previousCoord.y;
-	}
-	else if (go2->usePrevY == true)
-	{
-		go2->pos.y = go2->previousCoord.y;
-	}
-	else if (go2->usePrevX == true)
-	{
-		go2->pos.x = go2->previousCoord.x;
-	}
+	//if (go2->usePrevX == true && go2->usePrevY == true)
+	//{
+	//	go2->pos.x = go2->previousCoord.x;
+	//	go2->pos.y = go2->previousCoord.y;
+	//}
+	//else if (go2->usePrevY == true)
+	//{
+	//	go2->pos.y = go2->previousCoord.y;
+	//}
+	//else if (go2->usePrevX == true)
+	//{
+	//	go2->pos.x = go2->previousCoord.x;
+	//}
+	go1->pos -= go1->vel * dt * m_speed;
 }
 
 
