@@ -1100,39 +1100,10 @@ void SceneCollision::Update (double dt)
 				for (int i = 1; i < 4; ++i) {
 					float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
 					float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
-
+					cPlayer2D->increaseLevel();
 
 					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth *0.28) &&
 						(mousePos.y <= m_worldHeight * 0.73  && mousePos.y >= m_worldHeight * 0.17) ){
-
-						cPlayer2D->increaseLevel();
-						
-						switch (levelUpgrades[i - 1]) {
-						case pierce:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
-							break;
-						case atk:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
-							break;
-						case hp:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
-							break;
-						case multishot:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
-							break;
-						case moveSpeed:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
-							break;
-						case velocity:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
-							break;
-						case fireRate:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
-							break;
-						case dragon:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
-							break;
-						}
 
 						static bool bLButtonState = false;
 						if (!bLButtonState && Application::IsMousePressed(0))
@@ -1173,6 +1144,7 @@ void SceneCollision::Update (double dt)
 			}
 
 		}
+		break;
 	}
 	case win:
 	{
@@ -2710,7 +2682,7 @@ void SceneCollision::Render()
 
 			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
-				ss << "max dmg:" << dmgofgun * 12;
+				ss << "dmg:" << dmgofgun * 12;
 			}
 			else
 				ss << "dmg:" << dmgofgun;
@@ -2718,7 +2690,7 @@ void SceneCollision::Render()
 
 			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
-				ss << "max vel:" << velocityofbullet;
+				ss << "vel:" << velocityofbullet;
 			}
 			else
 				ss << "vel:" << velocityofbullet * 6;
@@ -2726,13 +2698,19 @@ void SceneCollision::Render()
 
 			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
-				ss << "RoF:" << fireRate;
+				ss << "RoF:" << firerate << "s";
 			}
 			else
-				ss << "vel:" << velocityofbullet * 6;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 11);
+				ss << "RoF:" << firerate << "s";
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 8);
 
-
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "RoF:" << firerate << "s";
+			}
+			else
+				ss << "RoF:" << firerate << "s";
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 8);
 		}
 		break;
 	}
