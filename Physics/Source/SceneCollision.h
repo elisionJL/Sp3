@@ -47,6 +47,7 @@ public:
 	void DeleteEnemy(Enemy* Enemy);
 	void DamageNumbers(int damage, Enemy* Enem);
 	void RenderDmgNum(Vector3 dmgandtime);
+	bool Movingofdamagenumbers(float posX, int dmg);
 protected:
 	enum upgrades {
 		atk = 0,
@@ -127,6 +128,11 @@ protected:
 	int pierceforbullet;
 	float velocityofbullet;
 	float bowdrawstring;
+	int displaynumberoffset;
+	int displaynumberoffsety;
+	int switchdmgnum;
+	std::vector<Vector3> coordinatesofdamagenumbers;
+	int bowframe;
 };
 
 #endif
