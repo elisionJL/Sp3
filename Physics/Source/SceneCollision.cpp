@@ -293,6 +293,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 void SceneCollision::DeleteEnemy(Enemy* Enemy)
 {
+	cPlayer2D->xp++;
 	for (int i = 0; i < enemyList.size(); ++i)
 	{
 		if (enemyList[i] == Enemy)
