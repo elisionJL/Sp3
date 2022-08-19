@@ -136,6 +136,23 @@ void SceneBase::Init()
 	sa->AddAnimation("death", 60, 67);
 
 
+	meshList[GEO_CARD] = MeshBuilder::GenerateQuad("card", Color(1, 1, 1), 1.f);
+	meshList[GEO_CARD]->textureID = LoadTexture("Image//upgrades//card.png", false);
+
+	meshList[GEO_UPGRADEICON] = MeshBuilder::GenerateQuad("icon", Color(1, 1, 1), 1.f);
+
+	meshList[GEO_PAUSEPANEL] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
+	meshList[GEO_PAUSEPANEL]->textureID = LoadTexture("Image//pause//panel.png", true);
+
+	meshList[GEO_PAUSERESUME] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
+	meshList[GEO_PAUSERESUME]->textureID = LoadTexture("Image//pause//resume.psd", true);
+
+	meshList[GEO_PAUSEQUIT] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
+	meshList[GEO_PAUSEQUIT]->textureID = LoadTexture("Image//pause//quit.psd", true);
+
+	meshList[GEO_STATPANEL] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
+	meshList[GEO_STATPANEL]->textureID = LoadTexture("Image//pause//statPanel.png", true);
+
 	meshList[GEO_BOUNCE] = MeshBuilder::GenerateQuad("bounce", Color(1, 1, 1), 1.f);
 	meshList[GEO_BOUNCE]->textureID = LoadTexture("Image//bounceWall.png", true);
 
@@ -231,9 +248,6 @@ void SceneBase::Init()
 
 	meshList[GEO_ROCK] = MeshBuilder::GenerateQuad("rock", Color(1, 1, 1), 1.f);
 	meshList[GEO_ROCK]->textureID = LoadTexture("Image//Rock.png", true);
-
-	meshList[GEO_LINE] = MeshBuilder::GenerateQuad("cube", Color(1, 1, 1), 1.f);
-	meshList[GEO_LINE]->textureID = LoadTexture("Image//line.png");
 
 
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);

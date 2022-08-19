@@ -24,7 +24,9 @@ public:
 	virtual void setmeshList(Mesh* player);
 	Vector3 pos;
 	float xp;
+	bool leveledUp;
 	int getLevel();
+	void increaseLevel();
 	int getState();
 	void IncreaseSpd();
 	void IncreaseHP();

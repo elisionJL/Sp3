@@ -74,6 +74,7 @@ struct GameObject
 	GameObject* otherWall;
 	bool visible;
 	bool placed;
+	int bowdrawamount = 1;
 	void fetchReturnStatus();
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_BALL);
 	~GameObject();

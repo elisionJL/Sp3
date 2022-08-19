@@ -16,6 +16,7 @@ void CPlayer2D::Init()
 	sCurrentState = IDLE;
 	xp = 0;
 	level = 1;
+	leveledUp = false;
 }
 
 void CPlayer2D::Update(double dt)
@@ -26,11 +27,6 @@ void CPlayer2D::Update(double dt)
 	}
 	if (Application::IsKeyPressed('K')) {
 		xp += 1;
-	}
-	if (xp >= ((level - 1) * 10) + 5)
-	{
-		xp -= ((level - 1) * 10) + 5;
-		level += 1;
 	}
 	if (hp <= 0) {
 		if (Lives > 0)
@@ -163,6 +159,13 @@ void CPlayer2D::setmeshList(Mesh* meshlist)
 int CPlayer2D::getLevel()
 {
 	return level;
+}
+
+void CPlayer2D::increaseLevel()
+{
+	xp -= ((level - 1) * 10) + 5;
+	level += 1;
+	leveledUp = false;
 }
 
 int CPlayer2D::getState()

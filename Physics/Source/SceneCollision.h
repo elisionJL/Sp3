@@ -12,6 +12,7 @@ public:
 
 	enum gameStates {
 		start = 0,
+		weaponselection,
 		main,
 		shop,
 		win,
@@ -33,6 +34,7 @@ public:
 	bool CheckCollision(Enemy* enemy1, Enemy* enemy2);
 	bool CheckCollision(Enemy* enemy, GameObject* go);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
+	void CollisionResponse(Enemy* actor, Enemy* actee, double dt);
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
@@ -48,12 +50,23 @@ public:
 	void DeleteEnemy(Enemy* Enemy);
 	void DamageNumbers(int damage, Enemy* Enem);
 	void RenderDmgNum(Vector3 dmgandtime);
+	bool Movingofdamagenumbers(float posX, int dmg);
 protected:
+	enum upgrades {
+		atk = 0,
+		hp,
+		fireRate,
+		pierce,
+		moveSpeed,
+		multishot,
+		velocity,
+		dragon
+	};
 	Vector3 m_lineStart;
 	//Physics
 	std::vector<GameObject *> m_goList;
 	std::vector<GameObject*> m_thickWallList;
-
+	upgrades levelUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
 	float m_speed;
@@ -62,6 +75,7 @@ protected:
 	
 	float elapsedTime;
 	float prevTime;
+	float timerbeforeweaponselect;
 
 	int score;
 	int minutes;
@@ -121,6 +135,12 @@ protected:
 	int pierceforbullet;
 	float velocityofbullet;
 	float bowdrawstring;
+	int displaynumberoffset;
+	int displaynumberoffsety;
+	int switchdmgnum;
+	std::vector<Vector3> coordinatesofdamagenumbers;
+	int bowframe;
+	float firerate;
 };
 
 #endif
