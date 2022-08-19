@@ -16,6 +16,7 @@ void CPlayer2D::Init()
 	sCurrentState = IDLE;
 	xp = 0;
 	level = 1;
+	prevTime = elapsedTime = 0;
 	leveledUp = false;
 }
 
@@ -27,6 +28,22 @@ void CPlayer2D::Update(double dt)
 	}
 	if (Application::IsKeyPressed('K')) {
 		xp += 1;
+	}
+	if (Application::IsKeyPressed('J')) {
+		hp += 1;
+	}
+	if (Application::IsKeyPressed('H')) {
+		hp -= 1;
+	}
+
+	if (hp < maxHP) {
+		if (elapsedTime - prevTime > 1) {
+			hp += 0.01 * maxHP;
+			prevTime = elapsedTime;
+		}
+		else {
+			elapsedTime += dt;
+		}
 	}
 	if (hp <= 0) {
 		if (Lives > 0)
@@ -140,11 +157,7 @@ void CPlayer2D::Update(double dt)
 
 void CPlayer2D::Render()
 {
-	modelStack.PushMatrix();
-	modelStack.Translate(pos.x, pos.y, 1);
-	modelStack.Scale(10, 10, 1);
-	RenderMesh(playerMesh, false);
-	modelStack.PopMatrix();
+
 }
 
 void CPlayer2D::Exit()
