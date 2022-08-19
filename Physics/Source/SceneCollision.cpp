@@ -58,6 +58,10 @@ void SceneCollision::Init()
 
 	needtofinishanimation = false;
 
+	PlayerBuy = false;
+
+	currentlyHovering = false;
+	shopClick = 0;
 	zaxis = 1;
 	pause = false;
 	for (int i = 0; i < 6; ++i)
@@ -156,14 +160,14 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			{
 				go->vel.Normalize() *= velocityofbullet * (0.5 * bowframe);
 				go->bowdrawamount = bowframe;
-				go->amountofpierleft = pierceforbullet * bowframe;
+				go->amountofpierleft = pierceforbullet + bowframe;
 			}
 			else
 			{
 				go->vel.Normalize() *= velocityofbullet;
 				go->amountofpierleft = pierceforbullet;
 			}
-
+			go->pier.clear();
 
 			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 			{
@@ -247,6 +251,8 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 		{
 			DeleteEnemy(go2);
 		}
+
+
 		if (Bullet->amountofpierleft <= 0 && Bullet->type != GameObject::GO_EXPLOSION)
 		{
 			if (Bullet->proj == GameObject::GL)
@@ -277,9 +283,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 			std::stringstream ss;
 			ss << address;
 			Bullet->pier.push_back(ss.str());
-			cout << Bullet->amountofpierleft << endl;
 		}
-
 		DamageNumbers(dmg, go2);
 
 		break;
@@ -296,13 +300,13 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 		if (enemyList[i] == Enemy)
 		{
 			enemyList.erase(enemyList.begin() + i);
+			cPlayer2D->xp++;
 		}
 	}
 }
 
 void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
 {
-	cPlayer2D->xp += 1;
 	for (int arraynumber = 0; arraynumber < dmgandtimefordmgnumber.size(); ++arraynumber)
 	{
 		if (dmgandtimefordmgnumber[arraynumber] != 0)
@@ -578,17 +582,19 @@ void SceneCollision::Update (double dt)
 		gronk->Update(dt);
 
 		dialogueTime += 1 * dt;
-		if (dialogueTime > 5.f)
+		if (dialogueTime > 5.f && currentlyHovering != true)
 		{
 			CurrentTextWrite = true;
 			dialogueTime = 0;
 		}
 
-		ShopInteraction();
+		ShopInteraction(dt);
 		break;
 	}
 	case main:
 	{
+		PlayerMapCheck();
+		MapBoundary();
 		zaxis = 1;
 		displaynumberoffset = 0;
 		displaynumberoffsety = 0;
@@ -944,26 +950,18 @@ void SceneCollision::Update (double dt)
 					}
 					else if (go == Gun)
 					{
+						Application::GetCursorPos(&x, &y);
+						unsigned w = Application::GetWindowWidth();
+						unsigned h = Application::GetWindowHeight();
+						float posX = (x / w * m_worldWidth) + camera.position.x;
+						float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
+						Vector3 center = Vector3(posX, posY, 0) - cPlayer2D->pos;
+						float angle = calculateAngle(center.x, center.y);
+
 						float Xaxis = mousePos.x - go->pos.x;
 						float Yaxis = mousePos.y - go->pos.y;
 
-						float Angle;
-						if (Xaxis <= 0 && Yaxis <= 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis < 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-						}
-						else if (Xaxis > 0 && Yaxis > 0) {
-							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else if (Xaxis > 0 && Yaxis < 0) {
-							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
-						}
-						else {
-							Angle = 0;
-						}
-						go->angle = Angle;
+						go->angle = angle;
 					}
 					else if (go->type == GameObject::GO_PROJECTILE)
 					{
@@ -1056,6 +1054,15 @@ void SceneCollision::Update (double dt)
 				}
 			}
 
+			//Enemy List
+			for (unsigned i = 0; i < enemyList.size(); ++i)
+			{
+				Enemy* enemy = enemyList[i];
+				enemy->vel = cPlayer2D->pos - enemy->pos;
+				enemy->vel.Normalized() *= 20;
+				enemy->pos += enemy->vel * dt;
+			}
+
 			for (unsigned i = 0; i < enemyList.size(); ++i)
 			{
 				Enemy* go1 = enemyList[i];
@@ -1066,8 +1073,7 @@ void SceneCollision::Update (double dt)
 					{
 						if (CheckCollision(go1, go2))
 						{
-							CollisionResponse(go1, go2);
-							cout << "collided" << endl;
+							CollisionResponse(go1, go2, dt);
 						}
 						else
 						{
@@ -1075,16 +1081,6 @@ void SceneCollision::Update (double dt)
 						}
 					}
 				}
-			}
-
-			//Enemy List
-			for (unsigned i = 0; i < enemyList.size(); ++i)
-			{
-				Enemy* enemy = enemyList[i];
-				enemy->vel = cPlayer2D->pos - enemy->pos;
-				enemy->vel.Normalized() *= 20;
-				enemy->previousCoord = enemy->pos;
-				enemy->pos += enemy->vel * dt;
 			}
 		}
 		else if (cPlayer2D->leveledUp == true) {
@@ -1097,58 +1093,48 @@ void SceneCollision::Update (double dt)
 				for (int i = 1; i < 4; ++i) {
 					float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
 					float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
-					cPlayer2D->increaseLevel();
 
 					if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
 						(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
 
-						static bool bLButtonState = false;
-						if (!bLButtonState && Application::IsMousePressed(0))
-						{
-							switch (levelUpgrades[i - 1]) {
-							case pierce:
-								pierceforbullet += 1;
-								break;
-							case atk:
-								dmgofgun *= 1.1;
-								break;
-							case hp:
-								cPlayer2D->IncreaseHP();
-								break;
-							case multishot:
-								numberofbullets++;
-								break;
-							case moveSpeed:
-								cPlayer2D->IncreaseSpd();
-								break;
-							case velocity:
-								velocityofbullet += 5;
-								break;
-							case fireRate:
-								firerate *= 1.1;
-								break;
-							case dragon:
-								break;
-							}
-							bLButtonState = true;
-						}
-						else if (bLButtonState && !Application::IsMousePressed(0))
-						{
-							bLButtonState = false;
+						cPlayer2D->increaseLevel();
+						
+						switch (levelUpgrades[i - 1]) {
+						case pierce:
+							pierceforbullet += 1;
+							break;
+						case atk:
+							dmgofgun *= 1.1;
+							break;
+						case hp:
+							cPlayer2D->IncreaseHP();
+							break;
+						case multishot:
+							numberofbullets++;
+							break;
+						case moveSpeed:
+							cPlayer2D->IncreaseSpd();
+							break;
+						case velocity:
+							velocityofbullet += 5;
+							break;
+						case fireRate:
+							firerate *= 0.95;
+							break;
+						case dragon:
+							break;
 						}
 					}
 				}
 			}
-		}
-		else if (pause == true) {
-			static bool LMPressed = false;
-			if (Application::IsMousePressed(0) && !LMPressed) {
-				LMPressed = true;
-			}
-			else if (!Application::IsMousePressed(0) && LMPressed) {
-				LMPressed = false;
-				float x = m_worldWidth * 0.5;
-
+			else if (pause == true) {
+				static bool LMPressed = false;
+				if (Application::IsMousePressed(0) && !LMPressed) {
+					LMPressed = true;
+				}
+				else if (!Application::IsMousePressed(0) && LMPressed) {
+					LMPressed = false;
+					float x = m_worldWidth * 0.5;
 				if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
 					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7) ){
 					pause = false;
@@ -1201,8 +1187,10 @@ void SceneCollision::Update (double dt)
 				quit = true;
 			}
 		}
+		break;
 	}
-	break;
+	default:
+		break;
 	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
@@ -1284,6 +1272,26 @@ bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
 	Vector3 relativeVel = enemy1->vel - enemy2->vel;
 
 	Vector3 disDiff = enemy2->pos - enemy1->pos;
+
+	if (enemy1->pos.y > enemy2->pos.y)
+	{
+		disDiff -= Vector3(0, enemy1->scale.y / 2, 0);
+	}
+	else
+	{
+		disDiff += Vector3(0, enemy1->scale.y / 2, 0);
+	}
+
+	if (enemy1->pos.x > enemy2->pos.x)
+	{
+		disDiff -= Vector3(enemy1->scale.x / 2, 0, 0);
+	}
+	else
+	{
+		disDiff += Vector3(enemy1->scale.x / 2, 0, 0);
+	}
+
+
 	if (relativeVel.Dot(disDiff) <= 0) {
 		return false;
 	}
@@ -1484,30 +1492,18 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 	case GameObject::GO_POWERUP:
 		go2->active = false;
 		break;
-	case GameObject::GO_BOSS_SLIME:
-		Vector3 n = go1->pos - go2->pos;
-		Vector3 vec = (u1 - u2).Dot(n) / (n).LengthSquared() * n;
-		go1->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
-		go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
-		break;
+	//case GameObject::GO_BOSS_SLIME:
+	//	Vector3 n = go1->pos - go2->pos;
+	//	Vector3 vec = (u1 - u2).Dot(n) / (n).LengthSquared() * n;
+	//	go1->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
+	//	go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
+	//	break;
 	}
 } 
 
-void SceneCollision::CollisionResponse(Enemy* go1, Enemy* go2)
+void SceneCollision::CollisionResponse(Enemy* go1, Enemy* go2, double dt)
 {
-	if (go2->usePrevX == true && go2->usePrevY == true)
-	{
-		go2->pos.x = go2->previousCoord.x;
-		go2->pos.y = go2->previousCoord.y;
-	}
-	else if (go2->usePrevY == true)
-	{
-		go2->pos.y = go2->previousCoord.y;
-	}
-	else if (go2->usePrevX == true)
-	{
-		go2->pos.x = go2->previousCoord.x;
-	}
+	go1->pos -= go1->vel * dt;
 }
 
 
@@ -1669,7 +1665,7 @@ void SceneCollision::RenderTitleScreen()
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);
 	modelStack.PopMatrix();
 }
-void SceneCollision::ShopInteraction()
+void SceneCollision::ShopInteraction(double dt)
 {
 	double x, y, windowwidth, windowheight;
 	Application::GetCursorPos(&x, &y);
@@ -1677,6 +1673,11 @@ void SceneCollision::ShopInteraction()
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
 	static bool bLButtonState = false;
+
+	if (bLButtonState == true)
+		shopClick = 1;
+	else
+		shopClick = 0;
 
 	if (!bLButtonState && Application::IsMousePressed(0)) 
 	{
@@ -1851,18 +1852,198 @@ void SceneCollision::ShopUI()
 }
 void SceneCollision::RenderGronkDialogue()
 {
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+	static bool bLButtonState = false;
+
+								 //Random Dialogue
 	string GronkDialogue[50] = { "Welcome to Gronk Shop!", "Gronk has many stuff!", "What human want? Gronk can help find!",
 								 "Human died " + std::to_string(DeathCount) + " times! Gronk thinks human should work harder.", "Human not dead, human die soon?", "Gronk give human hint! No hit mean safe!",
 								 "Gronk first time make shop, Gronk hope can get what Gronk want!", "Gronk no travel much, human travel a lot?", 
-								 "This place dangerous for human, Gronk thinks human should leave.", "Human say Gronk is goblin? Gronk is Gronk, Gronk no Goblin! Human stupid."};
+								 "This place dangerous for human, Gronk thinks human should leave.", "Human say Gronk is goblin? Gronk is Gronk, Gronk no Goblin! Human stupid.",
+								 "Human want to know how gronk get item? Because Gronk find item!",
+
+								 //Buying upgrade //11, 12, 14, 15, 15, 16
+								 "Speed is speed human! Walk faster much better, slow big no no.", "Human survive better, Human no want dead yet yes?",
+								 "Human want shield? Ah! Human no like pain pain, human scared yes?", "Human need better weapon? Gronk has better weapon! No use on Gronk okay?",
+								 "Gronk know this item! Gronk hear feather used a lot on dead", "Gronk hear this used to make Human stronger faster, Gronk no idea but recommend!",
+	
+								 //Bought Upgrade //17, 18, 19, 20
+								 "Gronk thank human! Human help Gronk shop grow!", "Gronk will use money to make better shop!", "Gronk like money, money make Gronk happy",
+								 "Gronk make bigger shop soon, human will see!",
+
+								 //No Money // 21, 22, 23, 24
+								 "Human no money! No cheating Gronk!", "Human cannot buy item, no money, human poor!", "Gronk thinks human should kill kill before buy buy.",
+								 "No wasting Gronk time! Human get money first!",
+	
+								 //Max upgrade // 25, 26, 27
+								 "Human already buy it all! Don't put Gronk out of cave, Gronk like cave!", "Gronk no more of item, pick another!", 
+								 "Item hard to find human, Gronk no have item anymore"};
 
 	modelStack.PushMatrix();
 	modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
 	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
 
+	if (!bLButtonState && Application::IsMousePressed(0) && shopClick < 1)
+	{
+		//Change to random value
+		if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[0] >= 5)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 200 * pow(1.75, ShopUpgrades[0]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[1] >= 10)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 100 * pow(1.3, ShopUpgrades[1]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[2] >= 5)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 150 * pow(2.0, ShopUpgrades[2]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[3] >= 4)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 100 * pow(1.5, ShopUpgrades[3]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[4] >= 1)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 2000)
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[5] >= 5)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 500 * pow(1.1, ShopUpgrades[5]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+
+		bLButtonState = true;
+	}
+	else
+		bLButtonState = false;
+
+	if (!Application::IsMousePressed(0))
+	{
+		if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 11) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 11;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)) && PlayerBuy == false) {
+			if ((randomDialogue <= 10 || randomDialogue != 12) && PlayerBuy == false) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 12;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 13) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 13;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 14) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 14;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 15) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 15;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 16) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 16;
+			PlayerHover = true;
+		}
+		else {
+			PlayerHover = false;
+			currentlyHovering = false;
+		}
+	}
+
+	if ((PlayerHover == true && currentlyHovering != true) || PlayerBuy == true)
+		CurrentTextWrite = true;
+
 	if (CurrentTextWrite == true && TextFinished == false)
 	{
-		randomDialogue = rand() % 10;
+		if (PlayerHover != true && PlayerBuy != true)
+			randomDialogue = rand() % 11;
+
 		if (randomDialogue == 3 && DeathCount <= 0)
 		{
 			randomDialogue = 4;
@@ -1882,7 +2063,7 @@ void SceneCollision::RenderGronkDialogue()
 	{
 		char CurrentDialogue;
 
-		if (dialogueTime > 0.075f)
+		if (dialogueTime > 0.05f)
 		{
 			if (CurrentCharText < GronkDialogue[randomDialogue].length())
 			{
@@ -1890,15 +2071,26 @@ void SceneCollision::RenderGronkDialogue()
 				OutputDialogue += CurrentDialogue;
 
 				CurrentCharText += 1;
+				dialogueTime = 0;
 			}
 
 			else
 			{
-				CurrentTextWrite = false;
-				TextFinished = false;
-			}
+				if (PlayerBuy != true && PlayerHover != true)
+				{
+					CurrentTextWrite = false;
+					TextFinished = false;
+				}
 
-			dialogueTime = 0;
+				else if (dialogueTime > 2.f)
+				{
+					if (PlayerHover == true && PlayerBuy != true)
+						currentlyHovering = true;
+					CurrentTextWrite = false;
+					TextFinished = false;
+					PlayerBuy = false;
+				}
+			}
 		}
 	}
 	RenderDialogueOnScreen(meshList[GEO_TEXT], OutputDialogue, Color(0, 0, 0), 1.5, 2.5, 8);
@@ -2104,6 +2296,18 @@ void SceneCollision::PlayerMapCheck()
 	}
 }
 
+void SceneCollision::MapBoundary()
+{
+	if (cPlayer2D->pos.y >= 295.f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, 295.f, 295.f);
+	if (cPlayer2D->pos.y <= -295.f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, -295.f, -295.f);
+	if(cPlayer2D->pos.x >= 455.f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, 455.f, 455.f);
+	if (cPlayer2D->pos.x <= -455.f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, -455.f, -455.f);
+}
+
 float SceneCollision::calculateAngle(float x, float y)
 {
 	float angle;
@@ -2147,11 +2351,23 @@ void SceneCollision::RenderGO(GameObject *go)
 		//Exercise 11: think of a way to give balls different colors
 		break;
 	case GameObject::GO_TREE:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
-		modelStack.Scale(go->scale.x, go->scale.y, 1);
-		RenderMesh(meshList[GEO_TREE], false);
-		modelStack.PopMatrix();
+	{
+		float Distance = cPlayer2D->pos.Length() - go->pos.Length();
+
+		if (Distance < 0)
+			Distance = -Distance;
+
+		if (Distance > 75) {
+			//Do nothing
+		}
+		else{
+			modelStack.PushMatrix();
+			modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+			modelStack.Scale(go->scale.x, go->scale.y, 1);
+			RenderMesh(meshList[GEO_TREE], false);
+			modelStack.PopMatrix();
+		}
+	}
 		break;
 	case GameObject::GO_ROCK:
 		modelStack.PushMatrix();
@@ -2172,7 +2388,8 @@ void SceneCollision::RenderGO(GameObject *go)
 		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y , zaxis);
 		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
-		RenderMesh(meshList[GEO_BOW], true);
+		RenderMesh(meshList[GEO_BOW], false);
+		//meshList[GEO_BOW]->material.kAmbient.Set(1, 0, 0);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_GL:
@@ -2305,6 +2522,7 @@ void SceneCollision::Render()
 	projection.SetToOrtho(0, m_worldWidth, 0, m_worldHeight, -10, 10);
 	projectionStack.LoadMatrix(projection);
 
+
 	// Camera matrix
 	viewStack.LoadIdentity();
 	viewStack.LookAt(
@@ -2313,10 +2531,16 @@ void SceneCollision::Render()
 		camera.up.x, camera.up.y, camera.up.z
 	);
 
+
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
 
-	RenderMesh(meshList[GEO_AXES], false);
 	switch (currentState) {
 	case start:
 		RenderTitleScreen();
@@ -2324,6 +2548,7 @@ void SceneCollision::Render()
 	case weaponselection:
 	{
 		float scalingthegun = m_worldWidth * 0.01;
+
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth * 0.2, m_worldHeight * 0.6, 0);
 		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
@@ -2354,16 +2579,63 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_PISTOL], false);
 		modelStack.PopMatrix();
 
+		if (!Application::IsMousePressed(0))
+		{
+			if ((mousePos.x >= (m_worldWidth * 0.2) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.2) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.1925, m_worldHeight * 0.6, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.5) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.5) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun * 2.5 && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun * 2.5))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.6, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 5, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.8) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.8) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.7925, m_worldHeight * 0.6, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.4) - scalingthegun * 3.5 && mousePos.x <= (m_worldWidth * 0.4) + scalingthegun * 3.5) &&
+				(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun * 0.72282608695 && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun * 0.72282608695))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.39, m_worldHeight * 0.4, 1);
+				modelStack.Scale(scalingthegun * 7, scalingthegun * 1.44565217391, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+
+			else if ((mousePos.x >= (m_worldWidth * 0.6) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.6) + scalingthegun * 2.5) &&
+				(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun))
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate(m_worldWidth * 0.5955, m_worldHeight * 0.4, 1);
+				modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+				RenderMesh(meshList[GEO_SELECTED], false);
+				modelStack.PopMatrix();
+			}
+		}
+
 		break;
 	}
 	case shop:
 	{
-		double x, y, windowwidth, windowheight;
-		Application::GetCursorPos(&x, &y);
-		windowwidth = Application::GetWindowWidth();
-		windowheight = Application::GetWindowHeight();
-		Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
-
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.5f, 0);
 		modelStack.Scale(m_worldWidth, m_worldHeight, 0);

@@ -34,15 +34,16 @@ public:
 	bool CheckCollision(Enemy* enemy1, Enemy* enemy2);
 	bool CheckCollision(Enemy* enemy, GameObject* go);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
-	void CollisionResponse(Enemy* actor, Enemy* actee);
+	void CollisionResponse(Enemy* actor, Enemy* actee, double dt);
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
-	void ShopInteraction();
+	void ShopInteraction(double dt);
 	void ShopUI();
 	void RenderGronkDialogue();
 	void SpawnMapObjects();
 	void PlayerMapCheck();
+	void MapBoundary();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
@@ -126,6 +127,9 @@ protected:
 	std::vector<double> timerfordmgnumber;
 	int numberofbullets;
 	int ShopUpgrades[6];
+	bool PlayerBuy;
+	bool PlayerHover, currentlyHovering;
+	float shopClick;
 	float testingexpbar, hptestingbar;
 	float dmgofgun;
 	int pierceforbullet;

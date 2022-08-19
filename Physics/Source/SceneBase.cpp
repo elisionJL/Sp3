@@ -249,6 +249,8 @@ void SceneBase::Init()
 	meshList[GEO_ROCK] = MeshBuilder::GenerateQuad("rock", Color(1, 1, 1), 1.f);
 	meshList[GEO_ROCK]->textureID = LoadTexture("Image//Rock.png", true);
 
+	meshList[GEO_SELECTED] = MeshBuilder::GenerateQuad("selected", Color(1, 1, 1), 1.f);
+	meshList[GEO_SELECTED]->textureID = LoadTexture("Image//Selected_UI.png", true);
 
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
@@ -276,7 +278,7 @@ void SceneBase::Init()
 
 	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 3, 6);
 	meshList[GEO_BOW]->textureID = LoadTexture("Image//bow.png", true);
-	meshList[GEO_BOW]->material.kAmbient.Set(1, 1, 1);
+	meshList[GEO_BOW]->material.kAmbient.Set(1, 0, 0);
 	SpriteAnimation* Bow = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOW]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Bow->AddAnimation("Shoot", 0, 13);
