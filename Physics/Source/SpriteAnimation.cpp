@@ -72,6 +72,11 @@ void SpriteAnimation::Update(double dt)
 		int numFrame = animationList[currentAnimation]->frames.size();
 		float frameTime = animationList[currentAnimation]->animTime / numFrame;
 
+		if (frameTime == 0)
+		{
+			return;
+		}
+
 		//Set the current frame based on the current time
 		currentFrame = animationList[currentAnimation]->frames[Math::Min((int)animationList[currentAnimation]->frames.size() - 1 , static_cast<int>(currentTime / frameTime))];
 

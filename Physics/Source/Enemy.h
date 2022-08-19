@@ -17,6 +17,7 @@ public:
 	void Update(const double dElapsedTime);
 	
 	static void setSpawn(float x, float y,Vector3& pos);
+	void checkdistancefromotherenemies(Enemy* go1);
 
 	//public vars
 	Vector3 pos;
@@ -27,6 +28,8 @@ public:
 	bool usePrevY;
 	int type;
 	float hp;
+	int amountoftimesitstayed;
+	bool enemytoleft, enemytoright, enemyup, enemydown;
 	
 	std::string address;
 
