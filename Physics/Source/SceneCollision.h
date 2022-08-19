@@ -38,6 +38,7 @@ public:
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
 	void ShopInteraction();
+	void ShopUI();
 	void RenderGronkDialogue();
 	void SpawnMapObjects();
 	void PlayerMapCheck();
@@ -45,12 +46,25 @@ public:
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void DeleteEnemy(Enemy* Enemy);
+	void DamageNumbers(int damage, Enemy* Enem);
+	void RenderDmgNum(Vector3 dmgandtime);
+	bool Movingofdamagenumbers(float posX, int dmg);
 protected:
+	enum upgrades {
+		atk = 0,
+		hp,
+		fireRate,
+		pierce,
+		moveSpeed,
+		multishot,
+		velocity,
+		dragon
+	};
 	Vector3 m_lineStart;
 	//Physics
 	std::vector<GameObject *> m_goList;
 	std::vector<GameObject*> m_thickWallList;
-
+	upgrades levelUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
 	float m_speed;
@@ -106,8 +120,20 @@ protected:
 	bool xisneg;
 	float zaxis;
 	std::vector<double> timerforbullets;
+	std::vector<Vector3> dmgandtimefordmgnumber;
+	std::vector<double> timerfordmgnumber;
 	int numberofbullets;
+	int ShopUpgrades[6];
 	float testingexpbar, hptestingbar;
+	float dmgofgun;
+	int pierceforbullet;
+	float velocityofbullet;
+	float bowdrawstring;
+	int displaynumberoffset;
+	int displaynumberoffsety;
+	int switchdmgnum;
+	std::vector<Vector3> coordinatesofdamagenumbers;
+	int bowframe;
 };
 
 #endif

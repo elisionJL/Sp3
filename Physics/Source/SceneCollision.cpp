@@ -59,10 +59,19 @@ void SceneCollision::Init()
 	needtofinishanimation = false;
 
 	zaxis = 1;
-
-	testingexpbar = 0;
+	pause = false;
 
 	hptestingbar = 0;
+	for (int i = 0; i < 6; ++i)
+	{
+		ShopUpgrades[i] = 0;
+	}
+
+	dmgofgun = 0;
+
+	velocityofbullet = 20;
+
+	bowframe = 0;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -144,32 +153,69 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			}
 			go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
 			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
-			go->vel.Normalize() *= 20;
-
-			if (Gun->type != GameObject::GO_SNIPER)
+			
+			if (Gun->type == GameObject::GO_BOW)
 			{
-				for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
-				{
-					if (timerforbullets[arraynumber] != 0)
-					{
-						continue;
-					}
-					timerforbullets[arraynumber] = elapsedTime + 2.0f;
-					go->lifetime = arraynumber;
-					break;
-				}
-				timerforbullets.push_back(elapsedTime + 2.0f);
-				go->lifetime = timerforbullets.size() - 1;
+				go->vel.Normalize() *= velocityofbullet * (0.5 * bowframe);
+				go->bowdrawamount = bowframe;
+				go->amountofpierleft = bowframe;
 			}
+			else
+			{
+				go->vel.Normalize() *= velocityofbullet;
+				go->amountofpierleft = pierceforbullet;
+			}
+
+
+			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+			{
+				if (timerforbullets[arraynumber] != 0)
+				{
+					continue;
+				}
+				timerforbullets[arraynumber] = elapsedTime + 2.0f;
+				go->lifetime = arraynumber;
+				break;
+			}
+			timerforbullets.push_back(elapsedTime + 2.0f);
+			go->lifetime = timerforbullets.size() - 1;
 		}
 	}
 }
 
 bool SceneCollision::bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2)
 {
+	for (int i = 0; i < Bullet->pier.size(); ++i)
+	{
+		if (Bullet->pier[i] == go2->address)
+		{
+			return false;
+		}
+	}
+
 	{
 		Vector3 relativeVel = Bullet->vel - go2->vel;
+
 		Vector3 disDiff = go2->pos - Bullet->pos;
+
+		if (Bullet->pos.y > go2->pos.y)
+		{
+			disDiff -= Vector3(0, go2->scale.y / 2, 0);
+		}
+		else
+		{
+			disDiff += Vector3(0, go2->scale.y / 2, 0);
+		}
+
+		if (Bullet->pos.x > go2->pos.x)
+		{
+			disDiff -= Vector3(go2->scale.x / 2, 0, 0);
+		}
+		else
+		{
+			disDiff += Vector3(go2->scale.x / 2, 0, 0);
+		}
+
 
 		if (relativeVel.Dot(disDiff) <= 0) {
 			return false;
@@ -189,12 +235,55 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	{
 	case GameObject::GO_BOSS_SLIME:
 	{
-		go2->sethp(go2->gethp() - 1);
+		float dmg = dmgofgun * Bullet->bowdrawamount;
+
+		if (Bullet->type == GameObject::GO_EXPLOSION)
+			dmg = dmgofgun * 3.333333f;
+
+		go2->sethp(go2->gethp() - dmg);
+
+
+		Bullet->amountofpierleft -= 1;
+		
 		if (go2->gethp() <= 0)
 		{
 			DeleteEnemy(go2);
 		}
-		ReturnGO(Bullet);
+		if (Bullet->amountofpierleft <= 0 && Bullet->type != GameObject::GO_EXPLOSION)
+		{
+			if (Bullet->proj == GameObject::GL)
+			{
+				GameObject* Explosion = FetchGO();
+				Explosion->type = GameObject::GO_EXPLOSION;
+				Explosion->pos = Bullet->pos;
+				Explosion->scale.Set(8, 8, 1);
+				for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+				{
+					if (timerforbullets[arraynumber] != 0)
+					{
+						continue;
+					}
+					timerforbullets[arraynumber] = elapsedTime + 0.5f;
+					Explosion->lifetime = arraynumber;
+					break;
+				}
+				timerforbullets.push_back(elapsedTime + 0.5f);
+				Explosion->lifetime = timerforbullets.size() - 1;
+			}
+			Bullet->pier.clear();
+			ReturnGO(Bullet);
+		}
+		else
+		{
+			const void* address = static_cast<const void*>(go2);
+			std::stringstream ss;
+			ss << address;
+			Bullet->pier.push_back(ss.str());
+			cout << Bullet->amountofpierleft << endl;
+		}
+
+		DamageNumbers(dmg, go2);
+
 		break;
 	}
 	default:
@@ -204,7 +293,6 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 void SceneCollision::DeleteEnemy(Enemy* Enemy)
 {
-
 	for (int i = 0; i < enemyList.size(); ++i)
 	{
 		if (enemyList[i] == Enemy)
@@ -214,13 +302,91 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 	}
 }
 
+void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
+{
+	cPlayer2D->xp += 1;
+	for (int arraynumber = 0; arraynumber < dmgandtimefordmgnumber.size(); ++arraynumber)
+	{
+		if (dmgandtimefordmgnumber[arraynumber] != 0)
+		{
+			continue;
+		}
+		dmgandtimefordmgnumber[arraynumber] = Vector3(Enem->pos.x, Enem->pos.y, damage);
+		timerfordmgnumber[arraynumber] = elapsedTime + 0.5f;
+		break;
+	}
+	dmgandtimefordmgnumber.push_back(Vector3(Enem->pos.x, Enem->pos.y, damage));
+	timerfordmgnumber.push_back(elapsedTime + 0.5f);
+}
+
+bool SceneCollision::Movingofdamagenumbers(float posX, int dmg)
+{
+	if (switchdmgnum % 2 == 0)
+	{
+		return false;
+	}
+	for (int i = 0; i < coordinatesofdamagenumbers.size(); ++i)
+	{
+		if (posX > coordinatesofdamagenumbers[i].x - 1 && posX < coordinatesofdamagenumbers[i].x + 1)
+		{
+			displaynumberoffset += 2;
+			if (dmg > 9)
+			{
+				displaynumberoffsety += 2;
+				displaynumberoffset++;
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+void SceneCollision::RenderDmgNum(Vector3 posanddmg)
+{
+	/*unsigned w = Application::GetWindowWidth();
+	unsigned h = Application::GetWindowHeight();
+	float posX = (x / w * m_worldWidth) + camera.position.x;
+	float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;*/
+
+	unsigned w = Application::GetWindowWidth();
+	unsigned h = Application::GetWindowHeight();
+	float posX = (posanddmg.x - camera.position.x) / m_worldWidth * 80;
+	float posY = (posanddmg.y - camera.position.y) / m_worldHeight * 60;
+
+	while (Movingofdamagenumbers(posX, posanddmg.z))
+	{
+		if (switchdmgnum % 2 == 0)
+		{
+			posX -= displaynumberoffset;
+			switchdmgnum++;
+		}
+		else
+		{
+			posX += displaynumberoffset;
+			switchdmgnum++;
+		}
+	}
+
+	if (posanddmg.z > 9)
+	{
+		if (switchdmgnum % 2 == 0)
+		{
+			posY -= displaynumberoffsety;
+		}
+		else
+			posY += displaynumberoffsety;
+	}
+
+	std::ostringstream ss;
+	ss << posanddmg.z;
+	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0), 2, posX, posY);
+	coordinatesofdamagenumbers.push_back(posX);
+}
+
 void SceneCollision::Update(double dt)
 {
 	SceneBase::Update(dt);
-	//SpriteAnimation* sa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
-	//sa->PlayAnimation("walkR", -1, 1.0f);
-	//sa->Update(dt);
-	cPlayer2D->Update(dt);
+
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -233,7 +399,10 @@ void SceneCollision::Update(double dt)
 	{
 		currentState = win;
 	}
-
+	if (Application::IsKeyPressed('G'))
+	{
+		cPlayer2D->UseGold(-9999);
+	}
 	//Mouse Section
 	double x, y, windowwidth, windowheight;
 	Application::GetCursorPos(&x, &y);
@@ -262,7 +431,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_SHOTGUN;
+				Gun->type = GameObject::GO_GL;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -270,6 +439,8 @@ void SceneCollision::Update(double dt)
 					CurrentGun = meshList[GEO_GL];
 					GunFrameWhereItStarts = 6;
 					numberofbullets = 1;
+					dmgofgun = 3; //explosion does 5
+					pierceforbullet = 1;
 				}
 				else if (Gun->type == GameObject::GO_BOW)
 				{
@@ -277,20 +448,27 @@ void SceneCollision::Update(double dt)
 					CurrentGun = meshList[GEO_BOW];
 					GunFrameWhereItStarts = 0;
 					numberofbullets = 1;
+					dmgofgun = 1;
+					pierceforbullet = 1;
 				}
 				else if (Gun->type == GameObject::GO_SHOTGUN)
 				{
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_SHOTGUN];
 					GunFrameWhereItStarts = 6;
-					numberofbullets = 10;
+					numberofbullets = 4;
+					dmgofgun = 3;
+					pierceforbullet = 1;
 				}
 				else if (Gun->type == GameObject::GO_SNIPER)
 				{
-					Gun->scale.Set(7, 2.5, 1);
+					Gun->scale.Set(7, 1.44565217391, 1);
 					CurrentGun = meshList[GEO_SNIPER];
 					GunFrameWhereItStarts = 3;
 					numberofbullets = 1;
+					dmgofgun = 10;
+					pierceforbullet = 3;
+					velocityofbullet = 50;
 				}
 				else if (Gun->type == GameObject::GO_PISTOL)
 				{
@@ -298,6 +476,8 @@ void SceneCollision::Update(double dt)
 					CurrentGun = meshList[GEO_PISTOL];
 					GunFrameWhereItStarts = 3;
 					numberofbullets = 1;
+					dmgofgun = 4;
+					pierceforbullet = 1;
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
@@ -305,7 +485,6 @@ void SceneCollision::Update(double dt)
 				cSoundController->PlaySoundByID(5);
 				SpawnMapObjects();
 			}
-
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.075 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.075) && (mousePos.y <= (m_worldHeight * 0.25) + 4.75 && mousePos.y >= (m_worldHeight * 0.25) - 4.75)) {
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(4);
@@ -344,32 +523,16 @@ void SceneCollision::Update(double dt)
 			dialogueTime = 0;
 		}
 
-		if (Application::IsMousePressed(0)) {
-			if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
-			{
-				OutputDialogue = "";
-				CurrentTextWrite = false, TextFinished = false;
-				CurrentCharText = 0;
-				randomDialogue = 0;
-
-				for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-				{
-					GameObject* go = (GameObject*)*it;
-					if (go->active)
-						if (go->type == GameObject::GO_GRONK)
-							ReturnGO(go);
-				}
-
-				cSoundController->StopAllSound();
-				cSoundController->PlaySoundByID(1);
-				currentState = start;
-			}
-		}
+		ShopInteraction();
 		break;
 	}
 	case main:
 	{
 		zaxis = 1;
+		displaynumberoffset = 0;
+		displaynumberoffsety = 0;
+		switchdmgnum = 1;
+		coordinatesofdamagenumbers.clear();
 		seconds -= dt;
 		if (minutes == 0 && seconds < 0) {
 			currentState = win;
@@ -379,46 +542,96 @@ void SceneCollision::Update(double dt)
 			minutes -= 1;
 			seconds += 60;
 		}
-		elapsedTime += dt;
-		//switch (Gun->type) {
-		//	//case GameObject 
-		//}
-		if (Application::IsKeyPressed('E') && Companion->mass == 1)
+
+		if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
 		{
-			Companion->type = GameObject::GO_COMPANION;
-			Companion->mass = 5;
-			Companion->scale.Set(7, 7, 1);
-			Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
-			Companion->vel.SetZero();
+			cPlayer2D->leveledUp = true;
+			//generate 3 random upgrades for the player to choose
+			for (int i = 0; i < 3; ++i) {
+				switch (Math::RandIntMinMax(0, 6)) {
+				case 0:
+					levelUpgrades[i] = pierce;
+					break;
+				case 1:
+					levelUpgrades[i] = multishot;
+					break;
+				case 2:
+					levelUpgrades[i] = atk;
+					break;
+				case 3:
+					levelUpgrades[i] = hp;
+					break;
+				case 4:
+					levelUpgrades[i] = velocity;
+					break;
+				case 5:
+					levelUpgrades[i] = moveSpeed;
+					break;
+				case 6:
+					levelUpgrades[i] = fireRate;
+					break;
+				}
+
+			}
+
 		}
+		if (cPlayer2D->leveledUp == false && pause == false) {
+			cPlayer2D->Update(dt);
+			//cPlayer2D->xp++;
 
-		if (Application::IsKeyPressed('A'))
-		{
-			flip = 0;
-		}
-		if (Application::IsKeyPressed('D'))
-		{
-			flip = 1;
-		}
+			elapsedTime += dt;
+			elapsedTime += dt;
+			static bool BPressed = false;
+			if (Application::IsKeyPressed('B') && !BPressed) {
+				BPressed = true;
+			}
+			else if (!Application::IsKeyPressed('B') && BPressed) {
+				BPressed = false;
+				pause = true;
+				break;
+			}
+
+			if (Application::IsKeyPressed('E') && Companion->mass == 1)
+			{
+				Companion->type = GameObject::GO_COMPANION;
+				Companion->mass = 5;
+				Companion->scale.Set(7, 7, 1);
+				Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+				Companion->vel.SetZero();
+			}
+
+			if (Application::IsKeyPressed('A'))
+			{
+				flip = 0;
+			}
+			if (Application::IsKeyPressed('D'))
+			{
+				flip = 1;
+			}
 
 
-		//Enemy Spawn
-		static bool blMButtonState = false;
-		if (Application::IsKeyPressed('M') && blMButtonState == false)
-		{
-			Vector3 Epos;
-			//GameObject* enemy = FetchGO();
-			Enemy* go = new Enemy();
+			//Enemy Spawn
+			static bool blMButtonState = false;
+			if (Application::IsKeyPressed('M') && blMButtonState == false)
+			{
+				Vector3 Epos;
+				//GameObject* enemy = FetchGO();
+				Enemy* go = new Enemy();
 
-			Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
-			go->type = GameObject::GO_BOSS_SLIME;
-			go->scale.Set(10, 10, 1);
-			go->pos = Epos;
+				Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
+				go->type = GameObject::GO_BOSS_SLIME;
+				go->scale.Set(10, 10, 1);
+				go->pos = Epos;
 
-			cout << Epos.x << endl;
-			cout << Epos.y << endl;
+				cout << Epos.x << endl;
+				cout << Epos.y << endl;
 
-			enemyList.push_back(go);
+				enemyList.push_back(go);
+
+			const void* address = static_cast<const void*>(go);
+			std::stringstream ss;
+			ss << address;			
+			go->address = ss.str();
 
 			blMButtonState = true;
 		}
@@ -427,6 +640,7 @@ void SceneCollision::Update(double dt)
 			blMButtonState = false;
 		}
 
+		
 		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 		bool shooting = true;
 		{
@@ -436,10 +650,13 @@ void SceneCollision::Update(double dt)
 				{
 					G->PlayAnimation("Shoot", 0, 2.0f);
 
-					G->Update(dt);
+						G->Update(dt);
 
 					if (G->getAnimationStatus("Shoot"))
+					{
 						shooting = false;
+						bowframe = G->getcurrentanimationframe("Shoot");
+					}
 				}
 				else
 				{
@@ -449,28 +666,29 @@ void SceneCollision::Update(double dt)
 					else
 						G->PlayAnimation("ShootR", 0, 1.0f);
 
-					if (GunShoot == false)
-					{
-						if (G->getcurrentanimationframe("Shoot") == 0)
+						if (GunShoot == false)
 						{
-							SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
-						}
-						else if (G->getcurrentanimationframe("ShootR") == GunFrameWhereItStarts)
-						{
-							SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
+							if (G->getcurrentanimationframe("Shoot") == 0)
+							{
+								SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
+							}
+							else if (G->getcurrentanimationframe("ShootR") == GunFrameWhereItStarts)
+							{
+								SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
+							}
+
+							GunShoot = true;
 						}
 
-						GunShoot = true;
+						shooting = false;
+
+						G->Update(dt);
 					}
-
-					shooting = false;
-
-					G->Update(dt);
 				}
-			}
 
 			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
 			{
+				bowframe = 12;
 				SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 				shootonceonly = 0;
 			}
@@ -481,60 +699,60 @@ void SceneCollision::Update(double dt)
 				{
 					GunShoot = false;
 
-					if (Xaxis >= 0)
-						G->PlayAnimation("Shoot", -1, 1.0f);
-					else
-						G->PlayAnimation("ShootR", -1, 1.0f);
+						if (Xaxis >= 0)
+							G->PlayAnimation("Shoot", -1, 1.0f);
+						else
+							G->PlayAnimation("ShootR", -1, 1.0f);
 
-					G->truereset();
+						G->truereset();
+					}
 				}
-			}
-			if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
-			{
-				if (!xisneg)
+				if (shooting && needtofinishanimation && (G->getAnimationStatus("Shoot") || G->getAnimationStatus("ShootR")))
+				{
+					if (!xisneg)
+					{
+						float Xaxis = mousePos.x - Gun->pos.x;
+						if (Xaxis < 0)
+						{
+							G->PlayAnimation("ShootR", 0, 1.0f);
+							xisneg = true;
+						}
+					}
+					else
+					{
+						float Xaxis = mousePos.x - Gun->pos.x;
+						if (Xaxis >= 0)
+						{
+							G->PlayAnimation("Shoot", 0, 1.0f);
+							xisneg = false;
+						}
+					}
+
+					G->Update(dt);
+
+					if (!xisneg)
+					{
+						if (!G->getAnimationStatus("Shoot"))
+							needtofinishanimation = false;
+					}
+					else
+					{
+						if (!G->getAnimationStatus("ShootR"))
+							needtofinishanimation = false;
+					}
+				}
+				else if (shooting && !needtofinishanimation)
 				{
 					float Xaxis = mousePos.x - Gun->pos.x;
 					if (Xaxis < 0)
 					{
 						G->PlayAnimation("ShootR", 0, 1.0f);
-						xisneg = true;
 					}
-				}
-				else
-				{
-					float Xaxis = mousePos.x - Gun->pos.x;
-					if (Xaxis >= 0)
-					{
+					else
 						G->PlayAnimation("Shoot", 0, 1.0f);
-						xisneg = false;
-					}
-				}
 
-				G->Update(dt);
-
-				if (!xisneg)
-				{
-					if (!G->getAnimationStatus("Shoot"))
-						needtofinishanimation = false;
+					G->Reset();
 				}
-				else
-				{
-					if (!G->getAnimationStatus("ShootR"))
-						needtofinishanimation = false;
-				}
-			}
-			else if (shooting && !needtofinishanimation)
-			{
-				float Xaxis = mousePos.x - Gun->pos.x;
-				if (Xaxis < 0)
-				{
-					G->PlayAnimation("ShootR", 0, 1.0f);
-				}
-				else
-					G->PlayAnimation("Shoot", 0, 1.0f);
-
-				G->Reset();
-			}
 
 
 
@@ -548,126 +766,124 @@ void SceneCollision::Update(double dt)
 				bLButtonState = false;
 				if (Gun->type == GameObject::GO_BOW)
 				{
-					G->PlayAnimation("Shoot", 0, 2.0f);
-					G->truereset();
-					if (shootonceonly == 1)
+					if (shootonceonly == 1 && bowframe > 0)
 					{
 						SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 					}
-					shooting = false;
+					shooting = false; 
+					G->PlayAnimation("Shoot", 0, 2.0f);
+					G->truereset();
 					shootonceonly = 1;
 				}
 				else if (Gun->type != GameObject::GO_BOW)
 				{
 					float Xaxis = mousePos.x - Gun->pos.x;
 
-					if (G->getcurrentanimationframe("Shoot") != 0)
-					{
-						needtofinishanimation = true;
-						xisneg = false;
-					}
-					else if (G->getcurrentanimationframe("ShootR") != GunFrameWhereItStarts)
-					{
-						needtofinishanimation = true;
-						xisneg = true;
+						if (G->getcurrentanimationframe("Shoot") != 0)
+						{
+							needtofinishanimation = true;
+							xisneg = false;
+						}
+						else if (G->getcurrentanimationframe("ShootR") != GunFrameWhereItStarts)
+						{
+							needtofinishanimation = true;
+							xisneg = true;
+						}
 					}
 				}
 			}
-		}
 
-		unsigned size = m_goList.size();
+			unsigned size = m_goList.size();
 
-		PlayerMapCheck();
-
-		//Physics Simulation Section
-		for (unsigned i = 0; i < size; ++i)
-		{
-			GameObject* go = m_goList[i];	
-			if (go->active)
+			//Physics Simulation Section
+			for (unsigned i = 0; i < size; ++i)
 			{
-				go->pos += go->vel * dt * m_speed;
-
-				if (go->type == GameObject::GO_COMPANION)
+				GameObject* go = m_goList[i];
+				if (go->active)
 				{
+					go->pos += go->vel * dt * m_speed;
 
-					float moveXby;
-					float moveYby;
+					if (go->type == GameObject::GO_COMPANION)
 					{
-						if (rotationorder == 1)
+
+						float moveXby;
+						float moveYby;
 						{
-							moveXby = -0.5;
-							moveYby = 0.2;
-							if (companionX <= 0)
-								rotationorder++;
+							if (rotationorder == 1)
+							{
+								moveXby = -0.5;
+								moveYby = 0.2;
+								if (companionX <= 0)
+									rotationorder++;
+							}
+							else if (rotationorder == 2)
+							{
+								moveXby = -0.5;
+								moveYby = -0.2;
+								if (companionX <= -9)
+									rotationorder++;
+							}
+							else if (rotationorder == 3)
+							{
+								moveXby = -0.2;
+								moveYby = -0.5;
+								if (companionY <= 0)
+									rotationorder++;
+							}
+							else if (rotationorder == 4)
+							{
+								moveXby = 0.2;
+								moveYby = -0.5;
+								if (companionY <= -9)
+									rotationorder++;
+							}
+							else if (rotationorder == 5)
+							{
+								moveXby = 0.5;
+								moveYby = -0.2;
+								if (companionX >= 0)
+									rotationorder++;
+							}
+							else if (rotationorder == 6)
+							{
+								moveXby = 0.5;
+								moveYby = 0.2;
+								if (companionX >= 9)
+									rotationorder++;
+							}
+							else if (rotationorder == 7)
+							{
+								moveXby = 0.2;
+								moveYby = 0.5;
+								if (companionY >= 0)
+									rotationorder++;
+							}
+							else
+							{
+								moveXby = -0.2;
+								moveYby = 0.5;
+								if (companionY >= 9)
+									rotationorder = 1;
+							}
 						}
-						else if (rotationorder == 2)
-						{
-							moveXby = -0.5;
-							moveYby = -0.2;
-							if (companionX <= -9)
-								rotationorder++;
-						}
-						else if (rotationorder == 3)
-						{
-							moveXby = -0.2;
-							moveYby = -0.5;
-							if (companionY <= 0)
-								rotationorder++;
-						}
-						else if (rotationorder == 4)
-						{
-							moveXby = 0.2;
-							moveYby = -0.5;
-							if (companionY <= -9)
-								rotationorder++;
-						}
-						else if (rotationorder == 5)
-						{
-							moveXby = 0.5;
-							moveYby = -0.2;
-							if (companionX >= 0)
-								rotationorder++;
-						}
-						else if (rotationorder == 6)
-						{
-							moveXby = 0.5;
-							moveYby = 0.2;
-							if (companionX >= 9)
-								rotationorder++;
-						}
-						else if (rotationorder == 7)
-						{
-							moveXby = 0.2;
-							moveYby = 0.5;
-							if (companionY >= 0)
-								rotationorder++;
-						}
+						companionX += moveXby;
+						companionY += moveYby;
+
+
+						SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
+						//Play the animation �ROW1� that is looping infinitely and
+						//each animation completes in 2 sec
+						if (flip == 1)
+							Companion->PlayAnimation("RunningR", -1, 2.0f);
 						else
-						{
-							moveXby = -0.2;
-							moveYby = 0.5;
-							if (companionY >= 9)
-								rotationorder = 1;
-						}
+							Companion->PlayAnimation("RunningL", -1, 2.0f);
+
+						Companion->Update(dt);
 					}
-					companionX += moveXby;
-					companionY += moveYby;
-
-
-					SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
-					//Play the animation �ROW1� that is looping infinitely and
-					//each animation completes in 2 sec
-					if (flip == 1)
-						Companion->PlayAnimation("RunningR", -1, 2.0f);
-					else
-						Companion->PlayAnimation("RunningL", -1, 2.0f);
-
-					Companion->Update(dt);
-				}
-				else if (go == Gun)
-				{
-					float Xaxis = mousePos.x - go->pos.x;
-					float Yaxis = mousePos.y - go->pos.y;
+					else if (go == Gun)
+					{
+						float Xaxis = mousePos.x - go->pos.x;
+						float Yaxis = mousePos.y - go->pos.y;
 
 					float Angle;
 					if (Xaxis <= 0 && Yaxis <= 0) {
@@ -689,36 +905,32 @@ void SceneCollision::Update(double dt)
 				}
 				else if (go->type == GameObject::GO_PROJECTILE)
 				{
-					if (Gun->type != GameObject::GO_SNIPER)
+					if (elapsedTime > timerforbullets[go->lifetime])
 					{
-						if (elapsedTime > timerforbullets[go->lifetime])
+						if (go->proj == GameObject::GL)
 						{
-							if (go->proj == GameObject::GL)
+							GameObject* Explosion = FetchGO();
+							Explosion->type = GameObject::GO_EXPLOSION;
+							Explosion->pos = go->pos;
+							Explosion->scale.Set(8, 8, 1);
+							for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 							{
-								GameObject* Explosion = FetchGO();
-								Explosion->type = GameObject::GO_EXPLOSION;
-								Explosion->pos = go->pos;
-								Explosion->scale.Set(8, 8, 1);
-								for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+								if (timerforbullets[arraynumber] != 0)
 								{
-									if (timerforbullets[arraynumber] != 0)
-									{
-										continue;
-									}
-									timerforbullets[arraynumber] = elapsedTime + 0.5f;
-									Explosion->lifetime = arraynumber;
-									break;
+									continue;
 								}
-								timerforbullets.push_back(elapsedTime + 0.5f);
-								Explosion->lifetime = timerforbullets.size() - 1;
+								timerforbullets[arraynumber] = elapsedTime + 0.5f;
+								Explosion->lifetime = arraynumber;
+								break;
 							}
-
-							ReturnGO(go);
-							timerforbullets[go->lifetime] = 0;
+							timerforbullets.push_back(elapsedTime + 0.5f);
+							Explosion->lifetime = timerforbullets.size() - 1;
 						}
-					}
-					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 ||
-						go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+
+						ReturnGO(go);
+						timerforbullets[go->lifetime] = 0;
+					}					
+					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
 					{
 						ReturnGO(go);
 					}
@@ -732,23 +944,30 @@ void SceneCollision::Update(double dt)
 							{
 								if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
 								{
-
 									SceneCollision::dobulletcollision(Gun, go, go2);
 								}
 							}
 						}
 					}
-
 				}
 				else if (go->type == GameObject::GO_EXPLOSION)
 				{
 					if (elapsedTime > timerforbullets[go->lifetime])
 						ReturnGO(go);
+
+					for (unsigned x = 0; x < enemyList.size(); ++x)
+					{
+						Enemy* go2 = enemyList[x];
+						if (go2->gethp() > 0)
+						{
+							if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
+							{
+								SceneCollision::dobulletcollision(Gun, go, go2);
+							}
+						}
+					}
 				}
-				
-				
-				
-				
+
 
 				GameObject* go2 = nullptr;
 				for (unsigned j = i + 1; j < size; ++j)
@@ -849,8 +1068,6 @@ void SceneCollision::Update(double dt)
 	break;
 	}
 }
-
-
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
 {
 	if (go1->type == GameObject::GO_WALL && go2->type == GameObject::GO_PILLAR)
@@ -1341,6 +1558,178 @@ void SceneCollision::ShopInteraction()
 	windowwidth = Application::GetWindowWidth();
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+	static bool bLButtonState = false;
+
+	if (!bLButtonState && Application::IsMousePressed(0)) 
+	{
+		if ((mousePos.x >= ((m_worldWidth / 3) * 2.4f) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 3 * 2.4f) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.1) + 6.25 && mousePos.y >= (m_worldHeight * 0.1) - 6.25))
+		{
+			OutputDialogue = "";
+			CurrentTextWrite = false, TextFinished = false;
+			CurrentCharText = 0;
+			randomDialogue = 0;
+
+			for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+			{
+				GameObject* go = (GameObject*)*it;
+				if (go->active)
+					if (go->type == GameObject::GO_GRONK)
+						ReturnGO(go);
+			}
+
+			cSoundController->StopAllSound();
+			cSoundController->PlaySoundByID(1);
+			currentState = start;
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+		{
+			if (cPlayer2D->GetGold() < 200 * pow(1.75, ShopUpgrades[0]) || ShopUpgrades[0] >= 5)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Speed
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseSpd();
+				cPlayer2D->UseGold(200 * pow(1.1, ShopUpgrades[0]));
+				ShopUpgrades[0] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+		{
+			if (cPlayer2D->GetGold() < 100 * pow(1.3, ShopUpgrades[1]) || ShopUpgrades[1] >= 10)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Health
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseHP();
+				cPlayer2D->UseGold(100 * pow(1.1, ShopUpgrades[1]));
+				ShopUpgrades[1] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+		{
+			if (cPlayer2D->GetGold() < 150 * pow(2.0, ShopUpgrades[2]) || ShopUpgrades[2] >= 5)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Defence
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->DecreaseShieldCooldown();
+				cPlayer2D->UseGold(150 * pow(2.0, ShopUpgrades[2]));
+				ShopUpgrades[2] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+		{
+			if(cPlayer2D->GetGold() < 100 * pow(1.5, ShopUpgrades[3]) || ShopUpgrades[3] >= 4)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Dmg
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseDmg();
+				cPlayer2D->UseGold(100 * pow(1.5, ShopUpgrades[3]));
+				ShopUpgrades[3] += 1;
+			}
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+		{
+			if(cPlayer2D->GetGold() < 2000 || ShopUpgrades[4] >= 1)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else //Increase Lives count
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseLifeCount();
+				cPlayer2D->UseGold(2000);
+				ShopUpgrades[4] += 1;
+			}
+
+		}
+
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+		{
+			if(cPlayer2D->GetGold() < 500 * pow(1.1, ShopUpgrades[5]) || ShopUpgrades[5] >= 5)
+			{
+				cSoundController->StopPlayByID(7);
+				cSoundController->PlaySoundByID(7);
+			}
+
+			else//Increase exp earned
+			{
+				cSoundController->StopPlayByID(6);
+				cSoundController->PlaySoundByID(6);
+				cPlayer2D->IncreaseEXPGain();
+				cPlayer2D->UseGold(500 * pow(1.5, ShopUpgrades[5]));
+				ShopUpgrades[5] += 1;
+			}
+		}
+
+		bLButtonState = true;
+	}
+
+	else if (bLButtonState && !Application::IsMousePressed(0))
+		bLButtonState = false;
+}
+void SceneCollision::ShopUI()
+{
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth * 0.4, m_worldHeight * 0.45f, 4);
+	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.4, 0);
+	RenderMesh(meshList[GEO_SHOP_UI_BG], false);
+	modelStack.PopMatrix();
+
+	for (int y = 0; y < 2; ++y)
+	{
+		for (int x = 0; x < 3; ++x)
+		{
+			modelStack.PushMatrix();
+
+			modelStack.Translate(m_worldWidth * (0.25f + (0.15f * x)), m_worldHeight * (0.5f - (0.125f * y)), 5);
+			modelStack.Scale(m_worldWidth * 0.1f, m_worldHeight * 0.1f, 0);
+
+			if (x == 0 && y == 0)
+				RenderMesh(meshList[GEO_SPEED_UPGRADE], false);
+			else if (x == 1 && y == 0)
+				RenderMesh(meshList[GEO_MAXHP_UPGRADE], false);
+			else if(x == 2 && y == 0)
+				RenderMesh(meshList[GEO_SHIELD_UPGRADE], false);
+			else if (x == 0 && y == 1)
+				RenderMesh(meshList[GEO_ATTACK_UPGRADE], false);
+			else if (x == 1 && y == 1)
+				RenderMesh(meshList[GEO_EXTRALIFE_UPGRADE], false);
+			else if (x == 2 && y == 1)
+				RenderMesh(meshList[GEO_EXPGAIN_UPGRADE], false);
+
+			modelStack.PopMatrix();
+		}
+	}
 }
 void SceneCollision::RenderGronkDialogue()
 {
@@ -1829,7 +2218,7 @@ void SceneCollision::Render()
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.8f, 1);
+		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.9f, 1);
 		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.5, 0);
 		RenderMesh(meshList[GEO_SHOP_SIGN], false);
 		modelStack.PopMatrix();
@@ -1838,6 +2227,24 @@ void SceneCollision::Render()
 		modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
 		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
 		RenderMesh(meshList[GEO_DIALOGUE_BOX], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.15, m_worldHeight * 0.95, 1.1f);
+		modelStack.Scale(m_worldWidth * 0.35, m_worldHeight * 0.1, 0);
+		RenderMesh(meshList[GEO_GOLD_BG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.05, m_worldHeight * 0.95, 1.2);
+		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 0);
+		RenderMesh(meshList[GEO_GOLD], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1.3);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
+		RenderTextOnScreen(meshList[GEO_TEXT], "X" + std::to_string(cPlayer2D->GetGold()), Color(1, 1, 0), 2.5, 7.5, 55.75);
 		modelStack.PopMatrix();
 
 		RenderGronkDialogue();
@@ -1851,6 +2258,8 @@ void SceneCollision::Render()
 		else
 			meshList[GEO_GRONK_BACK_BUTTON]->material.kAmbient.Set(0.4, 0.4, 0.4);
 		modelStack.PopMatrix();
+
+		ShopUI();
 
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
@@ -1912,6 +2321,8 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_PLAYER], false);
 		modelStack.PopMatrix();
 
+
+
 		for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 		{
 			GameObject* go = (GameObject*)*it;
@@ -1930,11 +2341,15 @@ void SceneCollision::Render()
 			modelStack.PopMatrix();
 		}
 
-		testingexpbar++;
-		hptestingbar++;
+		for (int i = 0; i < timerfordmgnumber.size(); ++i)
+		{
+			if (elapsedTime < timerfordmgnumber[i])
+			{
+				SceneCollision::RenderDmgNum(dmgandtimefordmgnumber[i]);
+			}
+		}
 
-		if (m_worldWidth * 0.75 < testingexpbar)
-			testingexpbar = 0;
+		hptestingbar++;
 
 		if (m_worldWidth * 0.3 * 0.73684210526 < hptestingbar)
 			hptestingbar = 0;
@@ -1947,13 +2362,13 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_EXPBG], false);
 		modelStack.PopMatrix();
 
-		expScaleX = Math::Max((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
+		expScaleX = Math::Min((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
 
 		//expScaleX
 		//just replace the testing expbar with the actual exp lmao
 		modelStack.PushMatrix();
-		modelStack.Translate(testingexpbar / 2 + m_worldWidth * 0.12 + camera.position.x, expY, 4.1f);
-		modelStack.Scale(testingexpbar, expScaleY, 1);
+		modelStack.Translate(expScaleX / 2 + m_worldWidth * 0.12 + camera.position.x, expY, 4.1f);
+		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXP], false);
 		modelStack.PopMatrix();
 
@@ -1992,6 +2407,120 @@ void SceneCollision::Render()
 			ss << minutes << ":0" << seconds;
 		}
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1,0,0), 3, 3, 56);
+
+		//render if player has leveled up
+		if (cPlayer2D->leveledUp == true) {
+			modelStack.PushMatrix();
+			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);
+			modelStack.Scale(1000, 1000, 1);
+			RenderMesh(meshList[GEO_LVLUPBG], false);
+			modelStack.PopMatrix();
+
+			for (int i = 1; i < 4; ++i) {
+				float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth*0.14);
+				float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+				float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
+				float textx;
+				switch (i) {
+				case 1:
+					textx = 8;
+					break;
+				case 2:
+					textx = 34;
+					break;
+				case 3:
+					textx = 60;
+					break;
+				}
+
+				modelStack.PushMatrix();
+				modelStack.Translate(x + cameramoveX, m_worldHeight*0.45 + cameramoveY, 6.01);
+				modelStack.Scale(m_worldWidth*0.28, m_worldHeight* 0.56, 1);
+				RenderMesh(meshList[GEO_CARD], false);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(x + cameramoveX, m_worldHeight * 0.6 + cameramoveY,6.02);
+				modelStack.Scale(m_worldWidth * 0.14, m_worldHeight * 0.14, 1);
+				ss.str("");
+				switch (levelUpgrades[i - 1]) {
+				case pierce:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png" , true);
+					ss << "pierce +1";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					break;
+				case atk:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+					ss << "damage +10%";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+					break;
+				case hp:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+					ss << "110% hp";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					break;
+				case multishot:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+					ss << "bulletcount +1";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					break;
+				case moveSpeed:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+					ss << "105% movespeed";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					break;
+				case velocity:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+					ss << "velocity +5";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+					break;
+				case fireRate:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
+					ss << "110% firerate";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					break;
+				case dragon:
+					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					ss << "grants a dragon companion";
+					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+				}
+				RenderMesh(meshList[GEO_UPGRADEICON], false);
+				modelStack.PopMatrix();
+
+				//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1, 2, 20);
+			}
+		}
+		else if (pause == true) {
+			modelStack.PushMatrix();
+			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);
+			modelStack.Scale(1000, 1000, 1);
+			RenderMesh(meshList[GEO_LVLUPBG], false);
+			modelStack.PopMatrix();
+
+			float x = m_worldWidth * 0.5;
+			float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+			float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight *0.7 + cameramoveY, 4.4f);
+			modelStack.Scale(m_worldHeight*0.4, m_worldHeight * 0.5, 1);
+			RenderMesh(meshList[GEO_PAUSEPANEL], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.77 + cameramoveY, 4.41f);
+			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight *0.14, 1);
+			RenderMesh(meshList[GEO_PAUSERESUME], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.60 + cameramoveY, 4.42f);
+			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight * 0.14, 1);
+			RenderMesh(meshList[GEO_PAUSEQUIT], false);
+			modelStack.PopMatrix();
+
+
+		}
 		break;
 	}
 	case win:

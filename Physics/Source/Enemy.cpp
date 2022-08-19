@@ -3,7 +3,7 @@
 Enemy::Enemy()
 {
 	vel = 0;
-	hp = 5;
+	hp = 10;
 }
 
 Enemy::~Enemy()
@@ -76,4 +76,8 @@ void Enemy::sethp(float Nhp)
 float Enemy::gethp()
 {
 	return hp;
+}
+
+void Enemy::setaddress(std::string ad)
+{
 }

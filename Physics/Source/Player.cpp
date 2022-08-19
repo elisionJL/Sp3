@@ -6,7 +6,8 @@ void CPlayer2D::Init()
 {
 	maxHP = hp = 30;
 	Walk_Speed = 10;
-	dmg = 2;
+	dmg = Lives = 1;
+	Gold = 0;
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	pos.Set(m_worldWidth * 0.5, m_worldHeight * 0.5, 1);
@@ -15,6 +16,7 @@ void CPlayer2D::Init()
 	sCurrentState = IDLE;
 	xp = 0;
 	level = 1;
+	leveledUp = false;
 }
 
 void CPlayer2D::Update(double dt)
@@ -26,16 +28,20 @@ void CPlayer2D::Update(double dt)
 	if (Application::IsKeyPressed('K')) {
 		xp += 1;
 	}
-	if (xp >= ((level - 1) * 10) + 5)
-	{
-		xp -= ((level - 1) * 10) + 5;
-		level += 1;
-	}
 	if (hp <= 0) {
-		sa->PlayAnimation("death", 0, 2.f);
-		sa->Update(dt);
-		if (sa->getAnimationStatus("death") == true) {
-			sCurrentState = DEAD;
+		if (Lives > 0)
+		{
+			hp = maxHP;
+			Lives -= 1;
+		}
+
+		else
+		{
+			sa->PlayAnimation("death", 0, 2.f);
+			sa->Update(dt);
+			if (sa->getAnimationStatus("death") == true) {
+				sCurrentState = DEAD;
+			}
 		}
 	}
 	else if (hp > 0) {
@@ -128,8 +134,6 @@ void CPlayer2D::Update(double dt)
 		else {
 			pos += vel * dt;
 		}
-		
-
 	}
 
 }
@@ -157,14 +161,62 @@ int CPlayer2D::getLevel()
 	return level;
 }
 
+void CPlayer2D::increaseLevel()
+{
+	xp -= ((level - 1) * 10) + 5;
+	level += 1;
+	leveledUp = false;
+}
+
 int CPlayer2D::getState()
 {
 	return sCurrentState;
 }
 
-CPlayer2D::CPlayer2D():
-	hp(0),
-	dmg(0)
+void CPlayer2D::IncreaseSpd()
+{
+	Walk_Speed *= 1.2f;
+}
+
+void CPlayer2D::IncreaseHP()
+{
+	maxHP += 5;
+	hp = maxHP;
+}
+
+void CPlayer2D::DecreaseShieldCooldown()
+{
+}
+
+void CPlayer2D::IncreaseDmg()
+{
+	dmg += 1;
+}
+
+void CPlayer2D::IncreaseLifeCount()
+{
+	Lives += 1;
+}
+
+void CPlayer2D::IncreaseEXPGain()
+{
+}
+
+int CPlayer2D::GetGold()
+{
+	return Gold;
+}
+
+void CPlayer2D::UseGold(int Gold_Used)
+{
+	Gold -= Gold_Used;
+}
+
+CPlayer2D::CPlayer2D() :
+	hp(0), dmg(0),
+	Walk_Speed(0), maxHP(0),
+	Lives(0), Gold(0),
+	xp(0), level(0)
 {
 }
 
