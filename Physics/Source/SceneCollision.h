@@ -12,6 +12,7 @@ public:
 
 	enum gameStates {
 		start = 0,
+		weaponselection,
 		main,
 		shop,
 		win,
@@ -33,6 +34,7 @@ public:
 	bool CheckCollision(Enemy* enemy1, Enemy* enemy2);
 	bool CheckCollision(Enemy* enemy, GameObject* go);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
+	void CollisionResponse(Enemy* actor, Enemy* actee);
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
@@ -72,6 +74,7 @@ protected:
 	
 	float elapsedTime;
 	float prevTime;
+	float timerbeforeweaponselect;
 
 	int score;
 	int minutes;

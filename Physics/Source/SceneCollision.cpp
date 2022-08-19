@@ -410,6 +410,7 @@ void SceneCollision::Update(double dt)
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
 
+
 	if (currentState == main)
 		camera.Update(dt, cPlayer2D->pos, m_worldWidth, m_worldHeight);
 	else {
@@ -424,63 +425,14 @@ void SceneCollision::Update(double dt)
 		if ((!bLButtonState && Application::IsMousePressed(0)) || Application::IsKeyPressed(VK_SPACE)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				currentState = main;
+				currentState = weaponselection;
+				timerbeforeweaponselect = 1.0f;
 				score = 0;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_BOW;
-				Gun->mass = 2;
-				if (Gun->type == GameObject::GO_GL)
-				{
-					Gun->scale.Set(5, 2, 1);
-					CurrentGun = meshList[GEO_GL];
-					GunFrameWhereItStarts = 6;
-					numberofbullets = 1;
-					dmgofgun = 3; //explosion does 5
-					pierceforbullet = 1;
-				}
-				else if (Gun->type == GameObject::GO_BOW)
-				{
-					Gun->scale.Set(5, 5, 1);
-					CurrentGun = meshList[GEO_BOW];
-					GunFrameWhereItStarts = 0;
-					numberofbullets = 1;
-					dmgofgun = 1;
-					pierceforbullet = 1;
-				}
-				else if (Gun->type == GameObject::GO_SHOTGUN)
-				{
-					Gun->scale.Set(5, 2, 1);
-					CurrentGun = meshList[GEO_SHOTGUN];
-					GunFrameWhereItStarts = 6;
-					numberofbullets = 4;
-					dmgofgun = 3;
-					pierceforbullet = 1;
-				}
-				else if (Gun->type == GameObject::GO_SNIPER)
-				{
-					Gun->scale.Set(7, 1.44565217391, 1);
-					CurrentGun = meshList[GEO_SNIPER];
-					GunFrameWhereItStarts = 3;
-					numberofbullets = 1;
-					dmgofgun = 10;
-					pierceforbullet = 3;
-					velocityofbullet = 50;
-				}
-				else if (Gun->type == GameObject::GO_PISTOL)
-				{
-					Gun->scale.Set(5, 2, 1);
-					CurrentGun = meshList[GEO_PISTOL];
-					GunFrameWhereItStarts = 3;
-					numberofbullets = 1;
-					dmgofgun = 4;
-					pierceforbullet = 1;
-				}
-				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
-				Gun->vel.SetZero();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(5);
 				SpawnMapObjects();
@@ -506,6 +458,112 @@ void SceneCollision::Update(double dt)
 		else if (bLButtonState && !Application::IsMousePressed(0))
 		{
 			bLButtonState = false;
+		}
+		break;
+	}
+	case weaponselection:
+	{
+		elapsedTime += dt;
+		float scalingthegun = m_worldWidth * 0.01;
+		bool Startgame = false;
+
+		if (elapsedTime > timerbeforeweaponselect)
+		{
+			static bool bLButtonState = false;
+			if (!bLButtonState && Application::IsMousePressed(0))
+			{
+				bLButtonState = true;
+				if ((mousePos.x >= (m_worldWidth * 0.2) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.2) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_GL;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.5) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.5) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun * 2.5 && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun * 2.5))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_BOW;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.8) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.8) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.6) + scalingthegun && mousePos.y >= (m_worldHeight * 0.6) - scalingthegun))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_SHOTGUN;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.4) - scalingthegun * 3.5 && mousePos.x <= (m_worldWidth * 0.4) + scalingthegun * 3.5) &&
+					(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun * 0.72282608695 && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun * 0.72282608695))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_SNIPER;
+				}
+				else if ((mousePos.x >= (m_worldWidth * 0.6) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.6) + scalingthegun * 2.5) &&
+					(mousePos.y <= (m_worldHeight * 0.4) + scalingthegun && mousePos.y >= (m_worldHeight * 0.4) - scalingthegun))
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_PISTOL;
+				}
+			}
+			else if (bLButtonState && !Application::IsMousePressed(0))
+			{
+				bLButtonState = false;
+			}
+
+
+			Gun->mass = 2;
+			if (Gun->type == GameObject::GO_GL)
+			{
+				Gun->scale.Set(5, 2, 1);
+				CurrentGun = meshList[GEO_GL];
+				GunFrameWhereItStarts = 6;
+				numberofbullets = 1;
+				dmgofgun = 3; //explosion does 5
+				pierceforbullet = 1;
+			}
+			else if (Gun->type == GameObject::GO_BOW)
+			{
+				Gun->scale.Set(5, 5, 1);
+				CurrentGun = meshList[GEO_BOW];
+				GunFrameWhereItStarts = 0;
+				numberofbullets = 1;
+				dmgofgun = 1;
+				pierceforbullet = 1;
+			}
+			else if (Gun->type == GameObject::GO_SHOTGUN)
+			{
+				Gun->scale.Set(5, 2, 1);
+				CurrentGun = meshList[GEO_SHOTGUN];
+				GunFrameWhereItStarts = 6;
+				numberofbullets = 4;
+				dmgofgun = 3;
+				pierceforbullet = 1;
+			}
+			else if (Gun->type == GameObject::GO_SNIPER)
+			{
+				Gun->scale.Set(7, 1.44565217391, 1);
+				CurrentGun = meshList[GEO_SNIPER];
+				GunFrameWhereItStarts = 3;
+				numberofbullets = 1;
+				dmgofgun = 10;
+				pierceforbullet = 3;
+				velocityofbullet = 50;
+			}
+			else if (Gun->type == GameObject::GO_PISTOL)
+			{
+				Gun->scale.Set(5, 2, 1);
+				CurrentGun = meshList[GEO_PISTOL];
+				GunFrameWhereItStarts = 3;
+				numberofbullets = 1;
+				dmgofgun = 4;
+				pierceforbullet = 1;
+			}
+			Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
+			Gun->vel.SetZero();
+			if (Startgame)
+			{
+				currentState = main;
+				elapsedTime = 0;
+			}
 		}
 		break;
 	}
@@ -627,43 +685,43 @@ void SceneCollision::Update(double dt)
 
 				enemyList.push_back(go);
 
-			const void* address = static_cast<const void*>(go);
-			std::stringstream ss;
-			ss << address;			
-			go->address = ss.str();
+				const void* address = static_cast<const void*>(go);
+				std::stringstream ss;
+				ss << address;
+				go->address = ss.str();
 
-			blMButtonState = true;
-		}
-		else if (!Application::IsKeyPressed('M') && blMButtonState)
-		{
-			blMButtonState = false;
-		}
-
-		
-		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
-		bool shooting = true;
-		{
-			if (Application::IsMousePressed(0) && shooting && !needtofinishanimation)
+				blMButtonState = true;
+			}
+			else if (!Application::IsKeyPressed('M') && blMButtonState)
 			{
-				if (Gun->type == GameObject::GO_BOW)
+				blMButtonState = false;
+			}
+
+
+			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+			bool shooting = true;
+			{
+				if (Application::IsMousePressed(0) && shooting && !needtofinishanimation)
 				{
-					G->PlayAnimation("Shoot", 0, 2.0f);
+					if (Gun->type == GameObject::GO_BOW)
+					{
+						G->PlayAnimation("Shoot", 0, 2.0f);
 
 						G->Update(dt);
 
-					if (G->getAnimationStatus("Shoot"))
-					{
-						shooting = false;
-						bowframe = G->getcurrentanimationframe("Shoot");
+						if (G->getAnimationStatus("Shoot"))
+						{
+							shooting = false;
+							bowframe = G->getcurrentanimationframe("Shoot");
+						}
 					}
-				}
-				else
-				{
-					float Xaxis = mousePos.x - Gun->pos.x;
-					if (Xaxis >= 0)
-						G->PlayAnimation("Shoot", 0, 1.0f);
 					else
-						G->PlayAnimation("ShootR", 0, 1.0f);
+					{
+						float Xaxis = mousePos.x - Gun->pos.x;
+						if (Xaxis >= 0)
+							G->PlayAnimation("Shoot", 0, 1.0f);
+						else
+							G->PlayAnimation("ShootR", 0, 1.0f);
 
 						if (GunShoot == false)
 						{
@@ -685,18 +743,18 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
-			{
-				bowframe = 12;
-				SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
-				shootonceonly = 0;
-			}
-			else if (GunShoot == true)
-			{
-				float Xaxis = mousePos.x - Gun->pos.x;
-				if ((Xaxis >= 0 && !G->getAnimationStatus("Shoot")) || (Xaxis < 0 && !G->getAnimationStatus("ShootR")))
+				if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
 				{
-					GunShoot = false;
+					bowframe = 12;
+					SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
+					shootonceonly = 0;
+				}
+				else if (GunShoot == true)
+				{
+					float Xaxis = mousePos.x - Gun->pos.x;
+					if ((Xaxis >= 0 && !G->getAnimationStatus("Shoot")) || (Xaxis < 0 && !G->getAnimationStatus("ShootR")))
+					{
+						GunShoot = false;
 
 						if (Xaxis >= 0)
 							G->PlayAnimation("Shoot", -1, 1.0f);
@@ -755,28 +813,28 @@ void SceneCollision::Update(double dt)
 
 
 
-			static bool bLButtonState = false;
-			if (!bLButtonState && Application::IsMousePressed(0))
-			{
-				bLButtonState = true;
-			}
-			else if (bLButtonState && !Application::IsMousePressed(0))
-			{
-				bLButtonState = false;
-				if (Gun->type == GameObject::GO_BOW)
+				static bool bLButtonState = false;
+				if (!bLButtonState && Application::IsMousePressed(0))
 				{
-					if (shootonceonly == 1 && bowframe > 0)
-					{
-						SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
-					}
-					shooting = false; 
-					G->PlayAnimation("Shoot", 0, 2.0f);
-					G->truereset();
-					shootonceonly = 1;
+					bLButtonState = true;
 				}
-				else if (Gun->type != GameObject::GO_BOW)
+				else if (bLButtonState && !Application::IsMousePressed(0))
 				{
-					float Xaxis = mousePos.x - Gun->pos.x;
+					bLButtonState = false;
+					if (Gun->type == GameObject::GO_BOW)
+					{
+						if (shootonceonly == 1 && bowframe > 0)
+						{
+							SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
+						}
+						shooting = false;
+						G->PlayAnimation("Shoot", 0, 2.0f);
+						G->truereset();
+						shootonceonly = 1;
+					}
+					else if (Gun->type != GameObject::GO_BOW)
+					{
+						float Xaxis = mousePos.x - Gun->pos.x;
 
 						if (G->getcurrentanimationframe("Shoot") != 0)
 						{
@@ -884,58 +942,76 @@ void SceneCollision::Update(double dt)
 						float Xaxis = mousePos.x - go->pos.x;
 						float Yaxis = mousePos.y - go->pos.y;
 
-					float Angle;
-					if (Xaxis <= 0 && Yaxis <= 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						float Angle;
+						if (Xaxis <= 0 && Yaxis <= 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis < 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis > 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else if (Xaxis > 0 && Yaxis < 0) {
+							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else {
+							Angle = 0;
+						}
+						go->angle = Angle;
 					}
-					else if (Xaxis < 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-					}
-					else if (Xaxis > 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-					}
-					else if (Xaxis > 0 && Yaxis < 0) {
-						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
-					}
-					else {
-						Angle = 0;
-					}
-					go->angle = Angle;
-				}
-				else if (go->type == GameObject::GO_PROJECTILE)
-				{
-					if (elapsedTime > timerforbullets[go->lifetime])
+					else if (go->type == GameObject::GO_PROJECTILE)
 					{
-						if (go->proj == GameObject::GL)
+						if (elapsedTime > timerforbullets[go->lifetime])
 						{
-							GameObject* Explosion = FetchGO();
-							Explosion->type = GameObject::GO_EXPLOSION;
-							Explosion->pos = go->pos;
-							Explosion->scale.Set(8, 8, 1);
-							for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+							if (go->proj == GameObject::GL)
 							{
-								if (timerforbullets[arraynumber] != 0)
+								GameObject* Explosion = FetchGO();
+								Explosion->type = GameObject::GO_EXPLOSION;
+								Explosion->pos = go->pos;
+								Explosion->scale.Set(8, 8, 1);
+								for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 								{
-									continue;
+									if (timerforbullets[arraynumber] != 0)
+									{
+										continue;
+									}
+									timerforbullets[arraynumber] = elapsedTime + 0.5f;
+									Explosion->lifetime = arraynumber;
+									break;
 								}
-								timerforbullets[arraynumber] = elapsedTime + 0.5f;
-								Explosion->lifetime = arraynumber;
-								break;
+								timerforbullets.push_back(elapsedTime + 0.5f);
+								Explosion->lifetime = timerforbullets.size() - 1;
 							}
-							timerforbullets.push_back(elapsedTime + 0.5f);
-							Explosion->lifetime = timerforbullets.size() - 1;
+
+							ReturnGO(go);
+							timerforbullets[go->lifetime] = 0;
+						}
+						else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+						{
+							ReturnGO(go);
 						}
 
-						ReturnGO(go);
-						timerforbullets[go->lifetime] = 0;
-					}					
-					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
-					{
-						ReturnGO(go);
+						//collision check and response
+						{
+							for (unsigned x = 0; x < enemyList.size(); ++x)
+							{
+								Enemy* go2 = enemyList[x];
+								if (go2->gethp() > 0)
+								{
+									if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
+									{
+										SceneCollision::dobulletcollision(Gun, go, go2);
+									}
+								}
+							}
+						}
 					}
-					
-					//collision check and response
+					else if (go->type == GameObject::GO_EXPLOSION)
 					{
+						if (elapsedTime > timerforbullets[go->lifetime])
+							ReturnGO(go);
+
 						for (unsigned x = 0; x < enemyList.size(); ++x)
 						{
 							Enemy* go2 = enemyList[x];
@@ -948,50 +1024,32 @@ void SceneCollision::Update(double dt)
 							}
 						}
 					}
-				}
-				else if (go->type == GameObject::GO_EXPLOSION)
-				{
-					if (elapsedTime > timerforbullets[go->lifetime])
-						ReturnGO(go);
 
-					for (unsigned x = 0; x < enemyList.size(); ++x)
+
+					GameObject* go2 = nullptr;
+					for (unsigned j = i + 1; j < size; ++j)
 					{
-						Enemy* go2 = enemyList[x];
-						if (go2->gethp() > 0)
+						go2 = m_goList[j];
+						GameObject* actor(go);
+						GameObject* actee(go2);
+						if (go->type != GameObject::GO_BALL)
 						{
-							if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
-							{
-								SceneCollision::dobulletcollision(Gun, go, go2);
-							}
+							actor = go2;
+							actee = go;
+						}
+						if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
+							continue;
+						}
+						if (go2->active && CheckCollision(actor, actee))
+						{
+							CollisionResponse(actor, actee);
 						}
 					}
-				}
-
-
-				GameObject* go2 = nullptr;
-				for (unsigned j = i + 1; j < size; ++j)
-				{
-					go2 = m_goList[j];
-					GameObject* actor(go);
-					GameObject* actee(go2);
-					if (go->type != GameObject::GO_BALL)
-					{
-						actor = go2;
-						actee = go;
-					}
-					if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
-						continue;
-					}
-					if (go2->active && CheckCollision(actor, actee))
-					{
-						CollisionResponse(actor, actee);
+					if (cPlayer2D->getState() == cPlayer2D->DEAD) {
+						currentState = lose;
 					}
 				}
-				if (cPlayer2D->getState() == cPlayer2D->DEAD) {
-					currentState = lose;
-				}				
 			}
-		}
 
 			for (unsigned i = 0; i < enemyList.size(); ++i)
 			{
@@ -1001,7 +1059,15 @@ void SceneCollision::Update(double dt)
 					Enemy* go2 = enemyList[x];
 					if (go2->gethp() > 0 && go2 != go1)
 					{
-						CheckCollision(go1, go2);
+						if (CheckCollision(go1, go2))
+						{
+							CollisionResponse(go1, go2);
+							cout << "collided" << endl;
+						}
+						else
+						{
+							go2->previousCoord = go2->pos;
+						}
 					}
 				}
 			}
@@ -1012,6 +1078,7 @@ void SceneCollision::Update(double dt)
 				Enemy* enemy = enemyList[i];
 				enemy->vel = cPlayer2D->pos - enemy->pos;
 				enemy->vel.Normalized() *= 20;
+				enemy->previousCoord = enemy->pos;
 				enemy->pos += enemy->vel * dt;
 			}
 			break;
@@ -1105,6 +1172,7 @@ void SceneCollision::Update(double dt)
 	}
 	break;
 	}
+	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
 {
@@ -1181,12 +1249,78 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2)
 
 bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
 {
-	Vector3 distdiff = enemy2->pos - enemy1->pos;
-	Vector3 minimum = (0, 0, 1);
-	if (distdiff.x <= minimum.x || distdiff.y <= minimum.y)
-	{
+	//Vector3 distdiffX = enemy2->pos + enemy2->scale.x / 2 - enemy1->pos + enemy1->scale.x / 2;
+	//Vector3 distdiffY = enemy2->pos + enemy2->scale.y / 2 - enemy1->pos + enemy1->scale.y / 2;
+	//if (distdiffX.x <= enemy2->scale.x)
+	//{
+	//	enemy2->usePrevX = true;
+	//	cout << "collided" << endl;
+	//	return true;
+	//}
+	//else if (distdiffY.y <= enemy2->scale.y)
+	//{
+	//	enemy2->usePrevY = true;
+	//	cout << "collided" << endl;
+	//	return true;
+	//}
+	//else
+	//{
+	//	enemy2->usePrevX = false;
+	//	enemy2->usePrevY = false;
+	//	return false;
+	//}
+	Vector3 relativeVel = enemy1->vel - enemy2->vel;
+
+	Vector3 disDiff = enemy2->pos - enemy1->pos;
+	if (relativeVel.Dot(disDiff) <= 0) {
 		return false;
 	}
+	if (enemy1->pos.y > enemy2->pos.y)
+	{
+		if (enemy1->pos.y - enemy1->scale.y <= enemy2->pos.y)
+		{
+			enemy2->usePrevY = true;
+		}
+		else
+		{
+			enemy2->usePrevY = false;
+		}
+	}
+	else
+	{
+		if (enemy1->pos.y + enemy1->scale.y >= enemy2->pos.y)
+		{
+			enemy2->usePrevY = true;
+		}
+		else
+		{
+			enemy2->usePrevY = false;
+		}
+	}
+	if (enemy1->pos.x > enemy2->pos.x)
+	{
+		if (enemy1->pos.x - enemy1->scale.x <= enemy2->pos.x)
+		{
+			enemy2->usePrevX = true;
+		}
+		else
+		{
+			enemy2->usePrevX = false;
+		}
+	}
+	else
+	{
+		if (enemy1->pos.x + enemy1->scale.x >= enemy2->pos.x)
+		{
+			enemy2->usePrevX = true;
+		}
+		else
+		{
+			enemy2->usePrevX = false;
+		}
+	}
+	return disDiff.LengthSquared() <= (enemy1->scale.x + enemy2->scale.x) * (enemy1->scale.x + enemy2->scale.x);
+
 }
 
 bool SceneCollision::CheckCollision(Enemy* enemy, GameObject* go)
@@ -1346,6 +1480,24 @@ void SceneCollision::CollisionResponse(GameObject* go1, GameObject* go2)
 		break;
 	}
 } 
+
+void SceneCollision::CollisionResponse(Enemy* go1, Enemy* go2)
+{
+	if (go2->usePrevX == true && go2->usePrevY == true)
+	{
+		go2->pos.x = go2->previousCoord.x;
+		go2->pos.y = go2->previousCoord.y;
+	}
+	else if (go2->usePrevY == true)
+	{
+		go2->pos.y = go2->previousCoord.y;
+	}
+	else if (go2->usePrevX == true)
+	{
+		go2->pos.x = go2->previousCoord.x;
+	}
+}
+
 
 void SceneCollision::MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos)
 {
@@ -2115,13 +2267,13 @@ void SceneCollision::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_PROJECTILE], false);
 		modelStack.PopMatrix();
 		break;
-	case GameObject::GO_BOSS_SLIME:
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_BOSS_SLIME], false);
-		modelStack.PopMatrix();
-		break;
+	//case GameObject::GO_BOSS_SLIME:
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+	//	modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+	//	RenderMesh(meshList[GEO_BOSS_SLIME], false);
+	//	modelStack.PopMatrix();
+	//	break;
 	case GameObject::GO_EXPLOSION:
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
@@ -2157,6 +2309,41 @@ void SceneCollision::Render()
 	case start:
 		RenderTitleScreen();
 		break;
+	case weaponselection:
+	{
+		float scalingthegun = m_worldWidth * 0.01;
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.2, m_worldHeight * 0.6, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+		RenderMesh(meshList[GEO_GL], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.6, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 5, 0);
+		RenderMesh(meshList[GEO_BOW], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.8, m_worldHeight * 0.6, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+		RenderMesh(meshList[GEO_SHOTGUN], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.4, m_worldHeight * 0.4, 0);
+		modelStack.Scale(scalingthegun * 7, scalingthegun * 1.44565217391, 0);
+		RenderMesh(meshList[GEO_SNIPER], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.6, m_worldHeight * 0.4, 0);
+		modelStack.Scale(scalingthegun * 5, scalingthegun * 2, 0);
+		RenderMesh(meshList[GEO_PISTOL], false);
+		modelStack.PopMatrix();
+
+		break;
+	}
 	case shop:
 	{
 		double x, y, windowwidth, windowheight;
@@ -2222,9 +2409,8 @@ void SceneCollision::Render()
 				if (go->type == GameObject::GO_GRONK)
 					RenderGO(go);
 		}
-
-	}
 		break;
+	}
 	case main:
 	{
 		//Render Background
