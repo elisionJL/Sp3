@@ -58,6 +58,10 @@ void SceneCollision::Init()
 
 	needtofinishanimation = false;
 
+	PlayerBuy = false;
+
+	currentlyHovering = false;
+	shopClick = 0;
 	zaxis = 1;
 	pause = false;
 
@@ -581,17 +585,19 @@ void SceneCollision::Update (double dt)
 		gronk->Update(dt);
 
 		dialogueTime += 1 * dt;
-		if (dialogueTime > 5.f)
+		if (dialogueTime > 5.f && currentlyHovering != true)
 		{
 			CurrentTextWrite = true;
 			dialogueTime = 0;
 		}
 
-		ShopInteraction();
+		ShopInteraction(dt);
 		break;
 	}
 	case main:
 	{
+		PlayerMapCheck();
+		MapBoundary();
 		zaxis = 1;
 		displaynumberoffset = 0;
 		displaynumberoffsety = 0;
@@ -1671,7 +1677,7 @@ void SceneCollision::RenderTitleScreen()
 		meshList[GEO_QUIT]->material.kAmbient.Set(1, 1, 1);
 	modelStack.PopMatrix();
 }
-void SceneCollision::ShopInteraction()
+void SceneCollision::ShopInteraction(double dt)
 {
 	double x, y, windowwidth, windowheight;
 	Application::GetCursorPos(&x, &y);
@@ -1679,6 +1685,11 @@ void SceneCollision::ShopInteraction()
 	windowheight = Application::GetWindowHeight();
 	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
 	static bool bLButtonState = false;
+
+	if (bLButtonState == true)
+		shopClick = 1;
+	else
+		shopClick = 0;
 
 	if (!bLButtonState && Application::IsMousePressed(0)) 
 	{
@@ -1853,18 +1864,198 @@ void SceneCollision::ShopUI()
 }
 void SceneCollision::RenderGronkDialogue()
 {
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+	static bool bLButtonState = false;
+
+								 //Random Dialogue
 	string GronkDialogue[50] = { "Welcome to Gronk Shop!", "Gronk has many stuff!", "What human want? Gronk can help find!",
 								 "Human died " + std::to_string(DeathCount) + " times! Gronk thinks human should work harder.", "Human not dead, human die soon?", "Gronk give human hint! No hit mean safe!",
 								 "Gronk first time make shop, Gronk hope can get what Gronk want!", "Gronk no travel much, human travel a lot?", 
-								 "This place dangerous for human, Gronk thinks human should leave.", "Human say Gronk is goblin? Gronk is Gronk, Gronk no Goblin! Human stupid."};
+								 "This place dangerous for human, Gronk thinks human should leave.", "Human say Gronk is goblin? Gronk is Gronk, Gronk no Goblin! Human stupid.",
+								 "Human want to know how gronk get item? Because Gronk find item!",
+
+								 //Buying upgrade //11, 12, 14, 15, 15, 16
+								 "Speed is speed human! Walk faster much better, slow big no no.", "Human survive better, Human no want dead yet yes?",
+								 "Human want shield? Ah! Human no like pain pain, human scared yes?", "Human need better weapon? Gronk has better weapon! No use on Gronk okay?",
+								 "Gronk know this item! Gronk hear feather used a lot on dead", "Gronk hear this used to make Human stronger faster, Gronk no idea but recommend!",
+	
+								 //Bought Upgrade //17, 18, 19, 20
+								 "Gronk thank human! Human help Gronk shop grow!", "Gronk will use money to make better shop!", "Gronk like money, money make Gronk happy",
+								 "Gronk make bigger shop soon, human will see!",
+
+								 //No Money // 21, 22, 23, 24
+								 "Human no money! No cheating Gronk!", "Human cannot buy item, no money, human poor!", "Gronk thinks human should kill kill before buy buy.",
+								 "No wasting Gronk time! Human get money first!",
+	
+								 //Max upgrade // 25, 26, 27
+								 "Human already buy it all! Don't put Gronk out of cave, Gronk like cave!", "Gronk no more of item, pick another!", 
+								 "Item hard to find human, Gronk no have item anymore"};
 
 	modelStack.PushMatrix();
 	modelStack.Translate(m_worldWidth * 0.3, m_worldHeight * 0.125f, 1);
 	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.25, 0);
 
+	if (!bLButtonState && Application::IsMousePressed(0) && shopClick < 1)
+	{
+		//Change to random value
+		if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[0] >= 5)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 200 * pow(1.75, ShopUpgrades[0]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[1] >= 10)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 100 * pow(1.3, ShopUpgrades[1]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[2] >= 5)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 150 * pow(2.0, ShopUpgrades[2]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[3] >= 4)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 100 * pow(1.5, ShopUpgrades[3]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[4] >= 1)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 2000)
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f))) {
+			OutputDialogue = "";
+			CurrentCharText = 0;
+			if (ShopUpgrades[5] >= 5)
+				randomDialogue = rand() % 3 + 25;
+			else if (cPlayer2D->GetGold() > 500 * pow(1.1, ShopUpgrades[5]))
+				randomDialogue = rand() % 4 + 17;
+			else
+				randomDialogue = rand() % 4 + 21;
+			PlayerBuy = true;
+			currentlyHovering = false;
+		}
+
+		bLButtonState = true;
+	}
+	else
+		bLButtonState = false;
+
+	if (!Application::IsMousePressed(0))
+	{
+		if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 11) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 11;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)) && PlayerBuy == false) {
+			if ((randomDialogue <= 10 || randomDialogue != 12) && PlayerBuy == false) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 12;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 13) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 13;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 14) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 14;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 15) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 15;
+			PlayerHover = true;
+		}
+		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)) && PlayerBuy == false) {
+			if (randomDialogue <= 10 || randomDialogue != 16) {
+				OutputDialogue = "";
+				CurrentCharText = 0;
+				CurrentTextWrite = false;
+				TextFinished = false;
+			}
+			randomDialogue = 16;
+			PlayerHover = true;
+		}
+		else {
+			PlayerHover = false;
+			currentlyHovering = false;
+		}
+	}
+
+	if ((PlayerHover == true && currentlyHovering != true) || PlayerBuy == true)
+		CurrentTextWrite = true;
+
 	if (CurrentTextWrite == true && TextFinished == false)
 	{
-		randomDialogue = rand() % 10;
+		if (PlayerHover != true && PlayerBuy != true)
+			randomDialogue = rand() % 11;
+
 		if (randomDialogue == 3 && DeathCount <= 0)
 		{
 			randomDialogue = 4;
@@ -1884,7 +2075,7 @@ void SceneCollision::RenderGronkDialogue()
 	{
 		char CurrentDialogue;
 
-		if (dialogueTime > 0.075f)
+		if (dialogueTime > 0.05f)
 		{
 			if (CurrentCharText < GronkDialogue[randomDialogue].length())
 			{
@@ -1892,15 +2083,26 @@ void SceneCollision::RenderGronkDialogue()
 				OutputDialogue += CurrentDialogue;
 
 				CurrentCharText += 1;
+				dialogueTime = 0;
 			}
 
 			else
 			{
-				CurrentTextWrite = false;
-				TextFinished = false;
-			}
+				if (PlayerBuy != true && PlayerHover != true)
+				{
+					CurrentTextWrite = false;
+					TextFinished = false;
+				}
 
-			dialogueTime = 0;
+				else if (dialogueTime > 2.f)
+				{
+					if (PlayerHover == true && PlayerBuy != true)
+						currentlyHovering = true;
+					CurrentTextWrite = false;
+					TextFinished = false;
+					PlayerBuy = false;
+				}
+			}
 		}
 	}
 	RenderDialogueOnScreen(meshList[GEO_TEXT], OutputDialogue, Color(0, 0, 0), 1.5, 2.5, 8);
@@ -2104,6 +2306,18 @@ void SceneCollision::PlayerMapCheck()
 			}
 		}
 	}
+}
+
+void SceneCollision::MapBoundary()
+{
+	if (cPlayer2D->pos.y >= 295.f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, 295.f, 295.f);
+	if (cPlayer2D->pos.y <= -295.f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, -295.f, -295.f);
+	if(cPlayer2D->pos.x >= 455.f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, 455.f, 455.f);
+	if (cPlayer2D->pos.x <= -455.f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, -455.f, -455.f);
 }
 
 float SceneCollision::calculateAngle(float x, float y)
