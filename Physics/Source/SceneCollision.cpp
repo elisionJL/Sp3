@@ -1106,64 +1106,28 @@ void SceneCollision::Update (double dt)
 						
 						switch (levelUpgrades[i - 1]) {
 						case pierce:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
+							pierceforbullet += 1;
 							break;
 						case atk:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+							dmgofgun *= 1.1;
 							break;
 						case hp:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+							cPlayer2D->IncreaseHP();
 							break;
 						case multishot:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+							numberofbullets++;
 							break;
 						case moveSpeed:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+							cPlayer2D->IncreaseSpd();
 							break;
 						case velocity:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+							velocityofbullet += 5;
 							break;
 						case fireRate:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
+							firerate *= 0.95;
 							break;
 						case dragon:
-							meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
 							break;
-						}
-
-						static bool bLButtonState = false;
-						if (!bLButtonState && Application::IsMousePressed(0))
-						{
-							switch (levelUpgrades[i - 1]) {
-							case pierce:
-								pierceforbullet += 1;
-								break;
-							case atk:
-								dmgofgun *= 1.1;
-								break;
-							case hp:
-								cPlayer2D->IncreaseHP();
-								break;
-							case multishot:
-								numberofbullets++;
-								break;
-							case moveSpeed:
-								cPlayer2D->IncreaseSpd();
-								break;
-							case velocity:
-								velocityofbullet += 5;
-								break;
-							case fireRate:
-								firerate *= 1.1;
-								break;
-							case dragon:
-								break;
-							}
-							bLButtonState = true;
-						}
-						else if (bLButtonState && !Application::IsMousePressed(0))
-						{
-							bLButtonState = false;
 						}
 					}
 				}
