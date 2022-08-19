@@ -27,6 +27,7 @@ public:
 	bool usePrevY;
 	int type;
 	float hp;
+	
 	std::string address;
 
 	void sethp(float Nhp);
