@@ -383,7 +383,7 @@ void SceneCollision::RenderDmgNum(Vector3 posanddmg)
 	coordinatesofdamagenumbers.push_back(posX);
 }
 
-void SceneCollision::Update(double dt)
+void SceneCollision::Update (double dt)
 {
 	SceneBase::Update(dt);
 
@@ -1171,7 +1171,6 @@ void SceneCollision::Update(double dt)
 		}
 	}
 	break;
-	}
 	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
