@@ -28,18 +28,6 @@ void CPlayer2D::Update(double dt)
 	if (Application::IsKeyPressed('K')) {
 		xp += 1;
 	}
-	/*if (xp >= ((level - 1) * 10) + 5 && !leveledUp)
-	{
-		leveledUp = true;
-		xp -= ((level - 1) * 10) + 5;
-		level += 1;
-	}
-	if (xp >= ((level - 1) * 10) + 5 && leveledUp)
-	{
-		leveledUp = true;
-		xp -= ((level - 1) * 10) + 5;
-		level += 1;
-	}*/
 	if (hp <= 0) {
 		if (Lives > 0)
 		{

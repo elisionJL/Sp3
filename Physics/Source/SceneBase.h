@@ -50,7 +50,6 @@ public:
 		GEO_BALL,
 		GEO_CUBE,
 		GEO_PLAYER,
-		GEO_LINE,
 		GEO_MENU,
 		GEO_WIN,
 		GEO_LOSE,
@@ -88,6 +87,10 @@ public:
 		GEO_BOW,
 		GEO_PISTOL,
 		GEO_GL,
+		GEO_PAUSEPANEL,
+		GEO_PAUSERESUME,
+		GEO_PAUSEQUIT,
+		GEO_STATPANEL,
 		GEO_EXP,
 		GEO_EXPBG,
 		GEO_HEALTH,
@@ -132,7 +135,7 @@ protected:
 	MS projectionStack;
 
 	Light lights[1];
-
+	bool pause;
 	bool bLightEnabled;
 
 	float fps;

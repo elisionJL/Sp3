@@ -59,8 +59,7 @@ void SceneCollision::Init()
 	needtofinishanimation = false;
 
 	zaxis = 1;
-
-	testingexpbar = 0;
+	pause = false;
 
 	hptestingbar = 0;
 	for (int i = 0; i < 6; ++i)
@@ -503,11 +502,22 @@ void SceneCollision::Update(double dt)
 			}
 
 		}
-		if (cPlayer2D->leveledUp == false) {
+		if (cPlayer2D->leveledUp == false && pause == false) {
 			cPlayer2D->Update(dt);
-			cPlayer2D->xp++;
+			//cPlayer2D->xp++;
 
 			elapsedTime += dt;
+			elapsedTime += dt;
+			static bool BPressed = false;
+			if (Application::IsKeyPressed('B') && !BPressed) {
+				BPressed = true;
+			}
+			else if (!Application::IsKeyPressed('B') && BPressed) {
+				BPressed = false;
+				pause = true;
+				break;
+			}
+
 			if (Application::IsKeyPressed('E') && Companion->mass == 1)
 			{
 				Companion->type = GameObject::GO_COMPANION;
@@ -2204,9 +2214,6 @@ void SceneCollision::Render()
 
 		hptestingbar++;
 
-		//if (m_worldWidth * 0.75 < cPlayer2D->xp)
-		//	cPlayer2D->xp = 0;
-
 		if (m_worldWidth * 0.3 * 0.73684210526 < hptestingbar)
 			hptestingbar = 0;
 
@@ -2345,6 +2352,37 @@ void SceneCollision::Render()
 
 				//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1, 2, 20);
 			}
+		}
+		else if (pause == true) {
+			modelStack.PushMatrix();
+			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);
+			modelStack.Scale(1000, 1000, 1);
+			RenderMesh(meshList[GEO_LVLUPBG], false);
+			modelStack.PopMatrix();
+
+			float x = m_worldWidth * 0.5;
+			float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+			float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight *0.7 + cameramoveY, 4.4f);
+			modelStack.Scale(m_worldHeight*0.4, m_worldHeight * 0.5, 1);
+			RenderMesh(meshList[GEO_PAUSEPANEL], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.77 + cameramoveY, 4.41f);
+			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight *0.14, 1);
+			RenderMesh(meshList[GEO_PAUSERESUME], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.60 + cameramoveY, 4.42f);
+			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight * 0.14, 1);
+			RenderMesh(meshList[GEO_PAUSEQUIT], false);
+			modelStack.PopMatrix();
+
+
 		}
 		break;
 	}
