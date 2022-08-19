@@ -431,7 +431,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
-				Gun->type = GameObject::GO_GL;
+				Gun->type = GameObject::GO_BOW;
 				Gun->mass = 2;
 				if (Gun->type == GameObject::GO_GL)
 				{
@@ -578,8 +578,7 @@ void SceneCollision::Update(double dt)
 		if (cPlayer2D->leveledUp == false && pause == false) {
 			cPlayer2D->Update(dt);
 			//cPlayer2D->xp++;
-
-			elapsedTime += dt;
+			
 			elapsedTime += dt;
 			static bool BPressed = false;
 			if (Application::IsKeyPressed('B') && !BPressed) {
@@ -2317,6 +2316,7 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_EXPBG], false);
 		modelStack.PopMatrix();
 
+
 		expScaleX = Math::Min((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
 
 		//expScaleX
@@ -2473,6 +2473,36 @@ void SceneCollision::Render()
 			modelStack.Scale(m_worldHeight * 0.264, m_worldHeight * 0.14, 1);
 			RenderMesh(meshList[GEO_PAUSEQUIT], false);
 			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(x + cameramoveX, m_worldHeight * 0.2 + cameramoveY, 4.42f);
+			modelStack.Scale(m_worldWidth *0.8, m_worldHeight * 0.2, 1);
+			RenderMesh(meshList[GEO_STATPANEL], false);
+			modelStack.PopMatrix();
+
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "max dmg:" << dmgofgun * 12;
+			}
+			else
+				ss << "dmg:" << dmgofgun;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(),Color(1,1,1), 2, 11, 14);
+
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "max vel:" << velocityofbullet;
+			}
+			else
+				ss << "vel:" << velocityofbullet * 6;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
+
+			ss.str("");
+			if (Gun->type == GameObject::GO_BOW) {
+				ss << "vel:" << velocityofbullet;
+			}
+			else
+				ss << "vel:" << velocityofbullet * 6;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 112);
 
 
 		}
