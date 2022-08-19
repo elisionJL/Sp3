@@ -628,43 +628,43 @@ void SceneCollision::Update(double dt)
 
 				enemyList.push_back(go);
 
-			const void* address = static_cast<const void*>(go);
-			std::stringstream ss;
-			ss << address;			
-			go->address = ss.str();
+				const void* address = static_cast<const void*>(go);
+				std::stringstream ss;
+				ss << address;
+				go->address = ss.str();
 
-			blMButtonState = true;
-		}
-		else if (!Application::IsKeyPressed('M') && blMButtonState)
-		{
-			blMButtonState = false;
-		}
-
-		
-		SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
-		bool shooting = true;
-		{
-			if (Application::IsMousePressed(0) && shooting && !needtofinishanimation)
+				blMButtonState = true;
+			}
+			else if (!Application::IsKeyPressed('M') && blMButtonState)
 			{
-				if (Gun->type == GameObject::GO_BOW)
+				blMButtonState = false;
+			}
+
+
+			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+			bool shooting = true;
+			{
+				if (Application::IsMousePressed(0) && shooting && !needtofinishanimation)
 				{
-					G->PlayAnimation("Shoot", 0, 2.0f);
+					if (Gun->type == GameObject::GO_BOW)
+					{
+						G->PlayAnimation("Shoot", 0, 2.0f);
 
 						G->Update(dt);
 
-					if (G->getAnimationStatus("Shoot"))
-					{
-						shooting = false;
-						bowframe = G->getcurrentanimationframe("Shoot");
+						if (G->getAnimationStatus("Shoot"))
+						{
+							shooting = false;
+							bowframe = G->getcurrentanimationframe("Shoot");
+						}
 					}
-				}
-				else
-				{
-					float Xaxis = mousePos.x - Gun->pos.x;
-					if (Xaxis >= 0)
-						G->PlayAnimation("Shoot", 0, 1.0f);
 					else
-						G->PlayAnimation("ShootR", 0, 1.0f);
+					{
+						float Xaxis = mousePos.x - Gun->pos.x;
+						if (Xaxis >= 0)
+							G->PlayAnimation("Shoot", 0, 1.0f);
+						else
+							G->PlayAnimation("ShootR", 0, 1.0f);
 
 						if (GunShoot == false)
 						{
@@ -686,18 +686,18 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-			if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
-			{
-				bowframe = 12;
-				SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
-				shootonceonly = 0;
-			}
-			else if (GunShoot == true)
-			{
-				float Xaxis = mousePos.x - Gun->pos.x;
-				if ((Xaxis >= 0 && !G->getAnimationStatus("Shoot")) || (Xaxis < 0 && !G->getAnimationStatus("ShootR")))
+				if (G->getAnimationStatus("Shoot") == false && Gun->type == GameObject::GO_BOW && shootonceonly == 1)
 				{
-					GunShoot = false;
+					bowframe = 12;
+					SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
+					shootonceonly = 0;
+				}
+				else if (GunShoot == true)
+				{
+					float Xaxis = mousePos.x - Gun->pos.x;
+					if ((Xaxis >= 0 && !G->getAnimationStatus("Shoot")) || (Xaxis < 0 && !G->getAnimationStatus("ShootR")))
+					{
+						GunShoot = false;
 
 						if (Xaxis >= 0)
 							G->PlayAnimation("Shoot", -1, 1.0f);
@@ -756,28 +756,28 @@ void SceneCollision::Update(double dt)
 
 
 
-			static bool bLButtonState = false;
-			if (!bLButtonState && Application::IsMousePressed(0))
-			{
-				bLButtonState = true;
-			}
-			else if (bLButtonState && !Application::IsMousePressed(0))
-			{
-				bLButtonState = false;
-				if (Gun->type == GameObject::GO_BOW)
+				static bool bLButtonState = false;
+				if (!bLButtonState && Application::IsMousePressed(0))
 				{
-					if (shootonceonly == 1 && bowframe > 0)
-					{
-						SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
-					}
-					shooting = false; 
-					G->PlayAnimation("Shoot", 0, 2.0f);
-					G->truereset();
-					shootonceonly = 1;
+					bLButtonState = true;
 				}
-				else if (Gun->type != GameObject::GO_BOW)
+				else if (bLButtonState && !Application::IsMousePressed(0))
 				{
-					float Xaxis = mousePos.x - Gun->pos.x;
+					bLButtonState = false;
+					if (Gun->type == GameObject::GO_BOW)
+					{
+						if (shootonceonly == 1 && bowframe > 0)
+						{
+							SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
+						}
+						shooting = false;
+						G->PlayAnimation("Shoot", 0, 2.0f);
+						G->truereset();
+						shootonceonly = 1;
+					}
+					else if (Gun->type != GameObject::GO_BOW)
+					{
+						float Xaxis = mousePos.x - Gun->pos.x;
 
 						if (G->getcurrentanimationframe("Shoot") != 0)
 						{
@@ -885,58 +885,76 @@ void SceneCollision::Update(double dt)
 						float Xaxis = mousePos.x - go->pos.x;
 						float Yaxis = mousePos.y - go->pos.y;
 
-					float Angle;
-					if (Xaxis <= 0 && Yaxis <= 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						float Angle;
+						if (Xaxis <= 0 && Yaxis <= 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis < 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
+						}
+						else if (Xaxis > 0 && Yaxis > 0) {
+							Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else if (Xaxis > 0 && Yaxis < 0) {
+							Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
+						}
+						else {
+							Angle = 0;
+						}
+						go->angle = Angle;
 					}
-					else if (Xaxis < 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis)) + 180.0f;
-					}
-					else if (Xaxis > 0 && Yaxis > 0) {
-						Angle = Math::RadianToDegree(atan(Yaxis / Xaxis));
-					}
-					else if (Xaxis > 0 && Yaxis < 0) {
-						Angle = 360 + Math::RadianToDegree(atan(Yaxis / Xaxis));
-					}
-					else {
-						Angle = 0;
-					}
-					go->angle = Angle;
-				}
-				else if (go->type == GameObject::GO_PROJECTILE)
-				{
-					if (elapsedTime > timerforbullets[go->lifetime])
+					else if (go->type == GameObject::GO_PROJECTILE)
 					{
-						if (go->proj == GameObject::GL)
+						if (elapsedTime > timerforbullets[go->lifetime])
 						{
-							GameObject* Explosion = FetchGO();
-							Explosion->type = GameObject::GO_EXPLOSION;
-							Explosion->pos = go->pos;
-							Explosion->scale.Set(8, 8, 1);
-							for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+							if (go->proj == GameObject::GL)
 							{
-								if (timerforbullets[arraynumber] != 0)
+								GameObject* Explosion = FetchGO();
+								Explosion->type = GameObject::GO_EXPLOSION;
+								Explosion->pos = go->pos;
+								Explosion->scale.Set(8, 8, 1);
+								for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
 								{
-									continue;
+									if (timerforbullets[arraynumber] != 0)
+									{
+										continue;
+									}
+									timerforbullets[arraynumber] = elapsedTime + 0.5f;
+									Explosion->lifetime = arraynumber;
+									break;
 								}
-								timerforbullets[arraynumber] = elapsedTime + 0.5f;
-								Explosion->lifetime = arraynumber;
-								break;
+								timerforbullets.push_back(elapsedTime + 0.5f);
+								Explosion->lifetime = timerforbullets.size() - 1;
 							}
-							timerforbullets.push_back(elapsedTime + 0.5f);
-							Explosion->lifetime = timerforbullets.size() - 1;
+
+							ReturnGO(go);
+							timerforbullets[go->lifetime] = 0;
+						}
+						else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+						{
+							ReturnGO(go);
 						}
 
-						ReturnGO(go);
-						timerforbullets[go->lifetime] = 0;
-					}					
-					else if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
-					{
-						ReturnGO(go);
+						//collision check and response
+						{
+							for (unsigned x = 0; x < enemyList.size(); ++x)
+							{
+								Enemy* go2 = enemyList[x];
+								if (go2->gethp() > 0)
+								{
+									if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
+									{
+										SceneCollision::dobulletcollision(Gun, go, go2);
+									}
+								}
+							}
+						}
 					}
-					
-					//collision check and response
+					else if (go->type == GameObject::GO_EXPLOSION)
 					{
+						if (elapsedTime > timerforbullets[go->lifetime])
+							ReturnGO(go);
+
 						for (unsigned x = 0; x < enemyList.size(); ++x)
 						{
 							Enemy* go2 = enemyList[x];
@@ -949,83 +967,65 @@ void SceneCollision::Update(double dt)
 							}
 						}
 					}
-				}
-				else if (go->type == GameObject::GO_EXPLOSION)
-				{
-					if (elapsedTime > timerforbullets[go->lifetime])
-						ReturnGO(go);
 
-					for (unsigned x = 0; x < enemyList.size(); ++x)
+
+					GameObject* go2 = nullptr;
+					for (unsigned j = i + 1; j < size; ++j)
 					{
-						Enemy* go2 = enemyList[x];
-						if (go2->gethp() > 0)
+						go2 = m_goList[j];
+						GameObject* actor(go);
+						GameObject* actee(go2);
+						if (go->type != GameObject::GO_BALL)
 						{
-							if (SceneCollision::bulletcollisioncheck(Gun, go, go2))
-							{
-								SceneCollision::dobulletcollision(Gun, go, go2);
-							}
+							actor = go2;
+							actee = go;
+						}
+						if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
+							continue;
+						}
+						if (go2->active && CheckCollision(actor, actee))
+						{
+							CollisionResponse(actor, actee);
+						}
+					}
+					if (cPlayer2D->getState() == cPlayer2D->DEAD) {
+						currentState = lose;
+					}
+				}
+			}
+
+			for (unsigned i = 0; i < enemyList.size(); ++i)
+			{
+				Enemy* go1 = enemyList[i];
+				for (unsigned x = i; x < enemyList.size(); ++x)
+				{
+					Enemy* go2 = enemyList[x];
+					if (go2->gethp() > 0 && go2 != go1)
+					{
+						if (CheckCollision(go1, go2))
+						{
+							CollisionResponse(go1, go2);
+							cout << "collided" << endl;
+						}
+						else
+						{
+							go2->previousCoord = go2->pos;
 						}
 					}
 				}
-
-
-				GameObject* go2 = nullptr;
-				for (unsigned j = i + 1; j < size; ++j)
-				{
-					go2 = m_goList[j];
-					GameObject* actor(go);
-					GameObject* actee(go2);
-					if (go->type != GameObject::GO_BALL)
-					{
-						actor = go2;
-						actee = go;
-					}
-					if (actee->placed == false && actee->thinWall == 0 && actee->bounce == false) {
-						continue;
-					}
-					if (go2->active && CheckCollision(actor, actee))
-					{
-						CollisionResponse(actor, actee);
-					}
-				}
-				if (cPlayer2D->getState() == cPlayer2D->DEAD) {
-					currentState = lose;
-				}				
 			}
-		}
 
-		for (unsigned i = 0; i < enemyList.size(); ++i)
-		{
-			Enemy* go1 = enemyList[i];
-			for (unsigned x = i; x < enemyList.size(); ++x)
+			//Enemy List
+			for (unsigned i = 0; i < enemyList.size(); ++i)
 			{
-				Enemy* go2 = enemyList[x];
-				if (go2->gethp() > 0 && go2 != go1)
-				{
-					if (CheckCollision(go1, go2))
-					{
-						CollisionResponse(go1, go2);
-						cout << "collided" << endl;
-					}
-					else
-					{
-						go2->previousCoord = go2->pos;
-					}
-				}
+				Enemy* enemy = enemyList[i];
+				enemy->vel = cPlayer2D->pos - enemy->pos;
+				enemy->vel.Normalized() *= 20;
+				enemy->previousCoord = enemy->pos;
+				enemy->pos += enemy->vel * dt;
 			}
+			break;
 		}
-
-		//Enemy List
-		for (unsigned i = 0; i < enemyList.size(); ++i)
-		{
-			Enemy* enemy = enemyList[i];
-			enemy->vel = cPlayer2D->pos - enemy->pos;
-			enemy->vel.Normalized() *= 20;
-			enemy->previousCoord = enemy->pos;
-			enemy->pos += enemy->vel * dt;
-		}
-		break;
-	}
 	case win:
 	{
 		static bool bLButtonState = false;
@@ -1066,6 +1066,7 @@ void SceneCollision::Update(double dt)
 		}
 	}
 	break;
+	}
 	}
 }
 bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2) 
