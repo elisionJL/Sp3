@@ -1061,8 +1061,29 @@ void SceneCollision::Update(double dt)
 			{
 				Enemy* enemy = enemyList[i];
 				enemy->vel = cPlayer2D->pos - enemy->pos;
-				enemy->vel.Normalized() *= 20;
+				enemy->vel.Normalize() *= 20;
 				enemy->pos += enemy->vel * dt;
+
+				//SpriteAnimation* bs = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOSS_SLIME]);
+				//if (enemy->type == GameObject::GO_BOSS_SLIME)
+				//{
+				//	if (enemy->getDirection() == 0)
+				//	{
+				//		bs->PlayAnimation("Move Left", -1, 2.f);
+				//	}
+				//	else if (enemy->getDirection() == 1)
+				//	{
+				//		bs->PlayAnimation("Move Right", -1, 2.f);
+				//	}
+				//	else if (enemy->getDirection() == 2)
+				//	{
+				//		bs->PlayAnimation("Idle", -1, 2.f);
+				//	}
+				//	else if (enemy->getDirection() == 3)
+				//	{
+				//		bs->PlayAnimation("Idle", -1, 2.f);
+				//	}
+				//}
 			}
 
 			for (unsigned i = 0; i < enemyList.size(); ++i)
