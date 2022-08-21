@@ -74,6 +74,8 @@ void SceneCollision::Init()
 	velocityofbullet = 20;
 
 	bowframe = 0;
+
+	timerforpistol = 0;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -167,6 +169,62 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 				go->vel.Normalize() *= velocityofbullet;
 				go->amountofpierleft = pierceforbullet;
 			}
+			go->pier.clear();
+
+			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+			{
+				if (timerforbullets[arraynumber] != 0)
+				{
+					continue;
+				}
+				timerforbullets[arraynumber] = elapsedTime + 2.0f;
+				go->lifetime = arraynumber;
+				break;
+			}
+			timerforbullets.push_back(elapsedTime + 2.0f);
+			go->lifetime = timerforbullets.size() - 1;
+		}
+	}
+}
+
+void SceneCollision::PistolShooting(double elapsedTime, int numberofshots, GameObject* Gun)
+{
+	double x = 0, y = 0;
+	if (numberofshots > 0)
+	{
+		Application::GetCursorPos(&x, &y);
+		unsigned w = Application::GetWindowWidth();
+		unsigned h = Application::GetWindowHeight();
+		float posX = (x / w * m_worldWidth) + camera.position.x;
+		float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
+		Vector3 center = Vector3(posX, posY, 0) - cPlayer2D->pos;
+		float angle = calculateAngle(center.x, center.y);
+		float magnitude = center.Length();
+
+		float startingamount = (numberofshots - 1) * 5;
+		if (startingamount < 1)
+		{
+			startingamount = 1;
+		}
+
+		for (int i = 0; i <= 6; i++)
+		{
+			angle = Math::RandFloatMinMax(0, 360);
+			GameObject* go = FetchGO();
+			go->pos = cPlayer2D->pos;
+			go->scale.Set(4, 2, 1);
+			go->type = GameObject::GO_PROJECTILE;
+			go->angle = angle + i;
+			go->proj = GameObject::pistol;
+				
+			if (go->angle > 360) {
+				go->angle -= 360;
+			}
+			go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+
+			go->vel.Normalize() *= velocityofbullet;
+			go->amountofpierleft = pierceforbullet;
 			go->pier.clear();
 
 			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
@@ -301,6 +359,7 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 		{
 			enemyList.erase(enemyList.begin() + i);
 			cPlayer2D->xp++;
+			score += 10;
 		}
 	}
 }
@@ -662,14 +721,7 @@ void SceneCollision::Update(double dt)
 				break;
 			}
 
-			if (Application::IsKeyPressed('E') && Companion->mass == 1)
-			{
-				Companion->type = GameObject::GO_COMPANION;
-				Companion->mass = 5;
-				Companion->scale.Set(7, 7, 1);
-				Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
-				Companion->vel.SetZero();
-			}
+			
 
 			if (Application::IsKeyPressed('A'))
 			{
@@ -861,6 +913,18 @@ void SceneCollision::Update(double dt)
 						}
 					}
 				}
+
+				static bool bRButtonState = false;
+				if (!bRButtonState && Application::IsMousePressed(1) && Gun->type == GameObject::GO_PISTOL && timerforpistol < elapsedTime)
+				{
+					SceneCollision::PistolShooting(elapsedTime, numberofbullets, Gun);
+					timerforpistol = elapsedTime + firerate * 2;
+					bRButtonState = true;
+				}
+				else if (bRButtonState && !Application::IsMousePressed(1))
+				{
+					bRButtonState = false;
+				}
 			}
 
 			unsigned size = m_goList.size();
@@ -875,7 +939,6 @@ void SceneCollision::Update(double dt)
 
 					if (go->type == GameObject::GO_COMPANION)
 					{
-
 						float moveXby;
 						float moveYby;
 						{
@@ -1094,13 +1157,20 @@ void SceneCollision::Update(double dt)
 					Enemy* go2 = enemyList[x];
 					if (go2->gethp() > 0 && go2 != go1)
 					{
+						
+
 						if (CheckCollision(go1, go2))
 						{
 							CollisionResponse(go1, go2, dt);
+							if (go1->amountoftimesitstayed)
+							{
+								go1->checkdistancefromotherenemies(go2);
+							}
 						}
 						else
 						{
-							go2->previousCoord = go2->pos;
+							go1->previousCoord = go1->pos;
+							go1->amountoftimesitstayed = 0;
 						}
 					}
 				}
@@ -1145,6 +1215,14 @@ void SceneCollision::Update(double dt)
 							firerate *= 0.95;
 							break;
 						case dragon:
+							if (Companion->mass == 1)
+							{
+								Companion->type = GameObject::GO_COMPANION;
+								Companion->mass = 5;
+								Companion->scale.Set(7, 7, 1);
+								Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+								Companion->vel.SetZero();
+							}
 							break;
 						}
 					}
@@ -1324,46 +1402,56 @@ bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2)
 	{
 		if (enemy1->pos.y - enemy1->scale.y <= enemy2->pos.y)
 		{
-			enemy2->usePrevY = true;
+			enemy1->usePrevY = true;
+			enemy1->enemyup = true;
 		}
 		else
 		{
-			enemy2->usePrevY = false;
+			enemy1->usePrevY = false;
+			enemy1->enemyup = false;
 		}
 	}
 	else
 	{
 		if (enemy1->pos.y + enemy1->scale.y >= enemy2->pos.y)
 		{
-			enemy2->usePrevY = true;
+			enemy1->usePrevY = true;
+			enemy1->enemyup = true;
 		}
 		else
 		{
-			enemy2->usePrevY = false;
+			enemy1->usePrevY = false;
+			enemy1->enemyup = false;
 		}
 	}
+
 	if (enemy1->pos.x > enemy2->pos.x)
 	{
 		if (enemy1->pos.x - enemy1->scale.x <= enemy2->pos.x)
 		{
-			enemy2->usePrevX = true;
+			enemy1->usePrevX = true;
+			enemy1->enemytoright = true;
 		}
 		else
 		{
-			enemy2->usePrevX = false;
+			enemy1->usePrevX = false;
+			enemy1->enemytoright = false;
 		}
 	}
 	else
 	{
 		if (enemy1->pos.x + enemy1->scale.x >= enemy2->pos.x)
 		{
-			enemy2->usePrevX = true;
+			enemy1->usePrevX = true;
+			enemy1->enemytoleft = true;
 		}
 		else
 		{
-			enemy2->usePrevX = false;
+			enemy1->usePrevX = false;
+			enemy1->enemytoleft = false;
 		}
 	}
+
 	return disDiff.LengthSquared() <= (enemy1->scale.x + enemy2->scale.x) * (enemy1->scale.x + enemy2->scale.x);
 
 }
