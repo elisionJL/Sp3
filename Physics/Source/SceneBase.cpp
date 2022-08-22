@@ -270,6 +270,9 @@ void SceneBase::Init()
 	meshList[GEO_SHIELD] = MeshBuilder::GenerateQuad("shield", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHIELD]->textureID = LoadTexture("Image//Shield.png", true);
 
+
+
+
 	cSoundController = CSoundController::GetInstance();
 	cSoundController->Init();
 
@@ -321,6 +324,14 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	GL->AddAnimation("Shoot", 0, 6);
 	GL->AddAnimation("ShootR", 6, 12);
+
+	meshList[GEO_MACHINEGUN] = MeshBuilder::GenerateSpriteAnimation("MG", 2, 6);
+	meshList[GEO_MACHINEGUN]->textureID = LoadTexture("Image//MACHINEGUN.png", true);
+	meshList[GEO_MACHINEGUN]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* MG = dynamic_cast<SpriteAnimation*>(meshList[GEO_MACHINEGUN]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	MG->AddAnimation("Shoot", 0, 6);
+	MG->AddAnimation("ShootR", 6, 12);
 
 	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);

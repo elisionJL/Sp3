@@ -93,6 +93,7 @@ protected:
 	int minutes;
 	float seconds;
 	vector<Enemy*> enemyList;
+	vector<Mesh*>enemyAnimationPlayed;
 	CPlayer2D* cPlayer2D;
 	gameStates currentState;
 	Vector3 m_gravity;

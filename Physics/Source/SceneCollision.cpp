@@ -724,6 +724,12 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
+				if (elapsedTime > 5)
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_MACHINEGUN;
+				}
+
 				Gun->mass = 2;
 				GunFrameWhereItStarts = 6;
 				if (Gun->type == GameObject::GO_GL)
@@ -771,6 +777,15 @@ void SceneCollision::Update(double dt)
 				{
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_PISTOL];
+					numberofbullets = 1;
+					dmgofgun = 4;
+					pierceforbullet = 1;
+					firerate = 1;
+				}
+				else if (Gun->type == GameObject::GO_MACHINEGUN)
+				{
+					Gun->scale.Set(5, 2, 1);
+					CurrentGun = meshList[GEO_MACHINEGUN];
 					numberofbullets = 1;
 					dmgofgun = 4;
 					pierceforbullet = 1;
@@ -1172,7 +1187,7 @@ void SceneCollision::Update(double dt)
 							G->PlayAnimation("Shoot", 0, 0.08f);
 							G->Update(dt);
 							Gun->mass++;
-							if (Gun->mass == 6 + numberofbullets)
+							if (Gun->mass == 6 + numberofbullets) 
 								shootpistolspecial = false;
 						}
 					}
@@ -1480,16 +1495,33 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-				//Enemy List		
-
+				//Enemy List
+			
+				enemyAnimationPlayed.clear();
 				for (unsigned i = 0; i < enemyList.size(); ++i)
 				{
 					Enemy* go1 = enemyList[i];
+					bool runanimation = true;
+					for (int i = 0; i < enemyAnimationPlayed.size(); i++)
+					{
+						if (enemyAnimationPlayed[i] == meshList[go1->GEOTYPE])
+						{
+							runanimation = false;
+						}
+					}
+					
+					if (runanimation)
+					{
+						go1->Update(dt, meshList[go1->GEOTYPE]);
+						enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
+					}
+					
 					go1->vel = cPlayer2D->pos - go1->pos;
 					go1->vel = go1->vel.Normalized();
 					go1->vel = go1->vel * 20;;
 					//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
 					//go1->pos += go1->vel * dt;
+
 					go1->pos += go1->vel * dt;
 					for (unsigned j = 0; j < enemyList.size(); ++j)
 					{
@@ -1510,18 +1542,18 @@ void SceneCollision::Update(double dt)
 				}
 			}
 			//leveled up
-			else if (cPlayer2D->leveledUp == true) {
-				elapsedTime += dt;
-				if (elapsedTime > timerBeforeUpgrade) {
-					static bool LMPressed = false;
-					if (Application::IsMousePressed(0) && !LMPressed) {
-						LMPressed = true;
-					}
-					else if (!Application::IsMousePressed(0) && LMPressed) {
-						LMPressed = false;
-						for (int i = 1; i < 4; ++i) {
-							float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
-							float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+		else if (cPlayer2D->leveledUp == true) {
+			elapsedTime += dt;
+			if (elapsedTime > timerBeforeUpgrade) {
+				static bool LMPressed = false;
+				if (Application::IsMousePressed(0) && !LMPressed) {
+					LMPressed = true;
+				}
+				else if (!Application::IsMousePressed(0) && LMPressed) {
+					LMPressed = false;
+					for (int i = 1; i < 4; ++i) {
+						float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
+						float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
 
 							if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
 								(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
@@ -2845,6 +2877,14 @@ void SceneCollision::RenderGO(GameObject * go)
 		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_SNIPER], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_MACHINEGUN:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, zaxis);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_MACHINEGUN], true);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_PISTOL:
