@@ -46,6 +46,7 @@ public:
 	void SpawnMapObjects();
 	void PlayerMapCheck();
 	void MapBoundary();
+	void MakeScreenShake();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
 	void PistolShooting(double elapsedTime, int numofshots);
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
@@ -79,6 +80,7 @@ protected:
 	upgrades levelUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
+	GameObject* Shield;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
@@ -159,6 +161,10 @@ protected:
 	bool shootpistolspecial;
 	float staggertimingforpistol;
 	float timerfordragon;
+
+	float screenShake[2];
+	bool SuperPainPower;
+	float shieldcooldowntimer;
 };
 
 #endif
