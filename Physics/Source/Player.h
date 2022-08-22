@@ -23,9 +23,12 @@ public:
 	virtual void Exit();
 	virtual void setmeshList(Mesh* player);
 	Vector3 pos;
+	Vector3 vel;
 	float xp;
 	bool leveledUp;
 	float hp, maxHP;
+	float rollCooldown;
+	float maxRollCooldown;
 	int getLevel();
 	void increaseLevel();
 	int getState();
@@ -56,6 +59,5 @@ protected:
 	float m_worldHeight;
 	float dmg;
 	int Walk_Speed;
-	Vector3 vel;
 
 };

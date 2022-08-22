@@ -135,7 +135,6 @@ void SceneBase::Init()
 	sa->AddAnimation("rollR", 50, 58);
 	sa->AddAnimation("death", 60, 67);
 
-
 	meshList[GEO_CARD] = MeshBuilder::GenerateQuad("card", Color(1, 1, 1), 1.f);
 	meshList[GEO_CARD]->textureID = LoadTexture("Image//upgrades//card.png", false);
 
@@ -271,14 +270,29 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\CannotBuy.ogg"), 7, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Highlight.ogg"), 8, true); //Hover over button
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Selected.ogg"), 9, true); //Button selected
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\GLSFX.ogg"), 8, true); //Cannot Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\BowSFX.ogg"), 9, true); //Cannot Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\ArrowSFX.ogg"), 10, true); //Cannot Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\ShotgunSFX.ogg"), 11, true); //Cannot Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\SniperSFX.ogg"), 12, true); //Cannot Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\RevolverSFX.ogg"), 13, true); //Cannot Buy SFX
 
-	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 3, 7);
+	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 5, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
 	meshList[GEO_COMPANION]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Companion = dynamic_cast<SpriteAnimation*>(meshList[GEO_COMPANION]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Companion->AddAnimation("RunningR", 0, 7);
 	Companion->AddAnimation("RunningL", 8, 14);
+	Companion->AddAnimation("ShootR", 22, 28);
+	Companion->AddAnimation("ShootL", 29, 35);
+
+	meshList[GEO_CHEST] = MeshBuilder::GenerateSpriteAnimation("Chest", 1, 4);
+	meshList[GEO_CHEST]->textureID = LoadTexture("Image//Chest.png", true);
+	meshList[GEO_CHEST]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* Chest = dynamic_cast<SpriteAnimation*>(meshList[GEO_CHEST]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	Chest->AddAnimation("Opening", 0, 4);
 
 	meshList[GEO_BOW] = MeshBuilder::GenerateSpriteAnimation("Bow", 3, 6);
 	meshList[GEO_BOW]->textureID = LoadTexture("Image//bow.png", true);
@@ -294,7 +308,6 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	GL->AddAnimation("Shoot", 0, 6);
 	GL->AddAnimation("ShootR", 6, 12);
-	GL->AddAnimation("Idle", 5, 6);
 
 	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
@@ -303,26 +316,22 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	Shotgun->AddAnimation("Shoot", 0, 6);
 	Shotgun->AddAnimation("ShootR", 6, 12);
-	Shotgun->AddAnimation("Idle", 5, 6);
 
-	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 2, 3);
+	meshList[GEO_PISTOL] = MeshBuilder::GenerateSpriteAnimation("Revolver", 2, 6);
 	meshList[GEO_PISTOL]->textureID = LoadTexture("Image//Revolver.png", true);
 	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Pistol->AddAnimation("Shoot", 0, 3);
-	Pistol->AddAnimation("ShootR", 3, 6);
-	Pistol->AddAnimation("Idle", 2, 3);
+	Pistol->AddAnimation("Shoot", 0, 6);
+	Pistol->AddAnimation("ShootR", 6, 12);
 
-	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 3);
+	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 6);
 	meshList[GEO_SNIPER]->textureID = LoadTexture("Image//Sniper.png", true);
 	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Sniper->AddAnimation("Shoot", 0, 3);
-	Sniper->AddAnimation("ShootR", 3, 6);
-	Sniper->AddAnimation("Idle", 2, 3);
-
+	Sniper->AddAnimation("Shoot", 0, 6);
+	Sniper->AddAnimation("ShootR", 6, 12);
 
 	//Shopkeeper
 	meshList[GEO_GRONK] = MeshBuilder::GenerateSpriteAnimation("Gronk", 1, 12);
@@ -350,7 +359,6 @@ void SceneBase::Init()
 	SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
 	//Add the animation for ocean boundary
 	ocean->AddAnimation("Waves", 0, 16);
-
 
 	bLightEnabled = true;
 }

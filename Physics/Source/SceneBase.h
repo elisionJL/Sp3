@@ -107,6 +107,7 @@ public:
 		GEO_BOUNDARY,
 		GEO_TRANSITION,
 		GEO_SUPERPAIN,
+		GEO_CHEST,
 		NUM_GEOMETRY,
 	};
 public:

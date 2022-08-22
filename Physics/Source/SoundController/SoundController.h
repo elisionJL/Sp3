@@ -40,6 +40,7 @@ public:
 
 	// Play a sound by its ID
 	void PlaySoundByID(const int ID);
+	void PlayOverlappingSoundByID(const int ID);
 	void StopPlayByID(const int ID);
 
 	//Stop all sounds

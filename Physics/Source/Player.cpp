@@ -14,6 +14,8 @@ void CPlayer2D::Init()
 	vel.Set(0, 0, 0);
 	sFacingDirection = RIGHT;
 	sCurrentState = IDLE;
+	rollCooldown = 0;
+	maxRollCooldown = 5;
 	xp = 0;
 	level = 1;
 	prevTime = elapsedTime = 0;
@@ -62,8 +64,10 @@ void CPlayer2D::Update(double dt)
 		}
 	}
 	else if (hp > 0) {
-		if (Application::IsKeyPressed('Q') && sCurrentState != DODGING) {
+		rollCooldown += dt;
+		if (Application::IsKeyPressed('Q') && sCurrentState != DODGING && rollCooldown > maxRollCooldown) {
 			sCurrentState = DODGING;
+			rollCooldown = 0;
 		}
 		if (Application::IsKeyPressed('W')) {
 			vel.y = Walk_Speed;
@@ -124,10 +128,10 @@ void CPlayer2D::Update(double dt)
 		case DODGING:
 			switch (sFacingDirection) {
 			case RIGHT:
-				sa->PlayAnimation("rollR", 0, 2.f);
+				sa->PlayAnimation("rollR", 0, 1.5f);
 				break;
 			case LEFT:
-				sa->PlayAnimation("rollL", 0, 2.f);
+				sa->PlayAnimation("rollL", 0, 1.5f);
 				break;
 			}
 			break;
