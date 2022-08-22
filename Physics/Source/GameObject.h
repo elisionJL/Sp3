@@ -38,6 +38,7 @@ struct GameObject
 		GO_BOSS_SLIME,
 		GO_TREE,
 		GO_ROCK,
+		GO_SUPERPAIN,
 		GO_EXPLOSION,
 		GO_TOTAL, //must be last
 	};

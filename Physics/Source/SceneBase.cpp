@@ -256,6 +256,8 @@ void SceneBase::Init()
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);
 
+	meshList[GEO_TRANSITION] = MeshBuilder::GenerateQuad("transition", Color(1, 1, 1), 1.f);
+	meshList[GEO_TRANSITION]->textureID = LoadTexture("Image//Black.png", true);
 
 	cSoundController = CSoundController::GetInstance();
 	cSoundController->Init();
@@ -267,6 +269,8 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Battle_Music.ogg"), 5, true, true); //Battle Music
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Buying.ogg"), 6, true); //Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\CannotBuy.ogg"), 7, true); //Cannot Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Highlight.ogg"), 8, true); //Hover over button
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Selected.ogg"), 9, true); //Button selected
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 3, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
@@ -325,7 +329,7 @@ void SceneBase::Init()
 	meshList[GEO_GRONK]->textureID = LoadTexture("Image//Gronk.png", true);
 	meshList[GEO_GRONK]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
-	//Add the animation for grok
+	//Add the animation for gronk
 	gronk->AddAnimation("Idle", 0, 12);
 
 	//Slime
@@ -339,7 +343,13 @@ void SceneBase::Init()
 	boss_slime->AddAnimation("Move Right", 16, 22);
 	boss_slime->AddAnimation("Move Left", 23, 30);
 
-
+	//Boundary
+	meshList[GEO_BOUNDARY] = MeshBuilder::GenerateSpriteAnimation("boundary", 2, 8);
+	meshList[GEO_BOUNDARY]->textureID = LoadTexture("Image//Ocean.png", true);
+	meshList[GEO_BOUNDARY]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
+	//Add the animation for ocean boundary
+	ocean->AddAnimation("Waves", 0, 16);
 
 
 	bLightEnabled = true;

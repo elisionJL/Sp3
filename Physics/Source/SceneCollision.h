@@ -141,6 +141,10 @@ protected:
 	std::vector<Vector3> coordinatesofdamagenumbers;
 	int bowframe;
 	float firerate;
+	bool MaxUpgrade;
+
+	bool Transition;
+	float SongVolumeChange;
 };
 
 #endif
