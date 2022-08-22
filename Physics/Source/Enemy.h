@@ -28,6 +28,7 @@ public:
 	};
 
 	//public vars
+	SceneBase::GEOMETRY_TYPE GEOTYPE;
 	Vector3 pos;
 	Vector3 vel;
 	Vector3 scale;
@@ -67,11 +68,25 @@ protected:
 		DOWN = 3,
 		NUM_DIRECTIONS
 	};
+	enum TYPEOFENEMY
+	{
+		SLIME = 0,
+		SPIDER = 1,
+		VAMPIRE = 2,
+		SKELETON = 3,
+		GHOST = 4,
+		NUM_TYPEOFENEMY
+	};
 
 	STATES sCurrentState;
 	//DIRECTION sFacingDirection;
 
-	Mesh* boss_slime;
 
+	Mesh* boss_slime;
+	Mesh* vampire;
+	Mesh* skeleton;
+	Mesh* ghost;
+	Mesh* zombie;
+	Mesh* spider;
 };
 

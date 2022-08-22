@@ -80,6 +80,9 @@ void Enemy::setSpawn(float playerX, float playerY, Vector3& pos)
 	}
 
 	std::cout << "pos.x : " << pos.x << " pos.y: " << pos.y << std::endl;
+
+	
+
 }
 
 void Enemy::movedistancefromotherenemies(Enemy* go1)

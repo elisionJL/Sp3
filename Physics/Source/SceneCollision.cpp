@@ -189,9 +189,9 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			}
 			else if (Gun->type == GameObject::GO_SNIPER)
 			{
-				go->vel.Normalize() *= velocityofbullet + (Gun->thickWall / 10);
+				go->vel.Normalize() *= velocityofbullet + (Gun->thickWall/ 5);
 				go->amountofpierleft = pierceforbullet + (Gun->thickWall / 50);
-				go->damage = Gun->thickWall / 100;
+				go->damage = Gun->thickWall / 50;
 			}
 			else
 			{
@@ -311,9 +311,9 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	m1 = go2->mass;
 	m2 = go2->mass;
 
-	switch (go2->type)
-	{
-	case GameObject::GO_BOSS_SLIME:
+	//switch (go2->type)
+	//{
+	//case GameObject::GO_BOSS_SLIME:
 	{
 		float dmg = dmgofgun * Bullet->bowdrawamount;
 
@@ -373,14 +373,13 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 				Bullet->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
 				go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
 				Bullet->angle = calculateAngle(Bullet->vel.x, Bullet->vel.y);
-				break;
 			}
 		}
-		break;
 	}
-	default:
-		break;
-	}
+	//	break;
+	//}
+	//default:
+	//	break;
 }
 
 void SceneCollision::DeleteEnemy(Enemy* Enemy)
@@ -914,31 +913,31 @@ void SceneCollision::Update(double dt)
 					//GameObject* enemy = FetchGO();
 					Enemy* go = new Enemy();
 
-					int whichEnemytoSpawn = Math::RandIntMinMax(0, 5);
-					switch (whichEnemytoSpawn)
-					{
-					case 0:
-						go->type = GameObject::GO_BOSS_SLIME;
-						break;
-					case 1:
-						go->type = GameObject::GO_SPIDER;
-						break;
-					case 2:
-						go->type = GameObject::GO_VAMPIRE;
-						break;
-					case 3:
-						go->type = GameObject::GO_SKELETON;
-						break;
-					case 4:
-						go->type = GameObject::GO_GHOST;
-						break;
-					}
+				int whichEnemytoSpawn = Math::RandIntMinMax(0, 4); //here Zhi Kai
+				switch (whichEnemytoSpawn)
+				{
+				case 0:
+					go->GEOTYPE = GEO_BOSS_SLIME;
+					break;
+				case 1:
+					go->GEOTYPE = GEO_SPIDER;
+					break;
+				case 2:
+					go->GEOTYPE = GEO_VAMPIRE;
+					break;
+				case 3:
+					go->GEOTYPE = GEO_SKELETON;
+					break;
+				case 4:
+					go->GEOTYPE = GEO_GHOST;
+					break;
+				}
 
-					Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
-					/*go->type = GameObject::GO_BOSS_SLIME;*/ //dont need this anymore
-					go->scale.Set(10, 10, 1);
-					go->pos = Epos;
-					go->mass = 10;
+				Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
+				/*go->type = GameObject::GO_BOSS_SLIME;*/ //dont need this anymore
+				go->scale.Set(10, 10, 1);
+				go->pos = Epos;
+				go->mass = 10;
 
 					cout << Epos.x << endl;
 					cout << Epos.y << endl;
@@ -1417,16 +1416,16 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-				//Enemy List
-				//pulling in of enemies			
-				for (unsigned i = 0; i < enemyList.size(); ++i)
-				{
-					Enemy* go1 = enemyList[i];
-					MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-					SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->type]);
-					enemy->PlayAnimation("MoveRight", -1, 2.0f);
-					enemy->Update(dt);
-					go1->pos += go1->vel * dt;
+			//Enemy List
+			//pulling in of enemies			
+			for (unsigned i = 0; i < enemyList.size(); ++i)
+			{
+				Enemy* go1 = enemyList[i];
+				MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+				SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->GEOTYPE]); //here Zhi Kai
+				enemy->PlayAnimation("MoveRight", -1, 2.0f);
+				enemy->Update(dt);
+				go1->pos += go1->vel * dt;
 
 					for (unsigned x = i; x < enemyList.size(); ++x)
 					{
@@ -3280,7 +3279,7 @@ void SceneCollision::Render()
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 				modelStack.Scale(go->scale.x, go->scale.y, 1);
-				RenderMesh(meshList[GEO_BOSS_SLIME], false);
+				RenderMesh(meshList[go->GEOTYPE], false); //here Zhi Kai
 				modelStack.PopMatrix();
 			}
 		}
