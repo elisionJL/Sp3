@@ -46,6 +46,7 @@ struct GameObject
 		GO_SUPERPAIN,
 		GO_EXPLOSION,
 		GO_CHEST,
+		GO_SHIELD,
 		GO_TOTAL, //must be last
 	};
 

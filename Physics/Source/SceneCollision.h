@@ -80,6 +80,7 @@ protected:
 	upgrades levelUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
+	GameObject* Shield;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
@@ -162,6 +163,7 @@ protected:
 
 	float screenShake[2];
 	bool SuperPainPower;
+	float shieldcooldowntimer;
 };
 
 #endif
