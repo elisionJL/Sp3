@@ -644,7 +644,7 @@ void SceneCollision::Update(double dt)
 			if (!bLButtonState && Application::IsMousePressed(0))
 			{
 				bLButtonState = true;
-				
+
 			}
 			else if (bLButtonState && !Application::IsMousePressed(0))
 			{
@@ -742,7 +742,7 @@ void SceneCollision::Update(double dt)
 				elapsedTime = 0;
 			}
 		}
-		
+
 	}
 	break;
 	case shop:
@@ -838,7 +838,7 @@ void SceneCollision::Update(double dt)
 				Enemy* go = new Enemy();
 
 				Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
-				go->sethp(10 * pow(1.1,minutes));
+				go->sethp(10 * pow(1.1, minutes));
 				go->type = GameObject::GO_BOSS_SLIME;
 				go->scale.Set(10, 10, 1);
 				go->pos = Epos;
@@ -1323,7 +1323,7 @@ void SceneCollision::Update(double dt)
 
 			//Enemy List
 			//pulling in of enemies
-			
+
 			for (unsigned i = 0; i < enemyList.size(); ++i)
 			{
 				Enemy* go1 = enemyList[i];
@@ -1363,70 +1363,71 @@ void SceneCollision::Update(double dt)
 
 							cPlayer2D->increaseLevel();
 
-						switch (levelUpgrades[i - 1]) {
-						case pierce:
-							pierceforbullet += 1;
-							break;
-						case atk:
-							dmgofgun *= 1.1;
-							break;
-						case hp:
-							cPlayer2D->IncreaseHP();
-							break;
-						case multishot:
-							numberofbullets++;
-							break;
-						case moveSpeed:
-							cPlayer2D->IncreaseSpd();
-							break;
-						case velocity:
-							velocityofbullet += 5;
-							break;
-						case fireRate:
-							firerate *= 0.95;
-							break;
-						case dragon:
-							if (Companion->mass == 1)
-							{
-								Companion->type = GameObject::GO_COMPANION;
-								Companion->mass = 5;
-								Companion->scale.Set(7, 7, 1);
-								Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
-								Companion->vel.SetZero();
-								timerfordragon = elapsedTime;
-								Companion->bounce = true; 
+							switch (levelUpgrades[i - 1]) {
+							case pierce:
+								pierceforbullet += 1;
+								break;
+							case atk:
+								dmgofgun *= 1.1;
+								break;
+							case hp:
+								cPlayer2D->IncreaseHP();
+								break;
+							case multishot:
+								numberofbullets++;
+								break;
+							case moveSpeed:
+								cPlayer2D->IncreaseSpd();
+								break;
+							case velocity:
+								velocityofbullet += 5;
+								break;
+							case fireRate:
+								firerate *= 0.95;
+								break;
+							case dragon:
+								if (Companion->mass == 1)
+								{
+									Companion->type = GameObject::GO_COMPANION;
+									Companion->mass = 5;
+									Companion->scale.Set(7, 7, 1);
+									Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+									Companion->vel.SetZero();
+									timerfordragon = elapsedTime;
+									Companion->bounce = true;
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
 			}
 		}
-		else if (pause == true) {
-			static bool LMPressed = false;
-			if (Application::IsMousePressed(0) && !LMPressed) {
-				LMPressed = true;
-			}
-			else if (!Application::IsMousePressed(0) && LMPressed) {
-				LMPressed = false;
-				float x = m_worldWidth * 0.5;
-				if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
-					pause = false;
-
+			else if (pause == true) {
+				static bool LMPressed = false;
+				if (Application::IsMousePressed(0) && !LMPressed) {
+					LMPressed = true;
 				}
-				else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-					mousePos.y <= m_worldHeight * 0.67 && mousePos.y >= m_worldHeight * 0.53)) {
-					pause = false;
-					
-					currentState = start;
-					Init();
+				else if (!Application::IsMousePressed(0) && LMPressed) {
+					LMPressed = false;
+					float x = m_worldWidth * 0.5;
+					if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
+						pause = false;
+
+					}
+					else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+						mousePos.y <= m_worldHeight * 0.67 && mousePos.y >= m_worldHeight * 0.53)) {
+						pause = false;
+
+						currentState = start;
+						Init();
+					}
 				}
 			}
-		}
 
 
-		break;
+			break;
 	case win:
 	{
 		static bool bLButtonState = false;
