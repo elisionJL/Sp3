@@ -36,9 +36,8 @@ public:
 	int type;
 	float hp;
 	float distFromPlayer;
-	
+	float expVal;
 	std::string address;
-
 	void sethp(float Nhp);
 	float gethp();
 	void setaddress(std::string ad);

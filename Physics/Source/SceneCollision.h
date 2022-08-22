@@ -12,6 +12,7 @@ public:
 
 	enum gameStates {
 		start = 0,
+		difficultySelection,
 		weaponselection,
 		main,
 		shop,
@@ -62,6 +63,9 @@ protected:
 		velocity,
 		dragon
 	};
+	enum DIFFICULTY {
+
+	};
 	Vector3 m_lineStart;
 	//Physics
 	std::vector<GameObject *> m_goList;
@@ -76,7 +80,7 @@ protected:
 	float elapsedTime;
 	float prevTime;
 	float timerbeforeweaponselect;
-
+	float timerBeforeUpgrade;
 	int score;
 	int minutes;
 	float seconds;

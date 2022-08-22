@@ -4,6 +4,7 @@ Enemy::Enemy()
 {
 	vel = 0;
 	hp = 10;
+	expVal= 1;
 }
 
 Enemy::~Enemy()
