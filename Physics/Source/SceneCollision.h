@@ -79,6 +79,7 @@ protected:
 	upgrades levelUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
+	GameObject* Shield;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
@@ -158,6 +159,7 @@ protected:
 	bool shootpistolspecial;
 	float staggertimingforpistol;
 	float timerfordragon;
+	float shieldcooldowntimer;
 };
 
 #endif

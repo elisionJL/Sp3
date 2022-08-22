@@ -264,6 +264,10 @@ void SceneBase::Init()
 	meshList[GEO_TRANSITION] = MeshBuilder::GenerateQuad("transition", Color(1, 1, 1), 1.f);
 	meshList[GEO_TRANSITION]->textureID = LoadTexture("Image//Black.png", true);
 
+
+	meshList[GEO_SHIELD] = MeshBuilder::GenerateQuad("shield", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHIELD]->textureID = LoadTexture("Image//Shield.png", true);
+
 	cSoundController = CSoundController::GetInstance();
 	cSoundController->Init();
 
