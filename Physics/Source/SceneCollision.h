@@ -47,7 +47,7 @@ public:
 	void PlayerMapCheck();
 	void MapBoundary();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
-	void PistolShooting(double elapsedTime);
+	void PistolShooting(double elapsedTime, int numofshots);
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void DeleteEnemy(Enemy* Enemy);
@@ -151,6 +151,9 @@ protected:
 	std::vector<Vector3> coordinatesofdamagenumbers;
 	int bowframe;
 	float firerate;
+	bool MaxUpgrade;
+	bool Transition;
+	float SongVolumeChange;
 	float timerforpistol;
 	bool shootpistolspecial;
 	float staggertimingforpistol;
