@@ -192,7 +192,7 @@ int CPlayer2D::getState()
 
 void CPlayer2D::IncreaseSpd()
 {
-	Walk_Speed *= 1.2f;
+	Walk_Speed *= 1.15f;
 }
 
 void CPlayer2D::IncreaseHP()
