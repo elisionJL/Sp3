@@ -741,9 +741,8 @@ void SceneCollision::Update(double dt)
 				elapsedTime = 0;
 			}
 		}
-		
+		break;		
 	}
-	break;
 	case shop:
 	{
 		zaxis = 1;
@@ -1323,8 +1322,7 @@ void SceneCollision::Update(double dt)
 			}
 
 			//Enemy List
-			//pulling in of enemies
-			
+			//pulling in of enemies			
 			for (unsigned i = 0; i < enemyList.size(); ++i)
 			{
 				Enemy* go1 = enemyList[i];
