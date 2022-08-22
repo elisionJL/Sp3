@@ -268,14 +268,14 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Battle_Music.ogg"), 5, true, true); //Battle Music
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Buying.ogg"), 6, true); //Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\CannotBuy.ogg"), 7, true); //Cannot Buy SFX
-	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Highlight.ogg"), 8, true); //Hover over button
-	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Selected.ogg"), 9, true); //Button selected
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\GLSFX.ogg"), 8, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\BowSFX.ogg"), 9, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\ArrowSFX.ogg"), 10, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\ShotgunSFX.ogg"), 11, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\SniperSFX.ogg"), 12, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\RevolverSFX.ogg"), 13, true); //Cannot Buy SFX
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Highlight.ogg"), 14, true); //Hover over button
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Selected.ogg"), 15, true); //Button selected
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 5, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
