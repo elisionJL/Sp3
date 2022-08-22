@@ -1422,36 +1422,53 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-			//Enemy List		
-
-			for (unsigned i = 0; i < enemyList.size(); ++i)
-			{
-				Enemy* go1 = enemyList[i];
-				go1->vel = cPlayer2D->pos - go1->pos;
-				go1->vel = go1->vel.Normalized();
-				go1->vel = go1->vel * 20;;
-				//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-				//go1->pos += go1->vel * dt;
-				go1->pos += go1->vel * dt;
-				for (unsigned j = 0; j < enemyList.size(); ++j)
+				//Enemy List
+			
+				enemyAnimationPlayed.clear();
+				for (unsigned i = 0; i < enemyList.size(); ++i)
 				{
-					Enemy* go2 = enemyList[j];
-					if (go1 == go2) {
-						continue;
-					}
-
-					if (go2->gethp() > 0)
+					Enemy* go1 = enemyList[i];
+					bool runanimation = true;
+					for (int i = 0; i < enemyAnimationPlayed.size(); i++)
 					{
-						CheckCollision(go1, go2, dt);
-						//if (CheckCollision(go1, go2,dt))
-						//{
-						//	//go1->pos -= go1->vel * dt;
-						//}
+						if (enemyAnimationPlayed[i] == meshList[go1->GEOTYPE])
+						{
+							runanimation = false;
+						}
+					}
+					
+					if (runanimation)
+					{
+						go1->Update(dt, meshList[go1->GEOTYPE]);
+						enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
+					}
+					
+					go1->vel = cPlayer2D->pos - go1->pos;
+					go1->vel = go1->vel.Normalized();
+					go1->vel = go1->vel * 20;;
+					//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+					//go1->pos += go1->vel * dt;
+
+					go1->pos += go1->vel * dt;
+					for (unsigned j = 0; j < enemyList.size(); ++j)
+					{
+						Enemy* go2 = enemyList[j];
+						if (go1 == go2) {
+							continue;
+						}
+
+						if (go2->gethp() > 0)
+						{
+							CheckCollision(go1, go2, dt);
+							//if (CheckCollision(go1, go2,dt))
+							//{
+							//	//go1->pos -= go1->vel * dt;
+							//}
+						}
 					}
 				}
 			}
-		}
-		//leveled up
+			//leveled up
 		else if (cPlayer2D->leveledUp == true) {
 			elapsedTime += dt;
 			if (elapsedTime > timerBeforeUpgrade) {
