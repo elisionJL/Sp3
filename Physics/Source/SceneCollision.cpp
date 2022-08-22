@@ -505,6 +505,7 @@ float SceneCollision::CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2
 
 void SceneCollision::MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt)
 {
+
 	//Vector3 relativeVel = cPlayer2D->vel - enemy->vel;
 	//Vector3 disDiff = enemy->pos - cPlayer2D->pos;
 
@@ -518,12 +519,12 @@ void SceneCollision::MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, dou
 
 	}
 	else*/
-	{
+	/*{
 		float sign = 1;
 		Vector3 dir = sign * (cPlayer2D->pos - enemy->pos).Normalized();
 		float force = CalculateAdditionalForce(enemy, cPlayer2D);
 		enemy->vel += 1.f / enemy->mass * dir * force * dt;
-	}
+	}*/
 }
 
 void SceneCollision::RenderDmgNum(Vector3 posanddmg)
@@ -825,6 +826,10 @@ void SceneCollision::Update(double dt)
 		switchdmgnum = 1;
 		coordinatesofdamagenumbers.clear();
 		seconds -= dt;
+		SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
+		//Add the animation for ocean boundary
+		ocean->PlayAnimation("Waves", -1, 5.f);
+		ocean->Update(dt);
 
 		if (Transition == true) {
 			elapsedTime += 1 * dt;
@@ -1417,32 +1422,39 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-				//Enemy List
-				//pulling in of enemies			
-				for (unsigned i = 0; i < enemyList.size(); ++i)
+			//Enemy List		
+
+			for (unsigned i = 0; i < enemyList.size(); ++i)
+			{
+				Enemy* go1 = enemyList[i];
+				go1->vel = cPlayer2D->pos - go1->pos;
+				go1->vel = go1->vel.Normalized();
+				go1->vel = go1->vel * 20;;
+				//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+				//go1->pos += go1->vel * dt;
+				go1->pos += go1->vel * dt;
+				for (unsigned j = 0; j < enemyList.size(); ++j)
 				{
-					Enemy* go1 = enemyList[i];
-					MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-					SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->GEOTYPE]); //here Zhi Kai
-					enemy->PlayAnimation("MoveRight", -1, 2.0f);
-					enemy->Update(dt);
-					go1->pos += go1->vel * dt;
+					Enemy* go2 = enemyList[j];
+					if (go1 == go2) {
+						continue;
+					}
 
-					for (unsigned x = i; x < enemyList.size(); ++x)
+					if (go2->gethp() > 0)
 					{
-						Enemy* go2 = enemyList[x];
-
-						if (go2->gethp() > 0 && go2 != go1)
-						{
-							if (CheckCollision(go1, go2))
-							{
-								go1->pos -= go1->vel * dt;
-							}
-						}
+						CheckCollision(go1, go2, dt);
+						//if (CheckCollision(go1, go2,dt))
+						//{
+						//	//go1->pos -= go1->vel * dt;
+						//}
 					}
 				}
 			}
-			else if (cPlayer2D->leveledUp == true) {
+		}
+		//leveled up
+		else if (cPlayer2D->leveledUp == true) {
+			elapsedTime += dt;
+			if (elapsedTime > timerBeforeUpgrade) {
 				static bool LMPressed = false;
 				if (Application::IsMousePressed(0) && !LMPressed) {
 					LMPressed = true;
@@ -1497,17 +1509,19 @@ void SceneCollision::Update(double dt)
 					}
 				}
 			}
-			else if (pause == true) {
-				static bool LMPressed = false;
-				if (Application::IsMousePressed(0) && !LMPressed) {
-					LMPressed = true;
-				}
-				else if (!Application::IsMousePressed(0) && LMPressed) {
-					LMPressed = false;
-					float x = m_worldWidth * 0.5;
-					if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
-						pause = false;
+		}
+		//pause
+		else if (pause == true) {
+			static bool LMPressed = false;
+			if (Application::IsMousePressed(0) && !LMPressed) {
+				LMPressed = true;
+			}
+			else if (!Application::IsMousePressed(0) && LMPressed) {
+				LMPressed = false;
+				float x = m_worldWidth * 0.5;
+				if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
+					pause = false;
 
 					}
 					else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
@@ -1637,94 +1651,27 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2)
 		}
 }
 
-bool SceneCollision::CheckCollision(Enemy * enemy1, Enemy * enemy2)
+bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2,double dt)
 {
-
-	Vector3 relativeVel = enemy1->vel - enemy2->vel;
-
 	Vector3 disDiff = enemy2->pos - enemy1->pos;
-
-	if (enemy1->pos.y > enemy2->pos.y)
-	{
-		disDiff -= Vector3(0, enemy1->scale.y / 2, 0);
-	}
-	else
-	{
-		disDiff += Vector3(0, enemy1->scale.y / 2, 0);
-	}
-
-	if (enemy1->pos.x > enemy2->pos.x)
-	{
-		disDiff -= Vector3(enemy1->scale.x / 2, 0, 0);
-	}
-	else
-	{
-		disDiff += Vector3(enemy1->scale.x / 2, 0, 0);
-	}
-
-
-	if (relativeVel.Dot(disDiff) <= 0) {
-		return false;
-	}
-	if (enemy1->pos.y > enemy2->pos.y)
-	{
-		if (enemy1->pos.y - enemy1->scale.y <= enemy2->pos.y)
-		{
-			enemy1->usePrevY = true;
-			enemy1->enemyup = true;
+	//check if they are near each other
+	if (disDiff.Length() <= enemy1->scale.x + (enemy1->vel.x * dt) - 5) {
+		//response
+		//check if enemy1 is moving away from enemy 2
+		if ((disDiff.x > 0 && enemy1->vel.x > 0) ||
+			(disDiff.x < 0 && enemy1->vel.x < 0)) {
+			enemy1->pos.x -= enemy1 ->vel.x * dt;
 		}
-		else
-		{
-			enemy1->usePrevY = false;
-			enemy1->enemyup = false;
+		if ((disDiff.y > 0 && enemy1->vel.y > 0) ||
+			(disDiff.y < 0 && enemy1->vel.y < 0)) {
+			enemy1->pos.y -= enemy1->vel.y * dt;
 		}
 	}
-	else
-	{
-		if (enemy1->pos.y + enemy1->scale.y >= enemy2->pos.y)
-		{
-			enemy1->usePrevY = true;
-			enemy1->enemyup = true;
-		}
-		else
-		{
-			enemy1->usePrevY = false;
-			enemy1->enemyup = false;
-		}
-	}
-
-	if (enemy1->pos.x > enemy2->pos.x)
-	{
-		if (enemy1->pos.x - enemy1->scale.x <= enemy2->pos.x)
-		{
-			enemy1->usePrevX = true;
-			enemy1->enemytoright = true;
-		}
-		else
-		{
-			enemy1->usePrevX = false;
-			enemy1->enemytoright = false;
-		}
-	}
-	else
-	{
-		if (enemy1->pos.x + enemy1->scale.x >= enemy2->pos.x)
-		{
-			enemy1->usePrevX = true;
-			enemy1->enemytoleft = true;
-		}
-		else
-		{
-			enemy1->usePrevX = false;
-			enemy1->enemytoleft = false;
-		}
-	}
-
-	return disDiff.LengthSquared() <= (enemy1->scale.x + enemy2->scale.x) * (enemy1->scale.x + enemy2->scale.x);
+	return 0;
 
 }
 
-bool SceneCollision::CheckCollision(Enemy * enemy, GameObject * go)
+bool SceneCollision::CheckCollision(Enemy* enemy, GameObject* go)
 {
 	return false;
 }
@@ -2144,6 +2091,7 @@ void SceneCollision::ShopUI()
 		}
 	}
 }
+
 void SceneCollision::RenderGronkDialogue()
 {
 	double x, y, windowwidth, windowheight;
@@ -2429,7 +2377,7 @@ void SceneCollision::SpawnMapObjects()
 	ObjectCount = 0;
 	int ObjectType;
 
-	while (ObjectCount < 200)
+	while (ObjectCount < 100)
 	{
 		ObjectType = rand() % 100 + 1; //Value between 1 and 100
 		bool ObjectCollided;
@@ -2442,8 +2390,8 @@ void SceneCollision::SpawnMapObjects()
 
 		unsigned size = m_goList.size();
 
-		SpawnX = ((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth)) + static_cast<float>(rand()) * static_cast<float>(((m_worldWidth + m_worldWidth + m_worldWidth)) - ((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth))) / RAND_MAX;
-		SpawnY = ((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight)) + static_cast<float>(rand()) * static_cast<float>(((m_worldHeight + m_worldHeight + m_worldHeight)) - ((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight))) / RAND_MAX;
+		SpawnX = (-m_worldWidth * 2.4f) + static_cast<float>(rand()) * static_cast<float>((m_worldWidth * 2.4f) - (-m_worldWidth * 2.4f)) / RAND_MAX;
+		SpawnY = (-m_worldHeight * 2.9f) + static_cast<float>(rand()) * static_cast<float>((m_worldHeight * 2.9f) - (-m_worldHeight * 2.9f)) / RAND_MAX;
 
 		//TreeSpawnPos.Set(SpawnX, SpawnY, 4.f);
 		for (unsigned i = 0; i < size; ++i)
@@ -2618,14 +2566,14 @@ void SceneCollision::PlayerMapCheck()
 
 void SceneCollision::MapBoundary()
 {
-	if (cPlayer2D->pos.y >= 295.f)
-		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, 295.f, 295.f);
-	if (cPlayer2D->pos.y <= -295.f)
-		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, -295.f, -295.f);
-	if (cPlayer2D->pos.x >= 455.f)
-		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, 455.f, 455.f);
-	if (cPlayer2D->pos.x <= -455.f)
-		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, -455.f, -455.f);
+	if (cPlayer2D->pos.y >= m_worldHeight * 2.9f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, m_worldHeight * 2.9f, m_worldHeight * 2.9f);
+	if (cPlayer2D->pos.y <= -m_worldHeight * 2.9f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, -m_worldHeight * 2.9f, -m_worldHeight * 2.9f);
+	if (cPlayer2D->pos.x >= m_worldWidth * 2.4f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, m_worldWidth * 2.4f, m_worldWidth * 2.4f);
+	if (cPlayer2D->pos.x <= -m_worldWidth * 2.4f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, -m_worldWidth * 2.4f, -m_worldWidth * 2.4f);
 }
 
 float SceneCollision::calculateAngle(float x, float y)
@@ -3118,16 +3066,6 @@ void SceneCollision::Render()
 	}
 	case main:
 	{
-		if (Transition == true)
-		{
-			if (elapsedTime >= 3.f)
-				elapsedTime = 3.f;
-			modelStack.PushMatrix();
-			modelStack.Translate(m_worldWidth / 2, elapsedTime * m_worldHeight, 10);
-			modelStack.Scale(200, 200, 1);
-			RenderMesh(meshList[GEO_TRANSITION], false);
-			modelStack.PopMatrix();
-		}
 		//Render Background
 		for (int x = 1; x <= 5; ++x)
 		{
@@ -3179,9 +3117,9 @@ void SceneCollision::Render()
 		//Render Boundary
 		float RenderDistance;
 		RenderDistance = 0;
-		for (int y = 0; y < 6; ++y)
+		for (int y = 0; y < 1; ++y)
 		{
-			for (int x = -60; x < 60; ++x)
+			for (int x = -56; x < 38; ++x)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * 3.05) + (9.8 * y), zaxis).Length();
 
@@ -3198,9 +3136,9 @@ void SceneCollision::Render()
 				}
 			}
 		}
-		for (int y = 0; y < 6; ++y)
+		for (int y = 0; y < 1; ++y)
 		{
-			for (int x = -60; x < 60; ++x)
+			for (int x = -56; x < 38; ++x)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * -3.05) - (9.8 * y), zaxis).Length();
 
@@ -3210,16 +3148,16 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * -3.05) - (9.8 * y), 3);
+					modelStack.Translate((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * -3.025) - (9.8 * y), 3);
 					modelStack.Scale(10, 10, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
 			}
 		}
-		for (int x = 0; x < 9; ++x)
+		for (int x = 0; x < 1; ++x)
 		{
-			for (int y = -60; y < 60; ++y)
+			for (int y = -36; y < 27; ++y)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * -2.55) - (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
 
@@ -3229,16 +3167,16 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth * -2.55) - (9.8f * x), (m_worldHeight / 2) + (9.8 * y), 3);
+					modelStack.Translate((m_worldWidth * -2.54) - (9.8f * x), (m_worldHeight / 2) + (9.8 * y), 3);
 					modelStack.Scale(10, 10, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
 			}
 		}
-		for (int x = 0; x < 9; ++x)
+		for (int x = 0; x < 1; ++x)
 		{
-			for (int y = -60; y < 60; ++y)
+			for (int y = -36; y < 27; ++y)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * 2.55) + (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
 
@@ -3248,7 +3186,7 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth * 2.55) + (9.8f * x), (m_worldHeight / 2) + (9.8 * y), 3);
+					modelStack.Translate((m_worldWidth * 2.528) + (9.8f * x), (m_worldHeight / 2) + (9.8 * y), 3);
 					modelStack.Scale(10, 10, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
@@ -3284,6 +3222,28 @@ void SceneCollision::Render()
 				modelStack.PopMatrix();
 			}
 		}
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth/2) + camera.position.x , (m_worldHeight*0.1)+ camera.position.y ,zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth*0.3, 3, 1);
+		meshList[GEO_ROLLBAR]->material.kAmbient.Set(1, 0, 0);
+		RenderMesh(meshList[GEO_ROLLBAR], true);
+		modelStack.PopMatrix();
+
+		float rollScaleX =Math::Clamp(Math::Min(cPlayer2D->rollCooldown / cPlayer2D->maxRollCooldown, 1.f),0.01f, 1.f);
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.1) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.3 * rollScaleX, 3, 1);
+		meshList[GEO_ROLLBAR]->material.kAmbient.Set(0,1, 0);
+		RenderMesh(meshList[GEO_ROLLBAR], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.1) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.1, 3, 1);
+		RenderMesh(meshList[GEO_ROLL], true);
+		modelStack.PopMatrix();
 
 		for (int i = 0; i < timerfordmgnumber.size(); ++i)
 		{
@@ -3531,7 +3491,16 @@ void SceneCollision::Render()
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 50, 14);
 		}
 
-
+		if (Transition == true)
+		{
+			if (elapsedTime >= 3.f)
+				elapsedTime = 3.f;
+			modelStack.PushMatrix();
+			modelStack.Translate(m_worldWidth / 2, elapsedTime * m_worldHeight, 10);
+			modelStack.Scale(200, 200, 1);
+			RenderMesh(meshList[GEO_TRANSITION], false);
+			modelStack.PopMatrix();
+		}
 		break;
 	}
 	case win:

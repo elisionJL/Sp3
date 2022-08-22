@@ -14,7 +14,7 @@ public:
 	//init
 	bool Init(void);
 	//update
-	void Update(const double dElapsedTime);
+	void Update(const double dElapsedTime, Mesh* CurrentMesh);
 	
 	static void setSpawn(float x, float y,Vector3& pos);
 	void movedistancefromotherenemies(Enemy* go1);

@@ -5,7 +5,7 @@
 void CPlayer2D::Init()
 {
 	maxHP = hp = 30;
-	Walk_Speed = 10;
+	Walk_Speed = 30;
 	dmg = Lives = 1;
 	Gold = 0;
 	m_worldHeight = 100.f;
@@ -192,7 +192,7 @@ int CPlayer2D::getState()
 
 void CPlayer2D::IncreaseSpd()
 {
-	Walk_Speed *= 1.2f;
+	Walk_Speed *= 1.15f;
 }
 
 void CPlayer2D::IncreaseHP()

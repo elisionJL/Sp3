@@ -112,6 +112,8 @@ public:
 		GEO_SKELETON,
 		GEO_GHOST,
 		GEO_SPIDER,
+		GEO_ROLLBAR,
+		GEO_ROLL,
 		NUM_GEOMETRY,
 	};
 public:
