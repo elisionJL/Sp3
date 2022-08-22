@@ -1423,9 +1423,7 @@ void SceneCollision::Update(double dt)
 				{
 					Enemy* go1 = enemyList[i];
 					MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-					SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->GEOTYPE]); //here Zhi Kai
-					enemy->PlayAnimation("MoveRight", -1, 2.0f);
-					enemy->Update(dt);
+					go1->Update(dt, meshList[go1->GEOTYPE]);
 					go1->pos += go1->vel * dt;
 
 					for (unsigned x = i; x < enemyList.size(); ++x)
