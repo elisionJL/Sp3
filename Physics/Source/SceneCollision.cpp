@@ -311,9 +311,9 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	m1 = go2->mass;
 	m2 = go2->mass;
 
-	switch (go2->type)
+	/*switch (go2->type)
 	{
-	case GameObject::GO_BOSS_SLIME:
+	case GameObject::GO_BOSS_SLIME:*/
 	{
 		float dmg = dmgofgun * Bullet->bowdrawamount;
 
@@ -373,14 +373,14 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 				Bullet->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
 				go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
 				Bullet->angle = calculateAngle(Bullet->vel.x, Bullet->vel.y);
-				break;
+				//break;
 			}
 		}
-		break;
+		//break;
 	}
-	default:
+	/*	default:
 		break;
-	}
+	}*/
 }
 
 void SceneCollision::DeleteEnemy(Enemy* Enemy)
@@ -914,23 +914,23 @@ void SceneCollision::Update(double dt)
 					//GameObject* enemy = FetchGO();
 					Enemy* go = new Enemy();
 
-					int whichEnemytoSpawn = Math::RandIntMinMax(0, 5);
+					int whichEnemytoSpawn = Math::RandIntMinMax(0, 4); //here Zhi Kai
 					switch (whichEnemytoSpawn)
 					{
 					case 0:
-						go->type = GameObject::GO_BOSS_SLIME;
+						go->GEOTYPE = GEO_BOSS_SLIME;
 						break;
 					case 1:
-						go->type = GameObject::GO_SPIDER;
+						go->GEOTYPE = GEO_SPIDER;
 						break;
 					case 2:
-						go->type = GameObject::GO_VAMPIRE;
+						go->GEOTYPE = GEO_VAMPIRE;
 						break;
 					case 3:
-						go->type = GameObject::GO_SKELETON;
+						go->GEOTYPE = GEO_SKELETON;
 						break;
 					case 4:
-						go->type = GameObject::GO_GHOST;
+						go->GEOTYPE = GEO_GHOST;
 						break;
 					}
 
@@ -1423,7 +1423,7 @@ void SceneCollision::Update(double dt)
 				{
 					Enemy* go1 = enemyList[i];
 					MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-					SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->type]);
+					SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->GEOTYPE]); //here Zhi Kai
 					enemy->PlayAnimation("MoveRight", -1, 2.0f);
 					enemy->Update(dt);
 					go1->pos += go1->vel * dt;
@@ -3280,7 +3280,7 @@ void SceneCollision::Render()
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 				modelStack.Scale(go->scale.x, go->scale.y, 1);
-				RenderMesh(meshList[GEO_BOSS_SLIME], false);
+				RenderMesh(meshList[go->GEOTYPE], false); //here Zhi Kai
 				modelStack.PopMatrix();
 			}
 		}
