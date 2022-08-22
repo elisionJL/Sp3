@@ -167,6 +167,9 @@ void SceneBase::Init()
 	meshList[GEO_START] = MeshBuilder::GenerateQuad("start", Color(1, 1, 1), 1.f);
 	meshList[GEO_START]->textureID = LoadTexture("Image//Start_Game.png", true);
 
+	meshList[GEO_SUPERPAIN] = MeshBuilder::GenerateQuad("superpain", Color(1, 1, 1), 1.f);
+	meshList[GEO_SUPERPAIN]->textureID = LoadTexture("Image//Power_Up.png", true);
+
 	meshList[GEO_PROJECTILE] = MeshBuilder::GenerateQuad("bullet", Color(1, 1, 1), 1.f);
 
 	meshList[GEO_RETRY] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
@@ -180,7 +183,6 @@ void SceneBase::Init()
 
 	meshList[GEO_LVLUPBG] = MeshBuilder::GenerateQuad("LVLUPBG", Color(1, 1, 1), 1.f);
 	meshList[GEO_LVLUPBG]->textureID = LoadTexture("Image//Tree2.png", true);
-
 
 	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("lose", Color(1, 1, 1), 1.f);
 	meshList[GEO_LOSE]->textureID = LoadTexture("Image//loseScreen.psd", true);
@@ -282,6 +284,7 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\RevolverSFX.ogg"), 13, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Highlight.ogg"), 14, true); //Hover over button
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Selected.ogg"), 15, true); //Button selected
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\SuperPainBomb.wav"), 16, true); //Button selected
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 5, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);

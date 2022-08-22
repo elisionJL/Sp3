@@ -89,6 +89,10 @@ void SceneCollision::Init()
 	timerfordragon = 0;
 	shootpistolspecial = false;
 	staggertimingforpistol = 0;
+
+	screenShake[0] = 0;
+	screenShake[1] = 0;
+	SuperPainPower = false;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -389,7 +393,8 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 	{
 		if (enemyList[i] == Enemy)
 		{
-			cPlayer2D->xp += Enemy->expVal;
+			if(SuperPainPower == false)
+				cPlayer2D->xp += Enemy->expVal;
 			enemyList.erase(enemyList.begin() + i);
 			score += 10;
 			if (Enemy->type == GameObject::GO_BOSS_SLIME)
@@ -597,7 +602,7 @@ void SceneCollision::Update(double dt)
 	static bool bLButtonState = false;
 
 	if (currentState == main)
-		camera.Update(dt, cPlayer2D->pos, m_worldWidth, m_worldHeight);
+		camera.Update(dt, Vector3(cPlayer2D->pos.x + screenShake[0], cPlayer2D->pos.y + screenShake[1], cPlayer2D->pos.z), m_worldWidth, m_worldHeight);
 	else {
 		camera.position.Set(0, 0, 1);
 		camera.target.Set(0, 0, 0);
@@ -851,6 +856,29 @@ void SceneCollision::Update(double dt)
 
 		else if (Transition == false)
 		{
+			if (SuperPainPower == true)
+			{
+				elapsedTime += 1 * dt;
+				MakeScreenShake();
+				for (int i = 0; i < enemyList.size(); ++i)
+				{
+					Enemy* enemy = enemyList[i];
+
+					float Distance = cPlayer2D->pos.Length() - enemy->pos.Length();
+
+					if (Distance < 0)
+						Distance = -Distance;
+
+					if (Distance < 100) {
+						DeleteEnemy(enemy);
+					}
+				}
+			}
+			if (elapsedTime > 3.f)
+			{
+				SuperPainPower = false;
+				elapsedTime = 0;
+			}
 			if (minutes == 0 && seconds < 0) {
 				currentState = win;
 				break;
@@ -2393,7 +2421,6 @@ void SceneCollision::SpawnMapObjects()
 		SpawnX = (-m_worldWidth * 2.4f) + static_cast<float>(rand()) * static_cast<float>((m_worldWidth * 2.4f) - (-m_worldWidth * 2.4f)) / RAND_MAX;
 		SpawnY = (-m_worldHeight * 2.9f) + static_cast<float>(rand()) * static_cast<float>((m_worldHeight * 2.9f) - (-m_worldHeight * 2.9f)) / RAND_MAX;
 
-		//TreeSpawnPos.Set(SpawnX, SpawnY, 4.f);
 		for (unsigned i = 0; i < size; ++i)
 		{
 			GameObject* go = m_goList[i];
@@ -2436,6 +2463,25 @@ void SceneCollision::SpawnMapObjects()
 				}
 			}
 
+			else if (go->type == GameObject::GO_SUPERPAIN)
+			{
+				float NegX = go->pos.x - 9.f;
+				float PosX = go->pos.x + 9.f;
+				float NegY = go->pos.y - 7.5f;
+				float PosY = go->pos.y + 7.5f;
+
+				if (SpawnX + 9.f >= NegX && SpawnX - 9.f <= PosX)
+				{
+					if (SpawnY + 7.5f >= NegY && SpawnY - 7.5f <= PosY)
+						ObjectCollided = true;
+				}
+				else if (SpawnY + 7.5f >= NegY && SpawnY - 7.5f <= PosY)
+				{
+					if (SpawnX + 9.f >= NegX && SpawnX - 9.f <= PosX)
+						ObjectCollided = true;
+				}
+			}
+
 			if (i == size - 1)
 			{
 				if (ObjectCount == 0)
@@ -2465,7 +2511,7 @@ void SceneCollision::SpawnMapObjects()
 				{
 					if (ObjectCollided == false)
 					{
-						if (ObjectType >= 1 && ObjectType <= 60) //Tree
+						if (ObjectType >= 1 && ObjectType <= 55) //Tree
 						{
 							GameObject* Tree = FetchGO();
 							Tree->type = GameObject::GO_TREE;
@@ -2475,7 +2521,7 @@ void SceneCollision::SpawnMapObjects()
 							Tree->vel.SetZero();
 						}
 
-						else if (ObjectType > 60 && ObjectType <= 100) //Rock
+						else if (ObjectType > 55 && ObjectType <= 95) //Rock
 						{
 							GameObject* Tree = FetchGO();
 							Tree->type = GameObject::GO_ROCK;
@@ -2484,9 +2530,18 @@ void SceneCollision::SpawnMapObjects()
 							Tree->normal.Set(0, 1, 0);
 							Tree->vel.SetZero();
 						}
+
+						else if (ObjectType > 95) //Destroy all enemy
+						{
+							GameObject* superPain = FetchGO();
+							superPain->type = GameObject::GO_SUPERPAIN;
+							superPain->scale.Set(10, 10, 1.0f);
+							superPain->pos.Set(SpawnX, SpawnY, 4.f);
+							superPain->normal.Set(0, 1, 0);
+							superPain->vel.SetZero();
+						}
 					}
 				}
-
 				break;
 			}
 		}
@@ -2560,6 +2615,50 @@ void SceneCollision::PlayerMapCheck()
 					}
 				}
 			}
+
+			if (go->type == GameObject::GO_SUPERPAIN)
+			{
+				if (cPlayer2D->pos.x >= go->pos.x - 9.f && cPlayer2D->pos.x <= go->pos.x + 9.f)
+				{
+					if (cPlayer2D->pos.y >= go->pos.y - 7.5f && cPlayer2D->pos.y <= go->pos.y + 7.5f)
+					{
+						Vector3 TempPos;
+						TempPos = { go->pos.x - 9.f, go->pos.y, go->pos.z };
+						Vector3 NegativeX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x + 9.f, go->pos.y, go->pos.z };
+						Vector3 PositiveX = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y - 7.5f, go->pos.z };
+						Vector3 NegativeY = TempPos - cPlayer2D->pos;
+						TempPos = { go->pos.x, go->pos.y + 7.5f, go->pos.z };
+						Vector3 PositiveY = TempPos - cPlayer2D->pos;
+
+						if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length()) 
+						{
+							SuperPainPower = true;
+							go->active = false;
+							cSoundController->PlaySoundByID(16);
+						}
+						else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
+						{
+							SuperPainPower = true;
+							go->active = false;
+							cSoundController->PlaySoundByID(16);
+						}
+						else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
+						{
+							SuperPainPower = true;
+							go->active = false;
+							cSoundController->PlaySoundByID(16);
+						}
+						else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
+						{
+							SuperPainPower = true;
+							go->active = false;
+							cSoundController->PlaySoundByID(16);
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -2574,6 +2673,12 @@ void SceneCollision::MapBoundary()
 		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, m_worldWidth * 2.4f, m_worldWidth * 2.4f);
 	if (cPlayer2D->pos.x <= -m_worldWidth * 2.4f)
 		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, -m_worldWidth * 2.4f, -m_worldWidth * 2.4f);
+}
+
+void SceneCollision::MakeScreenShake()
+{
+	screenShake[0] = -2.5f + static_cast<float>(rand()) * static_cast<float>(2.5f - -2.5f) / RAND_MAX;
+	screenShake[1] = -2.5f + static_cast<float>(rand()) * static_cast<float>(2.5f - -2.5f) / RAND_MAX;
 }
 
 float SceneCollision::calculateAngle(float x, float y)
@@ -2654,6 +2759,15 @@ void SceneCollision::RenderGO(GameObject * go)
 			RenderMesh(meshList[GEO_ROCK], false);
 			modelStack.PopMatrix();
 		}
+	}
+	break;
+	case GameObject::GO_SUPERPAIN:
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+		modelStack.Scale(go->scale.x, go->scale.y, 1);
+		RenderMesh(meshList[GEO_SUPERPAIN], false);
+		modelStack.PopMatrix();
 	}
 	break;
 	case GameObject::GO_COMPANION:
