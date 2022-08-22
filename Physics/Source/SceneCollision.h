@@ -69,7 +69,8 @@ protected:
 		dragon
 	};
 	enum DIFFICULTY {
-
+		easy = 1,
+		hard = 2
 	};
 	Vector3 m_lineStart;
 	//Physics
@@ -81,7 +82,7 @@ protected:
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
-	
+	DIFFICULTY difficulty;
 	float elapsedTime;
 	float prevTime;
 	float timerbeforeweaponselect;

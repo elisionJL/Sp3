@@ -631,6 +631,23 @@ void SceneCollision::Update(double dt)
 		break;
 	}
 	case difficultySelection:
+	{
+		static bool leftclick = false;
+		if ((!leftclick && Application::IsMousePressed(0))) {
+			leftclick = true;
+		} 
+		else if (leftclick && !Application::IsMousePressed(0)) {
+			leftclick = false;
+			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) &&
+				(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
+				difficulty = easy;
+			}
+			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) &&
+				(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
+				difficulty = hard;
+			}
+		}
+	}
 		break;
 	case weaponselection:
 	{
@@ -864,6 +881,7 @@ void SceneCollision::Update(double dt)
 
 			SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 			bool shooting = true;
+			//shooting
 			{
 				if (Application::IsMousePressed(0) && shooting && !needtofinishanimation)
 				{
@@ -1043,7 +1061,7 @@ void SceneCollision::Update(double dt)
 							shootpistolspecial = false;
 					}
 				}
-			}
+			}  
 
 			unsigned size = m_goList.size();
 
@@ -1344,6 +1362,7 @@ void SceneCollision::Update(double dt)
 				}
 			}
 		}
+		//leveled up
 		else if (cPlayer2D->leveledUp == true) {
 			elapsedTime += dt;
 			if (elapsedTime > timerBeforeUpgrade) {
@@ -1403,28 +1422,29 @@ void SceneCollision::Update(double dt)
 				}
 			}
 		}
-			else if (pause == true) {
-				static bool LMPressed = false;
-				if (Application::IsMousePressed(0) && !LMPressed) {
-					LMPressed = true;
+		//pause
+		else if (pause == true) {
+			static bool LMPressed = false;
+			if (Application::IsMousePressed(0) && !LMPressed) {
+				LMPressed = true;
+			}
+			else if (!Application::IsMousePressed(0) && LMPressed) {
+				LMPressed = false;
+				float x = m_worldWidth * 0.5;
+				if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
+					pause = false;
+
 				}
-				else if (!Application::IsMousePressed(0) && LMPressed) {
-					LMPressed = false;
-					float x = m_worldWidth * 0.5;
-					if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
-						pause = false;
+				else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+					mousePos.y <= m_worldHeight * 0.67 && mousePos.y >= m_worldHeight * 0.53)) {
+					pause = false;
 
-					}
-					else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-						mousePos.y <= m_worldHeight * 0.67 && mousePos.y >= m_worldHeight * 0.53)) {
-						pause = false;
-
-						currentState = start;
-						Init();
-					}
+					currentState = start;
+					Init();
 				}
 			}
+		}
 
 
 			break;
@@ -2771,6 +2791,11 @@ void SceneCollision::Render()
 	switch (currentState) {
 	case start:
 		RenderTitleScreen();
+		break;
+	case difficultySelection:
+	{
+		
+	}
 		break;
 	case weaponselection:
 	{
