@@ -17,6 +17,7 @@ public:
 	void Update(const double dElapsedTime);
 	
 	static void setSpawn(float x, float y,Vector3& pos);
+	void movedistancefromotherenemies(Enemy* go1);
 
 	enum STATES
 	{
@@ -35,12 +36,18 @@ public:
 	bool usePrevY;
 	int type;
 	float hp;
+	int amountoftimesitstayed;
+	bool enemytoleft, enemytoright, enemyup, enemydown;
 	float distFromPlayer;
 	float expVal;
+	int mass;
+	
 	std::string address;
 	void sethp(float Nhp);
 	float gethp();
 	void setaddress(std::string ad);
+
+	//int getDirection();
 
 protected:
 	enum SPAWN
@@ -62,7 +69,9 @@ protected:
 	};
 
 	STATES sCurrentState;
-	DIRECTION sFacingDirection;
+	//DIRECTION sFacingDirection;
+
+	Mesh* boss_slime;
 
 };
 

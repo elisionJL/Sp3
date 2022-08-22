@@ -9,6 +9,7 @@
 class SceneCollision : public SceneBase
 {
 public:
+	static const float GRAVITY_CONSTANT;
 
 	enum gameStates {
 		start = 0,
@@ -46,12 +47,16 @@ public:
 	void PlayerMapCheck();
 	void MapBoundary();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
+	void PistolShooting(double elapsedTime);
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void DeleteEnemy(Enemy* Enemy);
 	void DamageNumbers(int damage, Enemy* Enem);
 	void RenderDmgNum(Vector3 dmgandtime);
 	bool Movingofdamagenumbers(float posX, int dmg);
+	void dragonshooting(int numberofshots, float strengthofproj, int piercing);
+	float CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2D);
+	void MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt);
 protected:
 	enum upgrades {
 		atk = 0,
@@ -145,6 +150,10 @@ protected:
 	std::vector<Vector3> coordinatesofdamagenumbers;
 	int bowframe;
 	float firerate;
+	float timerforpistol;
+	bool shootpistolspecial;
+	float staggertimingforpistol;
+	float timerfordragon;
 };
 
 #endif

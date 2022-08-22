@@ -104,6 +104,7 @@ public:
 		GEO_BOSS_SLIME,
 		GEO_EXPLOSION,
 		GEO_LVLUPBG,
+		GEO_CHEST,
 		NUM_GEOMETRY,
 	};
 public:
