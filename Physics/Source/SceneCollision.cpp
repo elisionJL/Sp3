@@ -719,6 +719,12 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
+				if (elapsedTime > 5)
+				{
+					Startgame = true;
+					Gun->type = GameObject::GO_MACHINEGUN;
+				}
+
 				Gun->mass = 2;
 				GunFrameWhereItStarts = 6;
 				if (Gun->type == GameObject::GO_GL)
@@ -766,6 +772,15 @@ void SceneCollision::Update(double dt)
 				{
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_PISTOL];
+					numberofbullets = 1;
+					dmgofgun = 4;
+					pierceforbullet = 1;
+					firerate = 1;
+				}
+				else if (Gun->type == GameObject::GO_MACHINEGUN)
+				{
+					Gun->scale.Set(5, 2, 1);
+					CurrentGun = meshList[GEO_MACHINEGUN];
 					numberofbullets = 1;
 					dmgofgun = 4;
 					pierceforbullet = 1;
@@ -1144,7 +1159,7 @@ void SceneCollision::Update(double dt)
 							G->PlayAnimation("Shoot", 0, 0.08f);
 							G->Update(dt);
 							Gun->mass++;
-							if (Gun->mass == 6 + numberofbullets)
+							if (Gun->mass == 6 + numberofbullets) 
 								shootpistolspecial = false;
 						}
 					}
@@ -2731,6 +2746,14 @@ void SceneCollision::RenderGO(GameObject * go)
 		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
 		RenderMesh(meshList[GEO_SNIPER], true);
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_MACHINEGUN:
+		modelStack.PushMatrix();
+		modelStack.Translate(cPlayer2D->pos.x, cPlayer2D->pos.y, zaxis);
+		modelStack.Rotate(go->angle, 0, 0, 1);
+		modelStack.Scale(go->scale.x * 2.0, go->scale.y * 2.0, go->scale.z);
+		RenderMesh(meshList[GEO_MACHINEGUN], true);
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_PISTOL:
