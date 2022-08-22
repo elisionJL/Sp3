@@ -878,7 +878,7 @@ void SceneCollision::Update(double dt)
 					}
 				}
 			}
-			if (elapsedTime > 3.f)
+			if (elapsedTime > 3.f && SuperPainPower == true)
 			{
 				SuperPainPower = false;
 				elapsedTime = 0;
@@ -2665,25 +2665,25 @@ void SceneCollision::PlayerMapCheck()
 						if (PositiveX.Length() < NegativeX.Length() && PositiveX.Length() < NegativeY.Length() && PositiveX.Length() < PositiveY.Length()) 
 						{
 							SuperPainPower = true;
-							go->active = false;
+							ReturnGO(go);
 							cSoundController->PlaySoundByID(16);
 						}
 						else if (NegativeX.Length() < PositiveX.Length() && NegativeX.Length() < NegativeY.Length() && NegativeX.Length() < PositiveY.Length())
 						{
 							SuperPainPower = true;
-							go->active = false;
+							ReturnGO(go);
 							cSoundController->PlaySoundByID(16);
 						}
 						else if (PositiveY.Length() < NegativeX.Length() && PositiveY.Length() < NegativeY.Length() && PositiveY.Length() < PositiveX.Length())
 						{
 							SuperPainPower = true;
-							go->active = false;
+							ReturnGO(go);
 							cSoundController->PlaySoundByID(16);
 						}
 						else if (NegativeY.Length() < NegativeX.Length() && NegativeY.Length() < PositiveX.Length() && NegativeY.Length() < PositiveY.Length())
 						{
 							SuperPainPower = true;
-							go->active = false;
+							ReturnGO(go);
 							cSoundController->PlaySoundByID(16);
 						}
 					}
