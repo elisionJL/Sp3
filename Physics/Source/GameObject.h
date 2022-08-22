@@ -17,7 +17,8 @@ struct GameObject
 		GL,
 		bow,
 		sniper,
-		shotgun
+		shotgun,
+		dragon
 	};
 	enum GAMEOBJECT_TYPE
 	{
@@ -39,6 +40,7 @@ struct GameObject
 		GO_TREE,
 		GO_ROCK,
 		GO_EXPLOSION,
+		GO_CHEST,
 		GO_TOTAL, //must be last
 	};
 
@@ -58,7 +60,7 @@ struct GameObject
 	bool active;
 	float mass;
 	Vector3 prevpos;
-	int thickWall;
+	float thickWall;
 	int thinWall;
 	int lifetime;
 	float damage;
@@ -75,6 +77,8 @@ struct GameObject
 	bool visible;
 	bool placed;
 	int bowdrawamount = 1;
+	float prevangle;
+	float angle1secago;
 	void fetchReturnStatus();
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_BALL);
 	~GameObject();

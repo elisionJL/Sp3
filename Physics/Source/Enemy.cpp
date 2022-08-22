@@ -20,16 +20,12 @@ void Enemy::Update(const double dElapsedTime)
 	//Update enemy movement to chase player
 	
 	//Change enemy states in response to the direction they are moving
-	if (hp > 0)
-	{
-
-	}
-
 }
 
 void Enemy::setSpawn(float playerX, float playerY, Vector3& pos)
 {
 	int spawnLocation = Math::RandIntMinMax(0, 3);
+	
 	float w, h;
 	w = 100.f;;
 	h = w * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -60,9 +56,30 @@ void Enemy::setSpawn(float playerX, float playerY, Vector3& pos)
 	std::cout << "pos.x : " << pos.x << " pos.y: " << pos.y << std::endl;
 }
 
-void Enemy::checkdistancefromotherenemies(Enemy* go1)
+void Enemy::movedistancefromotherenemies(Enemy* go1)
 {
-	
+	vel = Vector3(0, 0, 0);
+	if (!enemytoleft)
+	{
+		vel.x = -scale.x;
+	}
+	else if (!enemytoright)
+	{
+		vel.x = scale.x;
+	}
+	else if (!enemyup)
+	{
+		vel.x = scale.y;
+	}
+	else if (!enemydown)
+	{
+		vel.x = scale.y;
+	}
+	else
+	{
+		return;
+		cout << "enemies everywhere" << endl;
+	}
 }
 
 void Enemy::sethp(float Nhp)

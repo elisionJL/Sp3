@@ -17,7 +17,7 @@ public:
 	void Update(const double dElapsedTime);
 	
 	static void setSpawn(float x, float y,Vector3& pos);
-	void checkdistancefromotherenemies(Enemy* go1);
+	void movedistancefromotherenemies(Enemy* go1);
 
 	enum STATES
 	{
@@ -39,6 +39,7 @@ public:
 	int amountoftimesitstayed;
 	bool enemytoleft, enemytoright, enemyup, enemydown;
 	float distFromPlayer;
+	int mass;
 	
 	std::string address;
 

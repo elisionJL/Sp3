@@ -148,6 +148,29 @@ void CSoundController::PlaySoundByID(const int ID)
 	}
 }
 
+void CSoundController::PlayOverlappingSoundByID(const int ID)
+{
+	CSoundInfo* pSoundInfo = GetSound(ID);
+	if (!pSoundInfo)
+	{
+		cout << "Sound #" << ID << " is not playable." << endl;
+		return;
+	}
+
+	if (pSoundInfo->GetSoundType() == CSoundInfo::SOUNDTYPE::_2D)
+	{
+		cSoundEngine->play2D(	pSoundInfo->GetSound(), 
+								pSoundInfo->GetLoopStatus());
+	}
+	else if (pSoundInfo->GetSoundType() == CSoundInfo::SOUNDTYPE::_3D)
+	{
+		cSoundEngine->setListenerPosition(vec3dfListenerPos, vec3dfListenerDir);
+		cSoundEngine->play3D(	pSoundInfo->GetSound(), 
+								pSoundInfo->GetPosition(), 
+								pSoundInfo->GetLoopStatus());
+	}
+}
+
 void CSoundController::StopPlayByID(const int ID) {
 	CSoundInfo* pSoundInfo = GetSound(ID);
 	if (!pSoundInfo) {
