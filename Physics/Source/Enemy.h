@@ -14,7 +14,7 @@ public:
 	//init
 	bool Init(void);
 	//update
-	void Update(const double dElapsedTime);
+	void Update(const double dElapsedTime, Mesh* CurrentMesh);
 	
 	static void setSpawn(float x, float y,Vector3& pos);
 	void movedistancefromotherenemies(Enemy* go1);
@@ -27,7 +27,18 @@ public:
 		DEAD
 	};
 
+	enum TYPEOFENEMY
+	{
+		SLIME = 0,
+		SPIDER = 1,
+		VAMPIRE = 2,
+		SKELETON = 3,
+		GHOST = 4,
+		NUM_TYPEOFENEMY
+	};
+
 	//public vars
+	SceneBase::GEOMETRY_TYPE GEOTYPE;
 	Vector3 pos;
 	Vector3 vel;
 	Vector3 scale;

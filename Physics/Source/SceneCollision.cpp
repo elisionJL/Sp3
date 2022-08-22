@@ -311,9 +311,9 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	m1 = go2->mass;
 	m2 = go2->mass;
 
-	switch (go2->type)
+	/*switch (go2->type)
 	{
-	case GameObject::GO_BOSS_SLIME:
+	case GameObject::GO_BOSS_SLIME:*/
 	{
 		float dmg = dmgofgun * Bullet->bowdrawamount;
 
@@ -373,14 +373,14 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 				Bullet->vel = u1 - (2 * m2 / (m1 + m2)) * vec;
 				go2->vel = u2 - (2 * m1 / (m2 + m1)) * -vec;
 				Bullet->angle = calculateAngle(Bullet->vel.x, Bullet->vel.y);
-				break;
+				//break;
 			}
 		}
-		break;
+		//break;
 	}
-	default:
+	/*	default:
 		break;
-	}
+	}*/
 }
 
 void SceneCollision::DeleteEnemy(Enemy* Enemy)
@@ -505,6 +505,7 @@ float SceneCollision::CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2
 
 void SceneCollision::MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt)
 {
+
 	//Vector3 relativeVel = cPlayer2D->vel - enemy->vel;
 	//Vector3 disDiff = enemy->pos - cPlayer2D->pos;
 
@@ -518,12 +519,12 @@ void SceneCollision::MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, dou
 
 	}
 	else*/
-	{
+	/*{
 		float sign = 1;
 		Vector3 dir = sign * (cPlayer2D->pos - enemy->pos).Normalized();
 		float force = CalculateAdditionalForce(enemy, cPlayer2D);
 		enemy->vel += 1.f / enemy->mass * dir * force * dt;
-	}
+	}*/
 }
 
 void SceneCollision::RenderDmgNum(Vector3 posanddmg)
@@ -918,23 +919,23 @@ void SceneCollision::Update(double dt)
 					//GameObject* enemy = FetchGO();
 					Enemy* go = new Enemy();
 
-					int whichEnemytoSpawn = Math::RandIntMinMax(0, 5);
+					int whichEnemytoSpawn = Math::RandIntMinMax(0, 4); //here Zhi Kai
 					switch (whichEnemytoSpawn)
 					{
 					case 0:
-						go->type = GameObject::GO_BOSS_SLIME;
+						go->GEOTYPE = GEO_BOSS_SLIME;
 						break;
 					case 1:
-						go->type = GameObject::GO_SPIDER;
+						go->GEOTYPE = GEO_SPIDER;
 						break;
 					case 2:
-						go->type = GameObject::GO_VAMPIRE;
+						go->GEOTYPE = GEO_VAMPIRE;
 						break;
 					case 3:
-						go->type = GameObject::GO_SKELETON;
+						go->GEOTYPE = GEO_SKELETON;
 						break;
 					case 4:
-						go->type = GameObject::GO_GHOST;
+						go->GEOTYPE = GEO_GHOST;
 						break;
 					}
 
@@ -1421,32 +1422,39 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-				//Enemy List
-				//pulling in of enemies			
-				for (unsigned i = 0; i < enemyList.size(); ++i)
+			//Enemy List		
+
+			for (unsigned i = 0; i < enemyList.size(); ++i)
+			{
+				Enemy* go1 = enemyList[i];
+				go1->vel = cPlayer2D->pos - go1->pos;
+				go1->vel = go1->vel.Normalized();
+				go1->vel = go1->vel * 20;;
+				//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+				//go1->pos += go1->vel * dt;
+				go1->pos += go1->vel * dt;
+				for (unsigned j = 0; j < enemyList.size(); ++j)
 				{
-					Enemy* go1 = enemyList[i];
-					MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-					SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->type]);
-					enemy->PlayAnimation("MoveRight", -1, 2.0f);
-					enemy->Update(dt);
-					go1->pos += go1->vel * dt;
+					Enemy* go2 = enemyList[j];
+					if (go1 == go2) {
+						continue;
+					}
 
-					for (unsigned x = i; x < enemyList.size(); ++x)
+					if (go2->gethp() > 0)
 					{
-						Enemy* go2 = enemyList[x];
-
-						if (go2->gethp() > 0 && go2 != go1)
-						{
-							if (CheckCollision(go1, go2))
-							{
-								go1->pos -= go1->vel * dt;
-							}
-						}
+						CheckCollision(go1, go2, dt);
+						//if (CheckCollision(go1, go2,dt))
+						//{
+						//	//go1->pos -= go1->vel * dt;
+						//}
 					}
 				}
 			}
-			else if (cPlayer2D->leveledUp == true) {
+		}
+		//leveled up
+		else if (cPlayer2D->leveledUp == true) {
+			elapsedTime += dt;
+			if (elapsedTime > timerBeforeUpgrade) {
 				static bool LMPressed = false;
 				if (Application::IsMousePressed(0) && !LMPressed) {
 					LMPressed = true;
@@ -1501,17 +1509,19 @@ void SceneCollision::Update(double dt)
 					}
 				}
 			}
-			else if (pause == true) {
-				static bool LMPressed = false;
-				if (Application::IsMousePressed(0) && !LMPressed) {
-					LMPressed = true;
-				}
-				else if (!Application::IsMousePressed(0) && LMPressed) {
-					LMPressed = false;
-					float x = m_worldWidth * 0.5;
-					if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
-						pause = false;
+		}
+		//pause
+		else if (pause == true) {
+			static bool LMPressed = false;
+			if (Application::IsMousePressed(0) && !LMPressed) {
+				LMPressed = true;
+			}
+			else if (!Application::IsMousePressed(0) && LMPressed) {
+				LMPressed = false;
+				float x = m_worldWidth * 0.5;
+				if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
+					mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
+					pause = false;
 
 					}
 					else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
@@ -1641,94 +1651,27 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2)
 		}
 }
 
-bool SceneCollision::CheckCollision(Enemy * enemy1, Enemy * enemy2)
+bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2,double dt)
 {
-
-	Vector3 relativeVel = enemy1->vel - enemy2->vel;
-
 	Vector3 disDiff = enemy2->pos - enemy1->pos;
-
-	if (enemy1->pos.y > enemy2->pos.y)
-	{
-		disDiff -= Vector3(0, enemy1->scale.y / 2, 0);
-	}
-	else
-	{
-		disDiff += Vector3(0, enemy1->scale.y / 2, 0);
-	}
-
-	if (enemy1->pos.x > enemy2->pos.x)
-	{
-		disDiff -= Vector3(enemy1->scale.x / 2, 0, 0);
-	}
-	else
-	{
-		disDiff += Vector3(enemy1->scale.x / 2, 0, 0);
-	}
-
-
-	if (relativeVel.Dot(disDiff) <= 0) {
-		return false;
-	}
-	if (enemy1->pos.y > enemy2->pos.y)
-	{
-		if (enemy1->pos.y - enemy1->scale.y <= enemy2->pos.y)
-		{
-			enemy1->usePrevY = true;
-			enemy1->enemyup = true;
+	//check if they are near each other
+	if (disDiff.Length() <= enemy1->scale.x + (enemy1->vel.x * dt) - 5) {
+		//response
+		//check if enemy1 is moving away from enemy 2
+		if ((disDiff.x > 0 && enemy1->vel.x > 0) ||
+			(disDiff.x < 0 && enemy1->vel.x < 0)) {
+			enemy1->pos.x -= enemy1 ->vel.x * dt;
 		}
-		else
-		{
-			enemy1->usePrevY = false;
-			enemy1->enemyup = false;
+		if ((disDiff.y > 0 && enemy1->vel.y > 0) ||
+			(disDiff.y < 0 && enemy1->vel.y < 0)) {
+			enemy1->pos.y -= enemy1->vel.y * dt;
 		}
 	}
-	else
-	{
-		if (enemy1->pos.y + enemy1->scale.y >= enemy2->pos.y)
-		{
-			enemy1->usePrevY = true;
-			enemy1->enemyup = true;
-		}
-		else
-		{
-			enemy1->usePrevY = false;
-			enemy1->enemyup = false;
-		}
-	}
-
-	if (enemy1->pos.x > enemy2->pos.x)
-	{
-		if (enemy1->pos.x - enemy1->scale.x <= enemy2->pos.x)
-		{
-			enemy1->usePrevX = true;
-			enemy1->enemytoright = true;
-		}
-		else
-		{
-			enemy1->usePrevX = false;
-			enemy1->enemytoright = false;
-		}
-	}
-	else
-	{
-		if (enemy1->pos.x + enemy1->scale.x >= enemy2->pos.x)
-		{
-			enemy1->usePrevX = true;
-			enemy1->enemytoleft = true;
-		}
-		else
-		{
-			enemy1->usePrevX = false;
-			enemy1->enemytoleft = false;
-		}
-	}
-
-	return disDiff.LengthSquared() <= (enemy1->scale.x + enemy2->scale.x) * (enemy1->scale.x + enemy2->scale.x);
+	return 0;
 
 }
 
-bool SceneCollision::CheckCollision(Enemy * enemy, GameObject * go)
+bool SceneCollision::CheckCollision(Enemy* enemy, GameObject* go)
 {
 	return false;
 }
@@ -2148,6 +2091,7 @@ void SceneCollision::ShopUI()
 		}
 	}
 }
+
 void SceneCollision::RenderGronkDialogue()
 {
 	double x, y, windowwidth, windowheight;
@@ -3284,10 +3228,32 @@ void SceneCollision::Render()
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 				modelStack.Scale(go->scale.x, go->scale.y, 1);
-				RenderMesh(meshList[GEO_BOSS_SLIME], false);
+				RenderMesh(meshList[go->GEOTYPE], false); //here Zhi Kai
 				modelStack.PopMatrix();
 			}
 		}
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth/2) + camera.position.x , (m_worldHeight*0.1)+ camera.position.y ,zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth*0.3, 3, 1);
+		meshList[GEO_ROLLBAR]->material.kAmbient.Set(1, 0, 0);
+		RenderMesh(meshList[GEO_ROLLBAR], true);
+		modelStack.PopMatrix();
+
+		float rollScaleX =Math::Clamp(Math::Min(cPlayer2D->rollCooldown / cPlayer2D->maxRollCooldown, 1.f),0.01f, 1.f);
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.1) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.3 * rollScaleX, 3, 1);
+		meshList[GEO_ROLLBAR]->material.kAmbient.Set(0,1, 0);
+		RenderMesh(meshList[GEO_ROLLBAR], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.1) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.1, 3, 1);
+		RenderMesh(meshList[GEO_ROLL], true);
+		modelStack.PopMatrix();
 
 		for (int i = 0; i < timerfordmgnumber.size(); ++i)
 		{

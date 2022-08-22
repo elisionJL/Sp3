@@ -49,7 +49,7 @@ struct GameObject
 		GO_TOTAL, //must be last
 	};
 
-	GAMEOBJECT_TYPE type;
+	GAMEOBJECT_TYPE type; //here Zhi Kai
 	powerUp PU;
 	projectile proj;
 	Vector3 pos;
