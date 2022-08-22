@@ -46,14 +46,10 @@ struct GameObject
 		GO_SUPERPAIN,
 		GO_EXPLOSION,
 		GO_CHEST,
-		GO_VAMPIRE,
-		GO_SKELETON,
-		GO_GHOST,
-		GO_SPIDER,
 		GO_TOTAL, //must be last
 	};
 
-	GAMEOBJECT_TYPE type; //here Zhi Kai
+	GAMEOBJECT_TYPE type;
 	powerUp PU;
 	projectile proj;
 	Vector3 pos;
