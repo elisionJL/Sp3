@@ -105,6 +105,8 @@ public:
 		GEO_EXPLOSION,
 		GEO_LVLUPBG,
 		GEO_CHEST,
+		GEO_ROLLBAR,
+		GEO_ROLL,
 		NUM_GEOMETRY,
 	};
 public:

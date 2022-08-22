@@ -33,7 +33,7 @@ public:
 	GameObject* FetchGO();
 	void ReturnGO(GameObject *go);
 	bool CheckCollision(GameObject* go1, GameObject* go2);
-	bool CheckCollision(Enemy* enemy1, Enemy* enemy2);
+	bool CheckCollision(Enemy* enemy1, Enemy* enemy2, double dt);
 	bool CheckCollision(Enemy* enemy, GameObject* go);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
 	void CollisionResponse(Enemy* actor, Enemy* actee, double dt);

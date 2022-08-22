@@ -139,6 +139,12 @@ void SceneBase::Init()
 	meshList[GEO_CARD] = MeshBuilder::GenerateQuad("card", Color(1, 1, 1), 1.f);
 	meshList[GEO_CARD]->textureID = LoadTexture("Image//upgrades//card.png", false);
 
+
+	meshList[GEO_ROLLBAR] = MeshBuilder::GenerateQuad("bar", Color(1,1,1),1.f);
+
+	meshList[GEO_ROLL] = MeshBuilder::GenerateQuad("roll", Color(1, 1, 1), 1.f);
+	meshList[GEO_ROLL]->textureID = LoadTexture("Image//roll.png", true);
+
 	meshList[GEO_UPGRADEICON] = MeshBuilder::GenerateQuad("icon", Color(1, 1, 1), 1.f);
 
 	meshList[GEO_PAUSEPANEL] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
