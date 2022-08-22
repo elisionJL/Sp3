@@ -825,6 +825,10 @@ void SceneCollision::Update(double dt)
 		switchdmgnum = 1;
 		coordinatesofdamagenumbers.clear();
 		seconds -= dt;
+		SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
+		//Add the animation for ocean boundary
+		ocean->PlayAnimation("Waves", -1, 5.f);
+		ocean->Update(dt);
 
 		if (Transition == true) {
 			elapsedTime += 1 * dt;
@@ -2429,7 +2433,7 @@ void SceneCollision::SpawnMapObjects()
 	ObjectCount = 0;
 	int ObjectType;
 
-	while (ObjectCount < 200)
+	while (ObjectCount < 100)
 	{
 		ObjectType = rand() % 100 + 1; //Value between 1 and 100
 		bool ObjectCollided;
@@ -2442,8 +2446,8 @@ void SceneCollision::SpawnMapObjects()
 
 		unsigned size = m_goList.size();
 
-		SpawnX = ((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth)) + static_cast<float>(rand()) * static_cast<float>(((m_worldWidth + m_worldWidth + m_worldWidth)) - ((-m_worldWidth) + (-m_worldWidth) + (-m_worldWidth))) / RAND_MAX;
-		SpawnY = ((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight)) + static_cast<float>(rand()) * static_cast<float>(((m_worldHeight + m_worldHeight + m_worldHeight)) - ((-m_worldHeight) + (-m_worldHeight) + (-m_worldHeight))) / RAND_MAX;
+		SpawnX = (-m_worldWidth * 2.4f) + static_cast<float>(rand()) * static_cast<float>((m_worldWidth * 2.4f) - (-m_worldWidth * 2.4f)) / RAND_MAX;
+		SpawnY = (-m_worldHeight * 2.9f) + static_cast<float>(rand()) * static_cast<float>((m_worldHeight * 2.9f) - (-m_worldHeight * 2.9f)) / RAND_MAX;
 
 		//TreeSpawnPos.Set(SpawnX, SpawnY, 4.f);
 		for (unsigned i = 0; i < size; ++i)
@@ -2618,14 +2622,14 @@ void SceneCollision::PlayerMapCheck()
 
 void SceneCollision::MapBoundary()
 {
-	if (cPlayer2D->pos.y >= 295.f)
-		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, 295.f, 295.f);
-	if (cPlayer2D->pos.y <= -295.f)
-		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, -295.f, -295.f);
-	if (cPlayer2D->pos.x >= 455.f)
-		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, 455.f, 455.f);
-	if (cPlayer2D->pos.x <= -455.f)
-		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, -455.f, -455.f);
+	if (cPlayer2D->pos.y >= m_worldHeight * 2.9f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, m_worldHeight * 2.9f, m_worldHeight * 2.9f);
+	if (cPlayer2D->pos.y <= -m_worldHeight * 2.9f)
+		cPlayer2D->pos.y = Math::Clamp(cPlayer2D->pos.y, -m_worldHeight * 2.9f, -m_worldHeight * 2.9f);
+	if (cPlayer2D->pos.x >= m_worldWidth * 2.4f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, m_worldWidth * 2.4f, m_worldWidth * 2.4f);
+	if (cPlayer2D->pos.x <= -m_worldWidth * 2.4f)
+		cPlayer2D->pos.x = Math::Clamp(cPlayer2D->pos.x, -m_worldWidth * 2.4f, -m_worldWidth * 2.4f);
 }
 
 float SceneCollision::calculateAngle(float x, float y)
