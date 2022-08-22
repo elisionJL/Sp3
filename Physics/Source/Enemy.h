@@ -47,6 +47,8 @@ public:
 	float gethp();
 	void setaddress(std::string ad);
 
+	//int getDirection();
+
 protected:
 	enum SPAWN
 	{
@@ -67,7 +69,9 @@ protected:
 	};
 
 	STATES sCurrentState;
-	DIRECTION sFacingDirection;
+	//DIRECTION sFacingDirection;
+
+	Mesh* boss_slime;
 
 };
 
