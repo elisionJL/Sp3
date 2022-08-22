@@ -483,8 +483,8 @@ void SceneCollision::dragonshooting(int numberofshots, float velofproj, int pier
 
 float SceneCollision::CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2D)
 {
-	float radiusSquared = 100;
-	return (GRAVITY_CONSTANT * 30 * Enemy->mass) / radiusSquared;
+	float radiusSquared = 50;
+	return (GRAVITY_CONSTANT * 50 * Enemy->mass) / radiusSquared;
 }
 
 void SceneCollision::MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt)
@@ -687,6 +687,7 @@ void SceneCollision::Update(double dt)
 				Gun->scale.Set(5, 2, 1);
 				CurrentGun = meshList[GEO_GL];
 				numberofbullets = 1;
+				velocityofbullet = 40;
 				dmgofgun = 3; //explosion does *3.333
 				pierceforbullet = 1;
 				firerate = 1.2f;
