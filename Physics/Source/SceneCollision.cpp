@@ -1819,8 +1819,11 @@ void SceneCollision::Update(double dt)
 							Shield->visible = false;
 							Shield->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
 						}
-						else
-							cPlayer2D->hp--;
+						else if (cPlayer2D->invlun < elapsedTime)
+						{
+							cPlayer2D->hp -= 2;
+							cPlayer2D->invlun = elapsedTime + 5.0;
+						}
 					}
 
 					for (unsigned j = 0; j < enemyList.size(); ++j)

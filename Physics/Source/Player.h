@@ -40,6 +40,7 @@ public:
 	int GetGold();
 	void UseGold(int Gold_Used);
 	void IncreaseGold(int gold);
+	double invlun;
 protected:
 	enum DIRECTION {
 		RIGHT = 0,
