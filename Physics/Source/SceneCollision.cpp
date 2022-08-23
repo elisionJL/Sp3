@@ -1957,7 +1957,12 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) 
 			{
+				m_goList.clear();
 				enemyList.clear();
+				timerforbullets.clear();
+				dmgandtimefordmgnumber.clear();
+				timerfordmgnumber.clear();
+				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
@@ -2037,6 +2042,9 @@ void SceneCollision::Update(double dt)
 				screenShake[1] = 0;
 				SuperPainPower = false;
 				PowerUsed = 0;
+
+				SpawnMapObjects();
+
 				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
@@ -2054,7 +2062,12 @@ void SceneCollision::Update(double dt)
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
+				m_goList.clear();
 				enemyList.clear();
+				timerforbullets.clear();
+				dmgandtimefordmgnumber.clear();
+				timerfordmgnumber.clear();
+				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
@@ -2134,6 +2147,9 @@ void SceneCollision::Update(double dt)
 				screenShake[1] = 0;
 				SuperPainPower = false;
 				PowerUsed = 0;
+
+				SpawnMapObjects();
+
 				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
