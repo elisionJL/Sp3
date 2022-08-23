@@ -1246,6 +1246,7 @@ void SceneCollision::Update(double dt)
 								go->GEOTYPE = GEO_GHOST;
 								break;
 							}
+							go->sethp(10 * pow(hpScaling, minutes));
 							break;
 						}
 						case 20:
