@@ -3938,7 +3938,7 @@ void SceneCollision::Render()
 		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
 		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && 
 			(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-			meshList[GEO_RETRY]->material.kAmbient.Set()
+			meshList[GEO_RETRY]->material.kAmbient.Set(1, 1, 0);
 		}
 		RenderMesh(meshList[GEO_RETRY], false);
 		modelStack.PopMatrix();
