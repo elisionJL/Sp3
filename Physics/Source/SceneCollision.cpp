@@ -751,6 +751,8 @@ void SceneCollision::Update(double dt)
 				seconds = 0;
 				firerateUpgrade = 0;
 				MSUpgrade = 0;
+				shieldcooldowntimer = 10;
+				cPlayer2D->setStats();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
@@ -1889,6 +1891,11 @@ void SceneCollision::Update(double dt)
 										Companion->vel.SetZero();
 										timerfordragon = elapsedTime;
 										Companion->bounce = true;
+										Companion->damage = 10;
+									}
+									else
+									{
+										Companion->damage *= 1.1;
 									}
 									break;
 								}
