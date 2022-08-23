@@ -247,7 +247,7 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			{
 				go->vel.Normalize() *= velocityofbullet + (Gun->thickWall / 10);
 				go->amountofpierleft = pierceforbullet + (Gun->thickWall / 50);
-				go->damage = Gun->thickWall / 100;
+				go->damage = Gun->thickWall / 50;
 			}
 			else
 			{
