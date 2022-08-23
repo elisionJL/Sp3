@@ -3832,12 +3832,6 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_ROLL], true);
 		modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		modelStack.Translate((m_worldWidth * 0.8) + camera.position.x, (m_worldHeight * 0.9) + camera.position.y, zaxis += 0.001f);
-		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 0);
-		RenderMesh(meshList[GEO_GOLD], false);
-		modelStack.PopMatrix();
-
 		for (int i = 0; i < timerfordmgnumber.size(); ++i)
 		{
 			if (elapsedTime < timerfordmgnumber[i])
@@ -3889,7 +3883,6 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_HEALTHBG], false);
 		modelStack.PopMatrix();
 
-
 		hpScaleX = Math::Min(m_worldWidth * 0.3 * 0.73684210526, m_worldWidth * 0.3 * 0.73684210526 * (cPlayer2D->hp / cPlayer2D->maxHP));
 
 		modelStack.PushMatrix();
@@ -3898,12 +3891,22 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
 
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.045 + camera.position.x, camera.position.y + m_worldHeight * 0.7, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 0);
+		RenderMesh(meshList[GEO_GOLD], false);
+		modelStack.PopMatrix();
+
 		//On screen text
 		std::ostringstream ss;
 		ss.precision(5);
 		ss << "FPS: " << fps;
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 0, 3);
 
+		ss.str("");
+		ss.precision(1);
+		ss << "Gold Earned: " << acquiredGold;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2, 7, 41);
 
 		ss.str("");
 		ss.precision(2);
