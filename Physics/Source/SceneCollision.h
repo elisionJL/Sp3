@@ -168,6 +168,10 @@ protected:
 	float PowerUsed;
 	bool SuperPainPower;
 	float shieldcooldowntimer;
+
+	double enemyspawn;
+	float enemyspawnspeed;
+	float enemyovertime;
 };
 
 #endif

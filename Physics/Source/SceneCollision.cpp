@@ -95,6 +95,10 @@ void SceneCollision::Init()
 	Shield->type = GameObject::GO_SHIELD;
 	Shield->scale = Vector3(15, 15, 1);
 
+	enemyspawn = 0;
+	enemyspawnspeed = 0.5;
+	enemyovertime = 0;
+
 	screenShake[0] = 0;
 	screenShake[1] = 0;
 	SuperPainPower = false;
@@ -945,7 +949,6 @@ void SceneCollision::Update(double dt)
 				shieldcooldowntimer = 10; //atago
 			}
 		}
-
 		else if (Transition == false)
 		{
 			if (SuperPainPower == true)
@@ -1031,7 +1034,6 @@ void SceneCollision::Update(double dt)
 					break;
 				}
 
-
 				//Enemy Spawn
 				static bool blMButtonState = false;
 				if (Application::IsKeyPressed('M') && blMButtonState == false)
@@ -1080,6 +1082,54 @@ void SceneCollision::Update(double dt)
 					blMButtonState = false;
 				}
 
+				enemyovertime += dt;
+				if (enemyovertime)
+				{
+					double spawn = elapsedTime - enemyspawn;
+					if (spawn > enemyspawnspeed)
+					{
+						Vector3 Epos;
+						Enemy* go = new Enemy();
+
+						int whichEnemytoSpawn = Math::RandIntMinMax(0, 4);
+						switch (whichEnemytoSpawn)
+						{
+						case 0:
+							go->GEOTYPE = GEO_BOSS_SLIME;
+							break;
+						case 1:
+							go->GEOTYPE = GEO_SPIDER;
+							break;
+						case 2:
+							go->GEOTYPE = GEO_VAMPIRE;
+							break;
+						case 3:
+							go->GEOTYPE = GEO_SKELETON;
+							break;
+						case 4:
+							go->GEOTYPE = GEO_GHOST;
+							break;
+						}
+
+						Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
+						/*go->type = GameObject::GO_BOSS_SLIME;*/ //dont need this anymore
+						go->scale.Set(10, 10, 1);
+						go->pos = Epos;
+						go->mass = 10;
+
+						cout << Epos.x << endl;
+						cout << Epos.y << endl;
+
+						enemyList.push_back(go);
+
+						const void* address = static_cast<const void*>(go);
+						std::stringstream ss;
+						ss << address;
+						go->address = ss.str();
+
+						enemyspawn = elapsedTime;
+					}
+				}
 
 				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 				bool shooting = true;
