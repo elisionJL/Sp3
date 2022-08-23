@@ -31,10 +31,11 @@ void SceneCollision::Init()
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	currentState = start;
+	currentState = win;
 	//Physics code here
 	m_speed = 1.f;
 	score = 0;
+	acquiredGold = 0;
 	thickWall = 0;
 	Math::InitRNG();
 	m_objectCount = 0;
@@ -123,7 +124,6 @@ void SceneCollision::Init()
 	SongVolumeChange = 0;
 
 	timerforpistol = 0;
-
 	timerfordragon = 0;
 	GunRightClickSpecial = false;
 	staggertimingforpistol = 0;
@@ -741,16 +741,16 @@ void SceneCollision::Update(double dt)
 		if ((!bLButtonState && Application::IsMousePressed(0)) || Application::IsKeyPressed(VK_SPACE)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				currentState = weaponselection;
+				currentState = difficultySelection;
 				timerbeforeweaponselect = 1.0f;
 				timerBeforeUpgrade = 1.0f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
-				minutes = 2;
-				seconds = 30;
-				shieldcooldowntimer = 10; //atago
-				cPlayer2D->setStats();
+				minutes = 0;
+				seconds = 0;
+				firerateUpgrade = 0;
+				MSUpgrade = 0;
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
@@ -782,19 +782,26 @@ void SceneCollision::Update(double dt)
 	}
 	case difficultySelection:
 	{
-		static bool leftclick = false;
-		if ((!leftclick && Application::IsMousePressed(0))) {
-			leftclick = true;
-		}
-		else if (leftclick && !Application::IsMousePressed(0)) {
-			leftclick = false;
-			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) &&
-				(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				difficulty = easy;
+		elapsedTime += dt;
+		if (elapsedTime > 1) {
+			static bool leftclick = false;
+			if ((!leftclick && Application::IsMousePressed(0))) {
+				leftclick = true;
 			}
-			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) &&
-				(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				difficulty = hard;
+			else if (leftclick && !Application::IsMousePressed(0)) {
+				leftclick = false;
+				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
+					(mousePos.y <= (m_worldHeight * 0.5) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.5) - m_worldHeight * 0.075)) {
+					difficulty = easy;
+					hpScaling = 1.1f;
+				}
+				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
+					(mousePos.y <= (m_worldHeight * 0.3) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.3) - m_worldHeight * 0.075)) {
+					difficulty = hard;
+					hpScaling = 1.3;
+				}
+				currentState = weaponselection;
+				elapsedTime = 0;
 			}
 		}
 		break;
@@ -977,7 +984,7 @@ void SceneCollision::Update(double dt)
 		displaynumberoffsety = 0;
 		switchdmgnum = 1;
 		coordinatesofdamagenumbers.clear();
-		seconds -= dt;
+		seconds += dt;
 		SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
 		//Add the animation for ocean boundary
 		ocean->PlayAnimation("Waves", -1, 5.f);
@@ -1026,45 +1033,115 @@ void SceneCollision::Update(double dt)
 				SuperPainPower = false;
 				PowerUsed = 0;
 			}
-			if (minutes == 0 && seconds < 0) {
-				currentState = win;
-				break;
+			if (seconds >= 60) {
+				minutes += 1;
+				seconds -= 60;
 			}
-			else if (seconds <= 0) {
-				minutes -= 1;
-				seconds += 60;
-			}
-
+			//check if player has leveled up;
 			if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
 			{
 				cPlayer2D->leveledUp = true;
 				//generate 3 random upgrades for the player to choose
 				for (int i = 0; i < 3; ++i) {
-					switch (Math::RandIntMinMax(0, 7)) {
-					case 0:
-						levelUpgrades[i] = pierce;
-						break;
-					case 1:
-						levelUpgrades[i] = multishot;
-						break;
-					case 2:
-						levelUpgrades[i] = atk;
-						break;
-					case 3:
-						levelUpgrades[i] = hp;
-						break;
-					case 4:
-						levelUpgrades[i] = velocity;
-						break;
-					case 5:
-						levelUpgrades[i] = moveSpeed;
-						break;
-					case 6:
-						levelUpgrades[i] = fireRate;
-						break;
-					case 7:
-						levelUpgrades[i] = dragon;
-						break;
+					if (i == 0) {
+						switch (Math::RandIntMinMax(0, 7)) {
+						case 0:
+							levelUpgrades[i] = pierce;
+							break;
+						case 1:
+							levelUpgrades[i] = multishot;
+							break;
+						case 2:
+							levelUpgrades[i] = atk;
+							break;
+						case 3:
+							levelUpgrades[i] = hp;
+							break;
+						case 4:
+							levelUpgrades[i] = velocity;
+							break;
+						case 5:
+							levelUpgrades[i] = moveSpeed;
+							if (MSUpgrade != 5) {
+								break;
+							}
+						case 6:
+							levelUpgrades[i] = fireRate;
+							if (firerateUpgrade != 5) {
+								break;
+							}
+						case 7:
+							levelUpgrades[i] = dragon;
+							break;
+						}
+					}
+					else if (i == 1) {
+						do {
+							switch (Math::RandIntMinMax(0, 7)) {
+							case 0:
+								levelUpgrades[i] = pierce;
+								break;
+							case 1:
+								levelUpgrades[i] = multishot;
+								break;
+							case 2:
+								levelUpgrades[i] = atk;
+								break;
+							case 3:
+								levelUpgrades[i] = hp;
+								break;
+							case 4:
+								levelUpgrades[i] = velocity;
+								break;
+							case 5:
+								levelUpgrades[i] = moveSpeed;
+								if (MSUpgrade != 5) {
+									break;
+								}
+							case 6:
+								levelUpgrades[i] = fireRate;
+								if (firerateUpgrade != 5) {
+									break;
+								}
+							case 7:
+								levelUpgrades[i] = dragon;
+								break;
+							}
+						} while (levelUpgrades[1] == levelUpgrades[0]);
+					}
+					else if (i == 2) {
+						do {
+							switch (Math::RandIntMinMax(0, 7)) {
+							case 0:
+								levelUpgrades[i] = pierce;
+								break;
+							case 1:
+								levelUpgrades[i] = multishot;
+								break;
+							case 2:
+								levelUpgrades[i] = atk;
+								break;
+							case 3:
+								levelUpgrades[i] = hp;
+								break;
+							case 4:
+								levelUpgrades[i] = velocity;
+								break;
+							case 5:
+								levelUpgrades[i] = moveSpeed;
+								if (MSUpgrade != 5) {
+									break;
+								}
+							case 6:
+								levelUpgrades[i] = fireRate;
+								if (firerateUpgrade != 5) {
+									break;
+								}
+							case 7:
+								levelUpgrades[i] = dragon;
+								break;
+							}
+						} while (levelUpgrades[2] == levelUpgrades[1] || levelUpgrades[2] == levelUpgrades[0]);
 					}
 
 				}
@@ -1118,6 +1195,7 @@ void SceneCollision::Update(double dt)
 					go->scale.Set(10, 10, 1);
 					go->pos = Epos;
 					go->mass = 10;
+					go->sethp(10 * pow(hpScaling, minutes));
 
 					enemyList.push_back(go);
 
@@ -1369,7 +1447,7 @@ void SceneCollision::Update(double dt)
 							G->PlayAnimation("Shoot", 0, 0.08f);
 							G->Update(dt);
 							Gun->mass++;
-							if (Gun->mass == 6 + numberofbullets) 
+							if (Gun->mass == 6 + numberofbullets)
 								GunRightClickSpecial = false;
 						}
 						else if (Gun->activeTime < elapsedTime && Gun->mass > elapsedTime && Gun->type == GameObject::GO_MACHINEGUN) //activetime is skill cooldown and gun mass would be firing duration
@@ -1379,7 +1457,7 @@ void SceneCollision::Update(double dt)
 							if (Gun->mass > elapsedTime)
 							{
 								Gun->activeTime = elapsedTime + 0.08f;
-								
+
 								if (meshList[GEO_MACHINEGUN]->material.kAmbient.b > 0.1f)
 								{
 									meshList[GEO_MACHINEGUN]->material.kAmbient.b -= 0.05;
@@ -1707,7 +1785,7 @@ void SceneCollision::Update(double dt)
 				}
 
 				//Enemy List
-			
+
 				enemyAnimationPlayed.clear();
 				for (unsigned i = 0; i < enemyList.size(); ++i)
 				{
@@ -1720,13 +1798,13 @@ void SceneCollision::Update(double dt)
 							runanimation = false;
 						}
 					}
-					
+
 					if (runanimation)
 					{
 						go1->Update(dt, meshList[go1->GEOTYPE]);
 						enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
 					}
-					
+
 					go1->vel = cPlayer2D->pos - go1->pos;
 					go1->vel = go1->vel.Normalized();
 					go1->vel = go1->vel * 20;;
@@ -1772,70 +1850,64 @@ void SceneCollision::Update(double dt)
 							float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
 							float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
 
-								if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
-									(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
+							if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
+								(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
 
-									cPlayer2D->increaseLevel();
+								cPlayer2D->increaseLevel();
 
-									switch (levelUpgrades[i - 1]) {
-									case pierce:
-										pierceforbullet += 1;
-										break;
-									case atk:
-										dmgofgun *= 1.1;
-										break;
-									case hp:
-										cPlayer2D->IncreaseHP();
-										break;
-									case multishot:
-										numberofbullets++;
-										break;
-									case moveSpeed:
-										cPlayer2D->IncreaseSpd();
-										break;
-									case velocity:
-										velocityofbullet += 5;
-										break;
-									case fireRate:
-										firerate *= 0.95;
-										break;
-									case dragon:
-										if (Companion->mass == 1)
-										{
-											Companion->type = GameObject::GO_COMPANION;
-											Companion->mass = 5;
-											Companion->scale.Set(7, 7, 1);
-											Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
-											Companion->vel.SetZero();
-											timerfordragon = elapsedTime;
-											Companion->bounce = true;
-											Companion->damage = 10;
-										}
-										else
-										{
-											Companion->damage *= 1.1;
-										}
-										break;
+								switch (levelUpgrades[i - 1]) {
+								case pierce:
+									pierceforbullet += 1;
+									break;
+								case atk:
+									dmgofgun *= 1.1;
+									break;
+								case hp:
+									cPlayer2D->IncreaseHP();
+									break;
+								case multishot:
+									numberofbullets++;
+									break;
+								case moveSpeed:
+									cPlayer2D->IncreaseSpd();
+									MSUpgrade += 1;
+									break;
+								case velocity:
+									velocityofbullet += 5;
+									break;
+								case fireRate:
+									firerate *= 0.95;
+									firerateUpgrade += 1;
+									break;
+								case dragon:
+									if (Companion->mass == 1)
+									{
+										Companion->type = GameObject::GO_COMPANION;
+										Companion->mass = 5;
+										Companion->scale.Set(7, 7, 1);
+										Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+										Companion->vel.SetZero();
+										timerfordragon = elapsedTime;
+										Companion->bounce = true;
 									}
+									break;
 								}
 							}
 						}
 					}
+				}
 			}
 			//pause
-			else if (pause == true)
-			{
+			else if (pause == true) {
 				static bool LMPressed = false;
 				if (Application::IsMousePressed(0) && !LMPressed) {
 					LMPressed = true;
 				}
-				else if (!Application::IsMousePressed(0) && LMPressed) 
-				{
+				else if (!Application::IsMousePressed(0) && LMPressed) {
 					LMPressed = false;
 					float x = m_worldWidth * 0.5;
 					if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) 
-					{
+						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
 						pause = false;
 
 					}
@@ -1858,8 +1930,8 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
 				currentState = main;
 				m_objectCount = 0;
-				minutes = 2;
-				seconds = 30;;
+				minutes = 0;
+				seconds = 0;;
 				m_goList.clear();
 				m_thickWallList.clear();
 			}
@@ -3275,7 +3347,25 @@ void SceneCollision::Render()
 		break;
 	case difficultySelection:
 	{
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.8) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.2, 1);
+		RenderMesh(meshList[GEO_diffSelect], false);
+		modelStack.PopMatrix();
 
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.5) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.2, m_worldHeight * 0.15, 1);
+		meshList[GEO_DIFFICULTY]->textureID = LoadTexture("Image//easy.psd",true);
+		RenderMesh(meshList[GEO_DIFFICULTY], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.3) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.2, m_worldHeight * 0.15, 1);
+		meshList[GEO_DIFFICULTY]->textureID = LoadTexture("Image//hard.psd",true);
+		RenderMesh(meshList[GEO_DIFFICULTY], false);
+		modelStack.PopMatrix();
 	}
 	break;
 	case weaponselection:
@@ -3734,7 +3824,7 @@ void SceneCollision::Render()
 		float expX = cPlayer2D->pos.x, expY = cPlayer2D->pos.y - (m_worldHeight * 0.45);
 		float expScaleX = m_worldWidth * 0.95, expScaleY = 2;
 		modelStack.PushMatrix();
-		modelStack.Translate(expX, expY, 4);
+		modelStack.Translate(expX, expY, zaxis += 0.001f);
 		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXPBG], false);
 		modelStack.PopMatrix();
@@ -3743,7 +3833,7 @@ void SceneCollision::Render()
 		expScaleX = Math::Min((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
 
 		modelStack.PushMatrix();
-		modelStack.Translate(expScaleX / 2 + m_worldWidth * 0.12 + camera.position.x, expY, 4.1f);
+		modelStack.Translate(expScaleX / 2 + m_worldWidth * 0.12 + camera.position.x, expY, zaxis += 0.001f);
 		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXP], false);
 		modelStack.PopMatrix();
@@ -3753,7 +3843,7 @@ void SceneCollision::Render()
 		float hpX = m_worldWidth * 0.16 + camera.position.x, hpY = m_worldHeight * 0.8 + camera.position.y;
 		float hpScaleX = m_worldWidth * 0.3, hpScaleY = 10;
 		modelStack.PushMatrix();
-		modelStack.Translate(hpX, hpY, 4);
+		modelStack.Translate(hpX, hpY, zaxis += 0.001f);
 		modelStack.Scale(hpScaleX, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTHBG], false);
 		modelStack.PopMatrix();
@@ -3762,7 +3852,7 @@ void SceneCollision::Render()
 		hpScaleX = Math::Min(m_worldWidth * 0.3 * 0.73684210526, m_worldWidth * 0.3 * 0.73684210526 * (cPlayer2D->hp / cPlayer2D->maxHP));
 
 		modelStack.PushMatrix();
-		modelStack.Translate(hpScaleX / 2 + hpX - m_worldWidth * 0.075, hpY, 4.1f);
+		modelStack.Translate(hpScaleX / 2 + hpX - m_worldWidth * 0.075, hpY, zaxis += 0.001f);
 		modelStack.Scale(hpScaleX, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
@@ -3787,26 +3877,32 @@ void SceneCollision::Render()
 		//render if player has leveled up
 		if (cPlayer2D->leveledUp == true) {
 			modelStack.PushMatrix();
-			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);
+			modelStack.Translate(camera.position.x, camera.position.y, zaxis += 0.001f);
 			modelStack.Scale(1000, 1000, 1);
 			RenderMesh(meshList[GEO_LVLUPBG], false);
+			modelStack.PopMatrix();
+			float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+			float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
+
+			modelStack.PushMatrix();
+			modelStack.Translate((m_worldWidth / 2) + cameramoveX, (m_worldHeight * 0.9) + cameramoveY, zaxis += 0.001f);
+			modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.1, 1);
+			RenderMesh(meshList[GEO_UPGRADESELECT], false);
 			modelStack.PopMatrix();
 
 			for (int i = 1; i < 4; ++i) {
 				float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
-				float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
-				float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
 				float textx;
 				Vector3 color = Vector3(1, 0, 0);
 				switch (i) {
 				case 1:
-					textx = 8;
+					textx = 14;
 					break;
 				case 2:
-					textx = 34;
+					textx = 40;
 					break;
 				case 3:
-					textx = 60;
+					textx = 65;
 					break;
 				}
 				modelStack.PushMatrix();
@@ -3823,49 +3919,51 @@ void SceneCollision::Render()
 				modelStack.PopMatrix();
 
 				modelStack.PushMatrix();
-				modelStack.Translate(x + cameramoveX, m_worldHeight * 0.6 + cameramoveY, 6.02);
-				modelStack.Scale(m_worldWidth * 0.14, m_worldHeight * 0.14, 1);
+				modelStack.Translate(x + cameramoveX, m_worldHeight * 0.45 + cameramoveY, 6.02);
+				modelStack.Scale(m_worldWidth * 0.28, m_worldHeight * 0.56, 1);
 				ss.str("");
 
 				switch (levelUpgrades[i - 1]) {
 				case pierce:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
-					ss << "pierce +1";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					//ss << "pierce +1";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
 					break;
 				case atk:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
-					ss << "damage +10%";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+					//ss << "damage +10%";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 					break;
 				case hp:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
-					ss << "110% hp";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					//ss << "110% hp";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
 					break;
 				case multishot:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
-					ss << "bulletcount +1";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					//ss << "bulletcount +1";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case moveSpeed:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
-					ss << "105% movespeed";
+					//ss << "105% movespeed";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					ss << MSUpgrade << "/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case velocity:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
-					ss << "velocity +5";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+				//ss << "velocity +5";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 					break;
 				case fireRate:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
-					ss << "110% firerate";
+					ss << firerateUpgrade <<"/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case dragon:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
-					ss << "grants a dragon companion";
+					//meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					//ss << "grants a dragon companion";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 				}
 				RenderMesh(meshList[GEO_UPGRADEICON], false);
@@ -3976,19 +4074,46 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
-		RenderMesh(meshList[GEO_RETRY], false);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && 
+			(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
+			meshList[GEO_RETRY]->material.kAmbient.Set(1, 1, 0);
+		}
+		RenderMesh(meshList[GEO_RETRY], false);
+		modelStack.PopMatrix();
+		
+		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
 		RenderMesh(meshList[GEO_QUIT], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.6, m_worldHeight * 0.73, 1.2);
+		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 2);
+		RenderMesh(meshList[GEO_GOLD], false);
 		modelStack.PopMatrix();
 
 		std::ostringstream ss;
 		ss.str("");
-		ss << "score: " << score;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 25, 43);
+		ss << "X" <<acquiredGold;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2.5, 51, 42.4);
+
+
+		ss.str("");
+		ss << "score:" << score;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 10, 43);
 		break;
 	}
 	case lose:
@@ -4002,19 +4127,42 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
 		RenderMesh(meshList[GEO_RETRY], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
 		RenderMesh(meshList[GEO_QUIT], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.6, m_worldHeight * 0.73, 1.2);
+		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 2);
+		RenderMesh(meshList[GEO_GOLD], false);
 		modelStack.PopMatrix();
 
 		std::ostringstream ss;
 		ss.str("");
-		ss << "score: " << score;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 25, 43);
+		ss << "X" << acquiredGold;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2.5, 51, 42.4);
+
+
+		ss.str("");
+		ss << "score:" << score;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 10, 43);
 		break;
 	}
 	}

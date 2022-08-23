@@ -39,6 +39,7 @@ public:
 	float getExpBooster();
 	int GetGold();
 	void UseGold(int Gold_Used);
+	void IncreaseGold(int gold);
 protected:
 	enum DIRECTION {
 		RIGHT = 0,
