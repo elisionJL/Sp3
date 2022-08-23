@@ -1814,6 +1814,12 @@ void SceneCollision::Update(double dt)
 					//go1->pos += go1->vel * dt;
 
 					go1->pos += go1->vel * dt;
+
+					if (CheckCollision(go1, cPlayer2D))
+					{
+						cPlayer2D->hp--;
+					}
+
 					for (unsigned j = 0; j < enemyList.size(); ++j)
 					{
 						Enemy* go2 = enemyList[j];
@@ -2041,7 +2047,7 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2)
 		}
 }
 
-bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2,double dt)
+bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2, double dt)
 {
 	Vector3 disDiff = enemy2->pos - enemy1->pos;
 	//check if they are near each other
@@ -2061,9 +2067,15 @@ bool SceneCollision::CheckCollision(Enemy* enemy1, Enemy* enemy2,double dt)
 
 }
 
-bool SceneCollision::CheckCollision(Enemy* enemy, GameObject* go)
+bool SceneCollision::CheckCollision(Enemy* Enemy, CPlayer2D* cPlayer2D)
 {
-	return false;
+	Vector3 relativeVel = Enemy->vel - cPlayer2D->vel;
+	Vector3 disDiff = cPlayer2D->pos - Enemy->pos;
+
+	if (relativeVel.Dot(disDiff) <= 0) {
+		return false;
+	}
+	return disDiff.LengthSquared() <= (Enemy->scale.x + 10) * (Enemy->scale.x + 10);
 }
 
 void SceneCollision::CollisionResponse(GameObject * go1, GameObject * go2)
