@@ -1839,7 +1839,7 @@ void SceneCollision::Update(double dt)
 						else if (cPlayer2D->invlun < elapsedTime)
 						{
 							cPlayer2D->hp -= 2;
-							cPlayer2D->invlun = elapsedTime + 5.0;
+							cPlayer2D->invlun = elapsedTime + 0.5f;
 						}
 					}
 
