@@ -379,7 +379,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 			dmg = Bullet->damage;
 		else if (Bullet->proj == GameObject::sniper)
 			dmg = dmgofgun + Bullet->damage;
-		else if (Bullet->proj = GameObject::machinegun)
+		else if (Bullet->proj == GameObject::machinegun)
 		{
 			dmg = dmgofgun + (meshList[GEO_MACHINEGUN]->material.kAmbient.b / (meshList[GEO_MACHINEGUN]->material.kAmbient.b * meshList[GEO_MACHINEGUN]->material.kAmbient.b));
 		}
@@ -3444,6 +3444,7 @@ void SceneCollision::Render()
 		{
 			if (elapsedTime <= 0.f)
 				elapsedTime = 0.f;
+
 			modelStack.PushMatrix();
 			modelStack.Translate(m_worldWidth / 2, elapsedTime * m_worldHeight, 3);
 			modelStack.Scale(200, 200, 1);
@@ -3946,7 +3947,7 @@ void SceneCollision::Render()
 				elapsedTime = 3.f;
 			modelStack.PushMatrix();
 			modelStack.Translate(m_worldWidth / 2, elapsedTime * m_worldHeight, 10);
-			modelStack.Scale(200, 200, 1);
+			modelStack.Scale(250, 200, 1);
 			RenderMesh(meshList[GEO_TRANSITION], false);
 			modelStack.PopMatrix();
 		}

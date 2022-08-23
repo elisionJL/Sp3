@@ -356,7 +356,7 @@ void SceneBase::Init()
 	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Sniper->AddAnimation("Shoot", 0, 6);
+	Sniper->AddAnimation("Shoot", 0, 5);
 	Sniper->AddAnimation("ShootR", 6, 12);
 
 	//Shopkeeper
@@ -426,6 +426,17 @@ void SceneBase::Init()
 	spider->AddAnimation("MoveRight", 0, 7);
 	spider->AddAnimation("MoveLeft", 24, 31);
 	spider->AddAnimation("Die", 16, 22);
+
+	//Zombie
+	meshList[GEO_ZOMBIE] = MeshBuilder::GenerateSpriteAnimation("Zombie", 6, 9);
+	meshList[GEO_ZOMBIE]->textureID = LoadTexture("Image//ZombieSS.png", true);
+	meshList[GEO_ZOMBIE]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* zombie = dynamic_cast<SpriteAnimation*>(meshList[GEO_ZOMBIE]);
+	//Add the animations
+	spider->AddAnimation("Attack", 5, 11);
+	spider->AddAnimation("MoveRight", 12, 20);
+	spider->AddAnimation("MoveLeft", 39, 47);
+	spider->AddAnimation("Die", 21, 27);
 
 	//Boundary
 	meshList[GEO_BOUNDARY] = MeshBuilder::GenerateSpriteAnimation("boundary", 2, 8);
