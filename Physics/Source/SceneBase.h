@@ -54,7 +54,6 @@ public:
 		GEO_WIN,
 		GEO_LOSE,
 		GEO_START,
-		GEO_RETURN,
 		GEO_SHOP,
 		GEO_SHOP_UI_BG,
 		GEO_SHOP_SIGN,

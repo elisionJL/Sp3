@@ -51,7 +51,7 @@ void CPlayer2D::Update(double dt)
 		}
 	}
 	if (hp <= 0) {
-		if (Lives - 1 > 0)
+		if (Lives > 0)
 		{
 			hp = maxHP;
 			Lives -= 1;
@@ -174,28 +174,6 @@ void CPlayer2D::Exit()
 void CPlayer2D::setmeshList(Mesh* meshlist)
 {
 	playerMesh = meshlist;
-}
-
-void CPlayer2D::reset()
-{
-	maxHP = hp = 30;
-	Walk_Speed = maxWalk_Speed = 30;
-	dmg = maxDamage = Lives = maxLives = 1;
-	Gold = 0;
-	m_worldHeight = 100.f;
-	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	pos.Set(m_worldWidth * 0.5, m_worldHeight * 0.5, 1);
-	vel.Set(0, 0, 0);
-	sFacingDirection = RIGHT;
-	sCurrentState = IDLE;
-	rollCooldown = 0;
-	maxRollCooldown = 5;
-	ShieldCountDown = 0;
-	xp = 0;
-	xpBooster = 1;
-	level = 1;
-	prevTime = elapsedTime = 0;
-	leveledUp = false;
 }
 
 int CPlayer2D::getLevel()
