@@ -165,6 +165,10 @@ protected:
 	float screenShake[2];
 	bool SuperPainPower;
 	float shieldcooldowntimer;
+
+	double enemyspawn;
+	float enemyspawnspeed;
+	float enemyovertime;
 };
 
 #endif
