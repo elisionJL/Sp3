@@ -1250,6 +1250,7 @@ void SceneCollision::Update(double dt)
 						}
 						case 20:
 							go->GEOTYPE = GEO_ZOMBIE;
+							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
 
