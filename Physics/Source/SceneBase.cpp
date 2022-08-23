@@ -427,6 +427,17 @@ void SceneBase::Init()
 	spider->AddAnimation("MoveLeft", 24, 31);
 	spider->AddAnimation("Die", 16, 22);
 
+	//Zombie
+	meshList[GEO_ZOMBIE] = MeshBuilder::GenerateSpriteAnimation("Zombie", 6, 9);
+	meshList[GEO_ZOMBIE]->textureID = LoadTexture("Image//ZombieSS.png", true);
+	meshList[GEO_ZOMBIE]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* zombie = dynamic_cast<SpriteAnimation*>(meshList[GEO_ZOMBIE]);
+	//Add the animations
+	spider->AddAnimation("Attack", 5, 11);
+	spider->AddAnimation("MoveRight", 12, 20);
+	spider->AddAnimation("MoveLeft", 39, 47);
+	spider->AddAnimation("Die", 21, 27);
+
 	//Boundary
 	meshList[GEO_BOUNDARY] = MeshBuilder::GenerateSpriteAnimation("boundary", 2, 8);
 	meshList[GEO_BOUNDARY]->textureID = LoadTexture("Image//Ocean.png", true);
