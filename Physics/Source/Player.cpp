@@ -50,7 +50,7 @@ void CPlayer2D::Update(double dt)
 		}
 	}
 	if (hp <= 0) {
-		if (Lives > 0)
+		if (Lives - 1 > 0)
 		{
 			hp = maxHP;
 			Lives -= 1;
@@ -60,7 +60,7 @@ void CPlayer2D::Update(double dt)
 		{
 			sa->PlayAnimation("death", 0, 2.f);
 			sa->Update(dt);
-			if (sa->getAnimationStatus("death") == true) {
+			if (sa->getAnimationStatus("death") == false) {
 				sCurrentState = DEAD;
 			}
 		}

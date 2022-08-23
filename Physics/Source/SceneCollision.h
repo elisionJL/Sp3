@@ -36,7 +36,7 @@ public:
 	void ReturnGO(GameObject *go);
 	bool CheckCollision(GameObject* go1, GameObject* go2);
 	bool CheckCollision(Enemy* enemy1, Enemy* enemy2, double dt);
-	bool CheckCollision(Enemy* enemy, GameObject* go);
+	bool CheckCollision(Enemy* Enemy, CPlayer2D* cPlayer2D);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
 	void CollisionResponse(Enemy* actor, Enemy* actee, double dt);
 	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
