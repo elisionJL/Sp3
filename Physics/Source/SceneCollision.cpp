@@ -986,7 +986,6 @@ void SceneCollision::Update(double dt)
 		displaynumberoffsety = 0;
 		switchdmgnum = 1;
 		coordinatesofdamagenumbers.clear();
-		seconds += dt;
 		SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
 		//Add the animation for ocean boundary
 		ocean->PlayAnimation("Waves", -1, 5.f);
@@ -1152,7 +1151,7 @@ void SceneCollision::Update(double dt)
 			if (cPlayer2D->leveledUp == false && pause == false)
 			{
 				cPlayer2D->Update(dt);
-
+				seconds += dt;
 				elapsedTime += dt;
 				static bool BPressed = false;
 				if (Application::IsKeyPressed('B') && BPressed == false) {
@@ -1957,7 +1956,12 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) 
 			{
+				m_goList.clear();
 				enemyList.clear();
+				timerforbullets.clear();
+				dmgandtimefordmgnumber.clear();
+				timerfordmgnumber.clear();
+				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
@@ -1968,7 +1972,6 @@ void SceneCollision::Update(double dt)
 				minutes = 0;
 				seconds = 0;
 				firerateUpgrade = 0;
-				//Companion->mass = 1;
 				Companion = FetchGO();
 				Gun = FetchGO();
 				Companion->mass = 1;
@@ -2054,7 +2057,12 @@ void SceneCollision::Update(double dt)
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
+				m_goList.clear();
 				enemyList.clear();
+				timerforbullets.clear();
+				dmgandtimefordmgnumber.clear();
+				timerfordmgnumber.clear();
+				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
@@ -2065,7 +2073,6 @@ void SceneCollision::Update(double dt)
 				minutes = 0;
 				seconds = 0;
 				firerateUpgrade = 0;
-				//Companion->mass = 1;
 				Companion = FetchGO();
 				Gun = FetchGO();
 				Companion->mass = 1;
@@ -4219,6 +4226,7 @@ void SceneCollision::Render()
 			modelStack.PopMatrix();
 
 			ss.str("");
+			ss.precision(4);
 			if (Gun->type == GameObject::GO_BOW) {
 				ss << "dmg:" << dmgofgun * 12;
 			}

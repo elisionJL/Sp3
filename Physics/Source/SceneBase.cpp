@@ -195,7 +195,7 @@ void SceneBase::Init()
 	meshList[GEO_LVLUPBG]->textureID = LoadTexture("Image//Tree2.png", true);
 
 	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("lose", Color(1, 1, 1), 1.f);
-	meshList[GEO_LOSE]->textureID = LoadTexture("Image//loseScreen.psd", true);
+	meshList[GEO_LOSE]->textureID = LoadTexture("Image//endScreens//loseScreen.png", true);
 
 	meshList[GEO_QUIT] = MeshBuilder::GenerateQuad("quit", Color(1, 1, 1), 1.f);
 	meshList[GEO_QUIT]->textureID = LoadTexture("Image//Quit_Game.png", true);
