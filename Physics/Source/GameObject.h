@@ -18,7 +18,8 @@ struct GameObject
 		bow,
 		sniper,
 		shotgun,
-		dragon
+		dragon,
+		machinegun
 	};
 	enum GAMEOBJECT_TYPE
 	{
@@ -46,6 +47,8 @@ struct GameObject
 		GO_SUPERPAIN,
 		GO_EXPLOSION,
 		GO_CHEST,
+		GO_SHIELD,
+		GO_MACHINEGUN,
 		GO_TOTAL, //must be last
 	};
 

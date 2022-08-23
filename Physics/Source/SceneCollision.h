@@ -46,6 +46,7 @@ public:
 	void SpawnMapObjects();
 	void PlayerMapCheck();
 	void MapBoundary();
+	void MakeScreenShake();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
 	void PistolShooting(double elapsedTime, int numofshots);
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
@@ -57,6 +58,7 @@ public:
 	void dragonshooting(int numberofshots, float strengthofproj, int piercing);
 	float CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2D);
 	void MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt);
+	void MachineGunPewPew(double elapsedTime, int numofshots);
 protected:
 	enum upgrades {
 		atk = 0,
@@ -79,6 +81,7 @@ protected:
 	upgrades levelUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
+	GameObject* Shield;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
@@ -94,6 +97,7 @@ protected:
 	int minutes;
 	float seconds;
 	vector<Enemy*> enemyList;
+	vector<Mesh*>enemyAnimationPlayed;
 	CPlayer2D* cPlayer2D;
 	gameStates currentState;
 	Vector3 m_gravity;
@@ -158,9 +162,14 @@ protected:
 	bool Transition;
 	float SongVolumeChange;
 	float timerforpistol;
-	bool shootpistolspecial;
+	bool GunRightClickSpecial;
 	float staggertimingforpistol;
 	float timerfordragon;
+
+	float screenShake[2];
+	float PowerUsed;
+	bool SuperPainPower;
+	float shieldcooldowntimer;
 };
 
 #endif

@@ -174,6 +174,9 @@ void SceneBase::Init()
 	meshList[GEO_START] = MeshBuilder::GenerateQuad("start", Color(1, 1, 1), 1.f);
 	meshList[GEO_START]->textureID = LoadTexture("Image//Start_Game.png", true);
 
+	meshList[GEO_SUPERPAIN] = MeshBuilder::GenerateQuad("superpain", Color(1, 1, 1), 1.f);
+	meshList[GEO_SUPERPAIN]->textureID = LoadTexture("Image//Power_Up.png", true);
+
 	meshList[GEO_PROJECTILE] = MeshBuilder::GenerateQuad("bullet", Color(1, 1, 1), 1.f);
 
 	meshList[GEO_RETRY] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
@@ -187,7 +190,6 @@ void SceneBase::Init()
 
 	meshList[GEO_LVLUPBG] = MeshBuilder::GenerateQuad("LVLUPBG", Color(1, 1, 1), 1.f);
 	meshList[GEO_LVLUPBG]->textureID = LoadTexture("Image//Tree2.png", true);
-
 
 	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("lose", Color(1, 1, 1), 1.f);
 	meshList[GEO_LOSE]->textureID = LoadTexture("Image//loseScreen.psd", true);
@@ -271,6 +273,13 @@ void SceneBase::Init()
 	meshList[GEO_TRANSITION] = MeshBuilder::GenerateQuad("transition", Color(1, 1, 1), 1.f);
 	meshList[GEO_TRANSITION]->textureID = LoadTexture("Image//Black.png", true);
 
+
+	meshList[GEO_SHIELD] = MeshBuilder::GenerateQuad("shield", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHIELD]->textureID = LoadTexture("Image//Shield.png", true);
+
+
+
+
 	cSoundController = CSoundController::GetInstance();
 	cSoundController->Init();
 
@@ -289,6 +298,9 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\RevolverSFX.ogg"), 13, true); //Cannot Buy SFX
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Highlight.ogg"), 14, true); //Hover over button
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Selected.ogg"), 15, true); //Button selected
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\SuperPainBomb.wav"), 16, true); //Button selected
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\MachineGun.ogg"), 17, true); //Machine Gun BRRRRR
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\FullerAuto.ogg"), 18, true); //Mini Gun BRRRRRR
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 5, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);
@@ -321,6 +333,14 @@ void SceneBase::Init()
 	//Add the animation �ROW1� that start at 0 with 4 frames
 	GL->AddAnimation("Shoot", 0, 6);
 	GL->AddAnimation("ShootR", 6, 12);
+
+	meshList[GEO_MACHINEGUN] = MeshBuilder::GenerateSpriteAnimation("MG", 2, 6);
+	meshList[GEO_MACHINEGUN]->textureID = LoadTexture("Image//MACHINEGUN.png", true);
+	meshList[GEO_MACHINEGUN]->material.kAmbient.Set(1, 1, 1);
+	SpriteAnimation* MG = dynamic_cast<SpriteAnimation*>(meshList[GEO_MACHINEGUN]);
+	//Add the animation �ROW1� that start at 0 with 4 frames
+	MG->AddAnimation("Shoot", 0, 6);
+	MG->AddAnimation("ShootR", 6, 12);
 
 	meshList[GEO_SHOTGUN] = MeshBuilder::GenerateSpriteAnimation("Shotgun", 2, 6);
 	meshList[GEO_SHOTGUN]->textureID = LoadTexture("Image//Shotgun.png", true);
@@ -362,52 +382,56 @@ void SceneBase::Init()
 	//Add the animations
 	boss_slime->AddAnimation("Idle", 0, 3);
 	boss_slime->AddAnimation("Jump", 4, 15);
-	boss_slime->AddAnimation("Move Right", 16, 22);
-	boss_slime->AddAnimation("Move Left", 23, 30);
+	boss_slime->AddAnimation("MoveRight", 16, 22);
+	boss_slime->AddAnimation("MoveLeft", 23, 30);
 
 
 	//Vampire
-	meshList[GEO_VAMPIRE] = MeshBuilder::GenerateSpriteAnimation("Vampire", 4, 7);
+	meshList[GEO_VAMPIRE] = MeshBuilder::GenerateSpriteAnimation("Vampire", 5, 7);
 	meshList[GEO_VAMPIRE]->textureID = LoadTexture("Image//vampireSS.png", true);
 	meshList[GEO_VAMPIRE]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* vampire = dynamic_cast<SpriteAnimation*>(meshList[GEO_VAMPIRE]);
 	//Add the animations
 	vampire->AddAnimation("Attack", 7, 12);
 	vampire->AddAnimation("MoveRight", 0, 5);
+	vampire->AddAnimation("MoveLeft", 28, 33);
 	vampire->AddAnimation("Die", 21, 27);
 	vampire->AddAnimation("Hurt", 14, 19);
 
 
 	//Ghost
-	meshList[GEO_GHOST] = MeshBuilder::GenerateSpriteAnimation("Ghost", 4, 7);
+	meshList[GEO_GHOST] = MeshBuilder::GenerateSpriteAnimation("Ghost", 5, 7);
 	meshList[GEO_GHOST]->textureID = LoadTexture("Image//GhostSS.png", true);
 	meshList[GEO_GHOST]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* ghost = dynamic_cast<SpriteAnimation*>(meshList[GEO_GHOST]);
 	//Add the animations
 	ghost->AddAnimation("Attack", 7, 13);
 	ghost->AddAnimation("MoveRight", 0, 6);
+	ghost->AddAnimation("MoveLeft", 28, 34);
 	ghost->AddAnimation("Die", 21, 26);
 	ghost->AddAnimation("Hurt", 14, 20);
 
 
 	//Skeleton
-	meshList[GEO_SKELETON] = MeshBuilder::GenerateSpriteAnimation("Skeleton", 3, 7);
+	meshList[GEO_SKELETON] = MeshBuilder::GenerateSpriteAnimation("Skeleton", 4, 7);
 	meshList[GEO_SKELETON]->textureID = LoadTexture("Image//SkeletonSS.png", true);
 	meshList[GEO_SKELETON]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* skeleton = dynamic_cast<SpriteAnimation*>(meshList[GEO_SKELETON]);
 	//Add the animations
 	skeleton->AddAnimation("Attack", 7, 13);
 	skeleton->AddAnimation("MoveRight", 0, 6);
+	skeleton->AddAnimation("MoveLeft", 21, 27);
 	skeleton->AddAnimation("Die", 14, 20);
 
 	//Spider
-	meshList[GEO_SPIDER] = MeshBuilder::GenerateSpriteAnimation("Spider", 3, 8);
+	meshList[GEO_SPIDER] = MeshBuilder::GenerateSpriteAnimation("Spider", 4, 8);
 	meshList[GEO_SPIDER]->textureID = LoadTexture("Image//spiderSS.png", true);
 	meshList[GEO_SPIDER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* spider = dynamic_cast<SpriteAnimation*>(meshList[GEO_SPIDER]);
 	//Add the animations
 	spider->AddAnimation("Attack", 8, 13);
 	spider->AddAnimation("MoveRight", 0, 7);
+	spider->AddAnimation("MoveLeft", 24, 31);
 	spider->AddAnimation("Die", 16, 22);
 
 	//Boundary
