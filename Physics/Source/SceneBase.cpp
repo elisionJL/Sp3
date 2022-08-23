@@ -424,8 +424,8 @@ void SceneBase::Init()
 	//Add the animations
 	spider->AddAnimation("Attack", 8, 13);
 	spider->AddAnimation("MoveRight", 0, 7);
-	spider->AddAnimation("MoveLeft", 24, 31);
-	spider->AddAnimation("Die", 16, 22);
+	spider->AddAnimation("MoveLeft", 25, 32);
+	spider->AddAnimation("Die", 17, 22);
 
 	//Zombie
 	meshList[GEO_ZOMBIE] = MeshBuilder::GenerateSpriteAnimation("Zombie", 6, 9);
@@ -433,10 +433,10 @@ void SceneBase::Init()
 	meshList[GEO_ZOMBIE]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* zombie = dynamic_cast<SpriteAnimation*>(meshList[GEO_ZOMBIE]);
 	//Add the animations
-	spider->AddAnimation("Attack", 5, 11);
-	spider->AddAnimation("MoveRight", 12, 20);
-	spider->AddAnimation("MoveLeft", 39, 47);
-	spider->AddAnimation("Die", 21, 27);
+	zombie->AddAnimation("Attack", 5, 11);
+	zombie->AddAnimation("MoveRight", 12, 20);
+	zombie->AddAnimation("MoveLeft", 39, 47);
+	zombie->AddAnimation("Die", 21, 27);
 
 	//Boundary
 	meshList[GEO_BOUNDARY] = MeshBuilder::GenerateSpriteAnimation("boundary", 2, 8);

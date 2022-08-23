@@ -646,10 +646,6 @@ void SceneCollision::MachineGunPewPew(double elapsedTime, int numofshots)
 	}
 }
 
-		}
-	}
-}
-
 void SceneCollision::WritePlayerStats()
 {
 	ofstream savedStats("Player_Stats.txt");
