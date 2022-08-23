@@ -498,7 +498,7 @@ void SceneCollision::dragonshooting(int numberofshots, float velofproj, int pier
 			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
 			go->vel.Normalize() *= velofproj;
 			go->amountofpierleft = piercing;
-			go->damage = 10;
+			go->damage = Companion->damage;
 			go->pier.clear();
 
 			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
@@ -585,7 +585,7 @@ void SceneCollision::MachineGunPewPew(double elapsedTime, int numofshots)
 			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
 
 			go->vel.Normalize() *= (velocityofbullet + 30);
-			go->amountofpierleft = pierceforbullet * 2;
+			go->amountofpierleft = 1;
 			
 			go->pier.clear();
 
@@ -794,7 +794,7 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-				if (elapsedTime > 5)
+				if (elapsedTime > 10)
 				{
 					Startgame = true;
 					Gun->type = GameObject::GO_MACHINEGUN;
@@ -851,6 +851,7 @@ void SceneCollision::Update(double dt)
 					dmgofgun = 4;
 					pierceforbullet = 1;
 					firerate = 1;
+					Gun->mass = 6 + numberofbullets;
 				}
 				else if (Gun->type == GameObject::GO_MACHINEGUN)
 				{
@@ -1112,11 +1113,11 @@ void SceneCollision::Update(double dt)
 
 							if (GunShoot == false)
 							{
-								if (G->getcurrentanimationframe("Shoot") == 0)
+								if (G->getcurrentanimationframe("Shoot") == 0 && (Gun->mass < elapsedTime || Gun->type == GameObject::GO_PISTOL))
 								{
 									SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 								}
-								else if (G->getcurrentanimationframe("ShootR") == GunFrameWhereItStarts)
+								else if (G->getcurrentanimationframe("ShootR") == GunFrameWhereItStarts && (Gun->mass < elapsedTime || Gun->type == GameObject::GO_PISTOL))
 								{
 									SceneCollision::shooting(elapsedTime, numberofbullets, Gun);
 								}
@@ -1254,7 +1255,6 @@ void SceneCollision::Update(double dt)
 						}
 						bRButtonState = true;
 					}
-
 					else if (bRButtonState && !Application::IsMousePressed(1))
 					{
 						bRButtonState = false;
@@ -1273,7 +1273,7 @@ void SceneCollision::Update(double dt)
 						}
 						else if (Gun->activeTime < elapsedTime && Gun->mass > elapsedTime && Gun->type == GameObject::GO_MACHINEGUN) //activetime is skill cooldown and gun mass would be firing duration
 						{
-							MakeScreenShake();
+							MakeScreenShakeForMG();
 							MachineGunPewPew(elapsedTime, numberofbullets);
 							if (Gun->mass > elapsedTime)
 							{
@@ -1424,7 +1424,7 @@ void SceneCollision::Update(double dt)
 
 							if (Gun->type != GameObject::GO_PISTOL)
 								go->angle = angle;
-							else if (!GunRightClickSpecial)
+							else if (Gun->mass >= 6 + numberofbullets)
 								go->angle = angle;
 
 							if (Gun->type == GameObject::GO_SNIPER)
@@ -1653,84 +1653,92 @@ void SceneCollision::Update(double dt)
 			}
 			//leveled up
 			else if (cPlayer2D->leveledUp == true) {
-			elapsedTime += dt;
-			if (elapsedTime > timerBeforeUpgrade) {
-				static bool LMPressed = false;
-				if (Application::IsMousePressed(0) && !LMPressed) {
-					LMPressed = true;
-				}
-				else if (!Application::IsMousePressed(0) && LMPressed) {
-					LMPressed = false;
-					for (int i = 1; i < 4; ++i) {
-						float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
-						float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+				elapsedTime += dt;
+				if (elapsedTime > timerBeforeUpgrade) {
+					static bool LMPressed = false;
+					if (Application::IsMousePressed(0) && !LMPressed) {
+						LMPressed = true;
+					}
+					else if (!Application::IsMousePressed(0) && LMPressed) {
+						LMPressed = false;
+						for (int i = 1; i < 4; ++i) {
+							float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
+							float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
 
-							if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
-								(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
+								if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
+									(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
 
-								cPlayer2D->increaseLevel();
+									cPlayer2D->increaseLevel();
 
-								switch (levelUpgrades[i - 1]) {
-								case pierce:
-									pierceforbullet += 1;
-									break;
-								case atk:
-									dmgofgun *= 1.1;
-									break;
-								case hp:
-									cPlayer2D->IncreaseHP();
-									break;
-								case multishot:
-									numberofbullets++;
-									break;
-								case moveSpeed:
-									cPlayer2D->IncreaseSpd();
-									break;
-								case velocity:
-									velocityofbullet += 5;
-									break;
-								case fireRate:
-									firerate *= 0.95;
-									break;
-								case dragon:
-									if (Companion->mass == 1)
-									{
-										Companion->type = GameObject::GO_COMPANION;
-										Companion->mass = 5;
-										Companion->scale.Set(7, 7, 1);
-										Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
-										Companion->vel.SetZero();
-										timerfordragon = elapsedTime;
-										Companion->bounce = true;
+									switch (levelUpgrades[i - 1]) {
+									case pierce:
+										pierceforbullet += 1;
+										break;
+									case atk:
+										dmgofgun *= 1.1;
+										break;
+									case hp:
+										cPlayer2D->IncreaseHP();
+										break;
+									case multishot:
+										numberofbullets++;
+										break;
+									case moveSpeed:
+										cPlayer2D->IncreaseSpd();
+										break;
+									case velocity:
+										velocityofbullet += 5;
+										break;
+									case fireRate:
+										firerate *= 0.95;
+										break;
+									case dragon:
+										if (Companion->mass == 1)
+										{
+											Companion->type = GameObject::GO_COMPANION;
+											Companion->mass = 5;
+											Companion->scale.Set(7, 7, 1);
+											Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+											Companion->vel.SetZero();
+											timerfordragon = elapsedTime;
+											Companion->bounce = true;
+											Companion->damage = 10;
+										}
+										else
+										{
+											Companion->damage *= 1.1;
+										}
+										break;
 									}
-									break;
 								}
 							}
 						}
 					}
-				}
 			}
 			//pause
-			else if (pause == true) {
+			else if (pause == true)
+			{
 				static bool LMPressed = false;
 				if (Application::IsMousePressed(0) && !LMPressed) {
 					LMPressed = true;
 				}
-				else if (!Application::IsMousePressed(0) && LMPressed) {
+				else if (!Application::IsMousePressed(0) && LMPressed) 
+				{
 					LMPressed = false;
 					float x = m_worldWidth * 0.5;
 					if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) {
+						mousePos.y <= m_worldHeight * 0.84 && mousePos.y >= m_worldHeight * 0.7)) 
+					{
 						pause = false;
 
-						}
-						else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) &&
-							mousePos.y <= m_worldHeight * 0.67 && mousePos.y >= m_worldHeight * 0.53)) {
-							pause = false;
-							currentState = lose;
-						}
+					}
+					else if ((mousePos.x >= x - (m_worldWidth * 0.1) && mousePos.x <= x + (m_worldWidth * 0.1) && mousePos.y <= m_worldHeight * 0.67 && mousePos.y >= m_worldHeight * 0.53))
+					{
+						pause = false;
+						currentState = lose;
 					}
 				}
+			}
 		}
 
 		break;
@@ -2852,6 +2860,11 @@ void SceneCollision::MakeScreenShake()
 	screenShake[0] = -5 + static_cast<float>(rand()) * static_cast<float>(5 - -5) / RAND_MAX;
 	screenShake[1] = -5 + static_cast<float>(rand()) * static_cast<float>(5 - -5) / RAND_MAX;
 }
+void SceneCollision::MakeScreenShakeForMG()
+{
+	screenShake[0] = -2 + static_cast<float>(rand()) * static_cast<float>(2 - -2) / RAND_MAX;
+	screenShake[1] = -2 + static_cast<float>(rand()) * static_cast<float>(2 - -2) / RAND_MAX;
+}
 
 float SceneCollision::calculateAngle(float x, float y)
 {
@@ -3072,13 +3085,13 @@ void SceneCollision::RenderGO(GameObject * go)
 			modelStack.Scale(1, 0.5, 1);
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
 			break;
-		case GameObject::dragon:
-			modelStack.Scale(1, 0.5, 1);
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//firestatus.png", true);
-			break;
 		case GameObject::machinegun:
 			modelStack.Scale(0.5, 0.25, 1);
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//50CalBullet.png", true);
+			break;
+		case GameObject::dragon:
+			modelStack.Scale(1, 0.5, 1);
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//firestatus.png", true);
 			break;
 		}
 
@@ -3212,6 +3225,12 @@ void SceneCollision::Render()
 					modelStack.Scale(60, 30, 0);
 					RenderMesh(meshList[GEO_STATPANEL], false);
 					modelStack.PopMatrix();
+
+					modelStack.PushMatrix();
+					modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.22, 1);
+					modelStack.Scale(60, 15, 0);
+					RenderMesh(meshList[GEO_STATPANEL], false);
+					modelStack.PopMatrix();
 				}
 
 				else {
@@ -3231,6 +3250,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 3", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.2f", Color(1, 1, 1), 1.5, 28.5, 42);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Bullets explode ", Color(1, 1, 1), 1, 28.5, 15);
+					RenderTextOnScreen(meshList[GEO_TEXT], "on impact but beware", Color(1, 1, 1), 1, 28.5, 14);
+					RenderTextOnScreen(meshList[GEO_TEXT], "of self damage", Color(1, 1, 1), 1, 28.5, 13);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.5) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.5) + scalingthegun * 2.5) &&
@@ -3247,6 +3269,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 1", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 2.f", Color(1, 1, 1), 1.5, 28.5, 42);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Charge up for ", Color(1, 1, 1), 1, 28.5, 15);
+					RenderTextOnScreen(meshList[GEO_TEXT], "more damage but", Color(1, 1, 1), 1, 28.5, 13);
+					RenderTextOnScreen(meshList[GEO_TEXT], "slow to fire", Color(1, 1, 1), 1, 28.5, 11);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.8) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.8) + scalingthegun * 2.5) &&
@@ -3263,6 +3288,10 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 3", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.2f", Color(1, 1, 1), 1.5, 28.5, 42);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Starts with", Color(1, 1, 1), 1, 28.5, 16);
+					RenderTextOnScreen(meshList[GEO_TEXT], "multiple pallets", Color(1, 1, 1), 1, 28.5, 14);
+					RenderTextOnScreen(meshList[GEO_TEXT], "and will bounce ", Color(1, 1, 1), 1, 28.5, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "instead of pierce", Color(1, 1, 1), 1, 28.5, 10);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.4) - scalingthegun * 3.5 && mousePos.x <= (m_worldWidth * 0.4) + scalingthegun * 3.5) &&
@@ -3279,6 +3308,11 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 10", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 3", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.5f", Color(1, 1, 1), 1.5, 28.5, 42);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Not for the", Color(1, 1, 1), 1, 28.5, 16);
+					RenderTextOnScreen(meshList[GEO_TEXT], "light hearted", Color(1, 1, 1), 1, 28.5, 14);
+					RenderTextOnScreen(meshList[GEO_TEXT], "is the definition", Color(1, 1, 1), 1, 28.5, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "of Spin2Win", Color(1, 1, 1), 1, 28.5, 10);
+
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.6) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.6) + scalingthegun * 2.5) &&
@@ -3295,6 +3329,10 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 4", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.f", Color(1, 1, 1), 1.5, 28.5, 42);
+					RenderTextOnScreen(meshList[GEO_TEXT], "A gun for the", Color(1, 1, 1), 1, 28.5, 16);
+					RenderTextOnScreen(meshList[GEO_TEXT], "fastest in the", Color(1, 1, 1), 1, 28.5, 14);
+					RenderTextOnScreen(meshList[GEO_TEXT], "west, aiming is", Color(1, 1, 1), 1, 28.5, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "overrated", Color(1, 1, 1), 1.5, 28.5, 10);
 				}
 			}
 		}

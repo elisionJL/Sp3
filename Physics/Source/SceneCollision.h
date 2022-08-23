@@ -47,6 +47,7 @@ public:
 	void PlayerMapCheck();
 	void MapBoundary();
 	void MakeScreenShake();
+	void MakeScreenShakeForMG();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
 	void PistolShooting(double elapsedTime, int numofshots);
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
