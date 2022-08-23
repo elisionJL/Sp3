@@ -163,6 +163,7 @@ protected:
 	float timerfordragon;
 
 	float screenShake[2];
+	float PowerUsed;
 	bool SuperPainPower;
 	float shieldcooldowntimer;
 };
