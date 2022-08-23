@@ -356,7 +356,7 @@ void SceneBase::Init()
 	meshList[GEO_SNIPER]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Sniper = dynamic_cast<SpriteAnimation*>(meshList[GEO_SNIPER]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Sniper->AddAnimation("Shoot", 0, 6);
+	Sniper->AddAnimation("Shoot", 0, 5);
 	Sniper->AddAnimation("ShootR", 6, 12);
 
 	//Shopkeeper
