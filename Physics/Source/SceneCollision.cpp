@@ -31,7 +31,7 @@ void SceneCollision::Init()
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	currentState = win;
+	currentState = lose;
 	//Physics code here
 	m_speed = 1.f;
 	score = 0;
@@ -121,8 +121,6 @@ void SceneCollision::Init()
 
 	Transition = false;
 
-	SongVolumeChange = 0;
-
 	timerforpistol = 0;
 	timerfordragon = 0;
 	GunRightClickSpecial = false;
@@ -140,6 +138,8 @@ void SceneCollision::Init()
 	screenShake[1] = 0;
 	SuperPainPower = false;
 	PowerUsed = 0;
+
+	SongVolumeChange = 0;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -642,10 +642,6 @@ void SceneCollision::MachineGunPewPew(double elapsedTime, int numofshots)
 			}
 			timerforbullets.push_back(elapsedTime + 2.0f);
 			go->lifetime = timerforbullets.size() - 1;
-		}
-	}
-}
-
 		}
 	}
 }
@@ -1925,15 +1921,94 @@ void SceneCollision::Update(double dt)
 		static bool bLButtonState = false;
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
-			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
-				currentState = main;
+			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
+				(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) 
+			{
+				enemyList.clear();
+				cPlayer2D->IncreaseGold(acquiredGold);
+				acquiredGold = 0;
+				timerbeforeweaponselect = 1.0f;
+				timerBeforeUpgrade = 1.0f;
+				elapsedTime = 0;
+				prevTime = 0;
 				m_objectCount = 0;
 				minutes = 0;
-				seconds = 0;;
-				m_goList.clear();
-				m_thickWallList.clear();
+				seconds = 0;
+				firerateUpgrade = 0;
+				//Companion->mass = 1;
+				Companion = FetchGO();
+				Gun = FetchGO();
+				Companion->mass = 1;
+				flip = 1;
+				OutputDialogue = "";
+				CurrentTextWrite = false, TextFinished = false;
+				CurrentCharText = 0;
+				randomDialogue = 0;
+				companionX = 9;
+				companionY = 9;
+				GunShootingTimer = 0;
+				rotationorder = 1;
+				shootonceonly = 1;
+				GunShoot = false;
+				needtofinishanimation = false;
+				PlayerBuy = false;
+				currentlyHovering = false;
+				shopClick = 0;
+				zaxis = 1;
+				pause = false;
+				MSUpgrade = 0;
+				cPlayer2D->reset();
+				if (ShopUpgrades[0] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[0]; ++Upgrade)
+						cPlayer2D->IncreaseSpd();
+				if (ShopUpgrades[1] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[1]; ++Upgrade)
+						cPlayer2D->IncreaseHP();
+				if (ShopUpgrades[2] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[2]; ++Upgrade)
+						cPlayer2D->DecreaseShieldCooldown();
+				if (ShopUpgrades[3] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
+						cPlayer2D->IncreaseDmg();
+				if (ShopUpgrades[4] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
+						cPlayer2D->IncreaseLifeCount();
+				if (ShopUpgrades[5] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
+						cPlayer2D->IncreaseEXPGain();
+
+				dmgofgun = 0;
+
+				velocityofbullet = 20;
+
+				bowframe = 0;
+
+				MaxUpgrade = false;
+
+				Transition = false;
+
+				timerforpistol = 0;
+				timerfordragon = 0;
+				GunRightClickSpecial = false;
+				staggertimingforpistol = 0;
+
+				Shield = FetchGO();
+				Shield->type = GameObject::GO_SHIELD;
+				Shield->scale = Vector3(15, 15, 1);
+
+				enemyspawn = 0;
+				enemyspawnspeed = 0.5;
+				enemyovertime = 0;
+
+				screenShake[0] = 0;
+				screenShake[1] = 0;
+				SuperPainPower = false;
+				PowerUsed = 0;
+				currentState = difficultySelection;
 			}
-			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
+			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
+				(mousePos.y <= (m_worldHeight * 0.3) + 6 && mousePos.y >= (m_worldHeight * 0.3) - 6)) 
+			{
 				WritePlayerStats();
 				quit = true;
 			}
@@ -1946,12 +2021,87 @@ void SceneCollision::Update(double dt)
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
-				currentState = main;
+				enemyList.clear();
+				cPlayer2D->IncreaseGold(acquiredGold);
+				acquiredGold = 0;
+				timerbeforeweaponselect = 1.0f;
+				timerBeforeUpgrade = 1.0f;
+				elapsedTime = 0;
+				prevTime = 0;
 				m_objectCount = 0;
-				minutes = 2;
-				seconds = 30;
-				m_goList.clear();
-				m_thickWallList.clear();
+				minutes = 0;
+				seconds = 0;
+				firerateUpgrade = 0;
+				//Companion->mass = 1;
+				Companion = FetchGO();
+				Gun = FetchGO();
+				Companion->mass = 1;
+				flip = 1;
+				OutputDialogue = "";
+				CurrentTextWrite = false, TextFinished = false;
+				CurrentCharText = 0;
+				randomDialogue = 0;
+				companionX = 9;
+				companionY = 9;
+				GunShootingTimer = 0;
+				rotationorder = 1;
+				shootonceonly = 1;
+				GunShoot = false;
+				needtofinishanimation = false;
+				PlayerBuy = false;
+				currentlyHovering = false;
+				shopClick = 0;
+				zaxis = 1;
+				pause = false;
+				MSUpgrade = 0;
+				cPlayer2D->reset();
+				if (ShopUpgrades[0] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[0]; ++Upgrade)
+						cPlayer2D->IncreaseSpd();
+				if (ShopUpgrades[1] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[1]; ++Upgrade)
+						cPlayer2D->IncreaseHP();
+				if (ShopUpgrades[2] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[2]; ++Upgrade)
+						cPlayer2D->DecreaseShieldCooldown();
+				if (ShopUpgrades[3] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
+						cPlayer2D->IncreaseDmg();
+				if (ShopUpgrades[4] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
+						cPlayer2D->IncreaseLifeCount();
+				if (ShopUpgrades[5] > 0)
+					for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
+						cPlayer2D->IncreaseEXPGain();
+
+				dmgofgun = 0;
+
+				velocityofbullet = 20;
+
+				bowframe = 0;
+
+				MaxUpgrade = false;
+
+				Transition = false;
+
+				timerforpistol = 0;
+				timerfordragon = 0;
+				GunRightClickSpecial = false;
+				staggertimingforpistol = 0;
+
+				Shield = FetchGO();
+				Shield->type = GameObject::GO_SHIELD;
+				Shield->scale = Vector3(15, 15, 1);
+
+				enemyspawn = 0;
+				enemyspawnspeed = 0.5;
+				enemyovertime = 0;
+
+				screenShake[0] = 0;
+				screenShake[1] = 0;
+				SuperPainPower = false;
+				PowerUsed = 0;
+				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
 				WritePlayerStats();
@@ -4072,11 +4222,14 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 2);
 		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
-		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && 
-			(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && 
+			(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) {
 			meshList[GEO_RETRY]->material.kAmbient.Set(1, 1, 0);
 		}
-		RenderMesh(meshList[GEO_RETRY], false);
+		else {
+			meshList[GEO_RETRY]->material.kAmbient.Set(1, 1, 1);
+		}
+		RenderMesh(meshList[GEO_RETRY], true);
 		modelStack.PopMatrix();
 		
 		modelStack.PushMatrix();
@@ -4088,7 +4241,14 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 2);
 		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
-		RenderMesh(meshList[GEO_QUIT], false);
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
+			(mousePos.y <= (m_worldHeight * 0.3) + 6 && mousePos.y >= (m_worldHeight * 0.3) - 6)) {
+			meshList[GEO_RETURN]->material.kAmbient.Set(1, 1, 0);
+		}
+		else {
+			meshList[GEO_RETURN]->material.kAmbient.Set(1, 1, 1);
+		}
+		RenderMesh(meshList[GEO_RETURN], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
@@ -4125,7 +4285,14 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 2);
 		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
-		RenderMesh(meshList[GEO_RETRY], false);
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
+			(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) {
+			meshList[GEO_RETRY]->material.kAmbient.Set(1, 1, 0);
+		}
+		else {
+			meshList[GEO_RETRY]->material.kAmbient.Set(1, 1, 1);
+		}
+		RenderMesh(meshList[GEO_RETRY], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
@@ -4137,7 +4304,14 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 2);
 		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
-		RenderMesh(meshList[GEO_QUIT], false);
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
+			(mousePos.y <= (m_worldHeight * 0.3) + 6 && mousePos.y >= (m_worldHeight * 0.3) - 6)) {
+			meshList[GEO_RETURN]->material.kAmbient.Set(1, 1, 0);
+		}
+		else {
+			meshList[GEO_RETURN]->material.kAmbient.Set(1, 1, 1);
+		}
+		RenderMesh(meshList[GEO_RETURN], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();

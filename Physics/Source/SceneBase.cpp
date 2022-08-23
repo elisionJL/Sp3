@@ -198,7 +198,10 @@ void SceneBase::Init()
 	meshList[GEO_LOSE]->textureID = LoadTexture("Image//loseScreen.psd", true);
 
 	meshList[GEO_QUIT] = MeshBuilder::GenerateQuad("quit", Color(1, 1, 1), 1.f);
-	meshList[GEO_QUIT]->textureID = LoadTexture("Image//endScreens//return.png", true);
+	meshList[GEO_QUIT]->textureID = LoadTexture("Image//Quit_Game.png", true);
+
+	meshList[GEO_RETURN] = MeshBuilder::GenerateQuad("return", Color(1, 1, 1), 1.f);
+	meshList[GEO_RETURN]->textureID = LoadTexture("Image//endScreens//return.png", true);
 
 	meshList[GEO_SHOP] = MeshBuilder::GenerateQuad("shop", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHOP]->textureID = LoadTexture("Image//Shop.png", true);
