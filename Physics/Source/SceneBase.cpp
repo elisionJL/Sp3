@@ -292,6 +292,8 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Highlight.ogg"), 14, true); //Hover over button
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Selected.ogg"), 15, true); //Button selected
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\SuperPainBomb.wav"), 16, true); //Button selected
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\MachineGun.ogg"), 17, true); //Machine Gun BRRRRR
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\FullerAuto.ogg"), 18, true); //Mini Gun BRRRRRR
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 5, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);

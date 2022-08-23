@@ -58,6 +58,7 @@ public:
 	void dragonshooting(int numberofshots, float strengthofproj, int piercing);
 	float CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2D);
 	void MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt);
+	void MachineGunPewPew(double elapsedTime, int numofshots);
 protected:
 	enum upgrades {
 		atk = 0,
@@ -158,7 +159,7 @@ protected:
 	bool Transition;
 	float SongVolumeChange;
 	float timerforpistol;
-	bool shootpistolspecial;
+	bool GunRightClickSpecial;
 	float staggertimingforpistol;
 	float timerfordragon;
 

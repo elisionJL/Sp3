@@ -18,7 +18,8 @@ struct GameObject
 		bow,
 		sniper,
 		shotgun,
-		dragon
+		dragon,
+		machinegun
 	};
 	enum GAMEOBJECT_TYPE
 	{

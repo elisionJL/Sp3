@@ -10,6 +10,7 @@
 
 
 const float SceneCollision::GRAVITY_CONSTANT = 20.0f;
+using namespace std;
 
 SceneCollision::SceneCollision()
 {
@@ -87,7 +88,7 @@ void SceneCollision::Init()
 	timerforpistol = 0;
 
 	timerfordragon = 0;
-	shootpistolspecial = false;
+	GunRightClickSpecial = false;
 	staggertimingforpistol = 0;
 
 	Shield = FetchGO();
@@ -181,6 +182,11 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 				go->proj = GameObject::sniper;
 				cSoundController->StopPlayByID(12);
 				cSoundController->PlaySoundByID(12);
+				break;
+			case GameObject::GO_MACHINEGUN:
+				go->proj = GameObject::machinegun;
+				cSoundController->StopPlayByID(17);
+				cSoundController->PlaySoundByID(17);
 				break;
 			}
 			if (go->angle > 360) {
@@ -331,6 +337,10 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 			dmg = Bullet->damage;
 		else if (Bullet->proj == GameObject::sniper)
 			dmg = dmgofgun + Bullet->damage;
+		else if (Bullet->proj = GameObject::machinegun)
+		{
+			dmg = dmgofgun + (meshList[GEO_MACHINEGUN]->material.kAmbient.b / (meshList[GEO_MACHINEGUN]->material.kAmbient.b * meshList[GEO_MACHINEGUN]->material.kAmbient.b));
+		}
 
 		go2->sethp(go2->gethp() - dmg);
 		DamageNumbers(dmg, go2);
@@ -534,6 +544,65 @@ void SceneCollision::MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, dou
 		float force = CalculateAdditionalForce(enemy, cPlayer2D);
 		enemy->vel += 1.f / enemy->mass * dir * force * dt;
 	}*/
+}
+
+void SceneCollision::MachineGunPewPew(double elapsedTime, int numofshots)
+{
+	double x = 0, y = 0;
+	if (numofshots > 0)
+	{
+		Application::GetCursorPos(&x, &y);
+		unsigned w = Application::GetWindowWidth();
+		unsigned h = Application::GetWindowHeight();
+		float posX = (x / w * m_worldWidth) + camera.position.x;
+		float posY = m_worldHeight - (y / h * m_worldHeight) + camera.position.y;
+		Vector3 center = Vector3(posX, posY, 0) - cPlayer2D->pos;
+		float angle = calculateAngle(center.x, center.y);
+		float magnitude = center.Length();
+
+
+		float startingamount = (numofshots - 1) * 5;
+		if (startingamount < 1)
+		{
+			startingamount = 1;
+		}
+
+		for (int i = -startingamount; i <= startingamount; i += 10)
+		{
+			GameObject* go = FetchGO();
+			go->pos = cPlayer2D->pos;
+			go->scale.Set(4, 2, 1);
+			go->type = GameObject::GO_PROJECTILE;
+			go->angle = angle + i + Math::RandFloatMinMax(0, 30);
+			go->proj = GameObject::machinegun;
+			cSoundController->PlaySoundByID(18);
+
+			if (go->angle > 360) {
+				go->angle -= 360;
+			}
+			go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+
+			go->vel.Normalize() *= (velocityofbullet + 30);
+			go->amountofpierleft = pierceforbullet * 2;
+			
+			go->pier.clear();
+
+			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+			{
+				if (timerforbullets[arraynumber] != 0)
+				{
+					continue;
+				}
+				timerforbullets[arraynumber] = elapsedTime + 1.0f;
+				go->lifetime = arraynumber;
+				break;
+			}
+			timerforbullets.push_back(elapsedTime + 2.0f);
+			go->lifetime = timerforbullets.size() - 1;
+
+		}
+	}
 }
 
 void SceneCollision::RenderDmgNum(Vector3 posanddmg)
@@ -787,9 +856,11 @@ void SceneCollision::Update(double dt)
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_MACHINEGUN];
 					numberofbullets = 1;
-					dmgofgun = 4;
+					dmgofgun = 1;
 					pierceforbullet = 1;
-					firerate = 1;
+					firerate = 0.5f;
+					Gun->activeTime = 0;
+					Gun->mass = 0;
 				}
 				Gun->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 3);
 				Gun->vel.SetZero();
@@ -942,9 +1013,9 @@ void SceneCollision::Update(double dt)
 				}
 
 			}
-			if (cPlayer2D->leveledUp == false && pause == false) {
+			if (cPlayer2D->leveledUp == false && pause == false)
+			{
 				cPlayer2D->Update(dt);
-				//cPlayer2D->xp++;
 
 				elapsedTime += dt;
 				static bool BPressed = false;
@@ -991,9 +1062,6 @@ void SceneCollision::Update(double dt)
 					go->scale.Set(10, 10, 1);
 					go->pos = Epos;
 					go->mass = 10;
-
-					cout << Epos.x << endl;
-					cout << Epos.y << endl;
 
 					enemyList.push_back(go);
 
@@ -1166,21 +1234,32 @@ void SceneCollision::Update(double dt)
 					}
 
 					static bool bRButtonState = false;
-					if (!bRButtonState && Application::IsMousePressed(1) && Gun->type == GameObject::GO_PISTOL && timerforpistol < elapsedTime)
+					if (!bRButtonState && Application::IsMousePressed(1))
 					{
-						timerforpistol = elapsedTime + firerate * 2;
-						staggertimingforpistol = elapsedTime;
+						if (Gun->type == GameObject::GO_PISTOL && timerforpistol < elapsedTime)
+						{
+							timerforpistol = elapsedTime + firerate * 2;
+							staggertimingforpistol = elapsedTime;
+							GunRightClickSpecial = true;
+							Gun->mass = 0;
+						}
+						else if (Gun->type == GameObject::GO_MACHINEGUN && Gun->activeTime < elapsedTime)
+						{
+							Gun->mass = elapsedTime + 3.8f;
+							Gun->activeTime = elapsedTime + 0.5f;
+							cSoundController->PlaySoundByID(18);
+							GunRightClickSpecial = true;
+						}
 						bRButtonState = true;
-						shootpistolspecial = true;
-						Gun->mass = 0;
 					}
+
 					else if (bRButtonState && !Application::IsMousePressed(1))
 					{
 						bRButtonState = false;
 					}
-					if (shootpistolspecial)
+					if (GunRightClickSpecial)
 					{
-						if (staggertimingforpistol < elapsedTime && Gun->mass < 6 + numberofbullets) //for pistol special ability, 1 mass means 1 bullet
+						if (staggertimingforpistol < elapsedTime && Gun->mass < 6 + numberofbullets && Gun->type == GameObject::GO_PISTOL) //for pistol special ability, 1 mass means 1 bullet
 						{
 							SceneCollision::PistolShooting(elapsedTime, 1);
 							staggertimingforpistol = elapsedTime + 0.08f;
@@ -1188,7 +1267,22 @@ void SceneCollision::Update(double dt)
 							G->Update(dt);
 							Gun->mass++;
 							if (Gun->mass == 6 + numberofbullets) 
-								shootpistolspecial = false;
+								GunRightClickSpecial = false;
+						}
+						else if (Gun->activeTime < elapsedTime && Gun->mass > elapsedTime && Gun->type == GameObject::GO_MACHINEGUN) //activetime is skill cooldown and gun mass would be firing duration
+						{
+							MakeScreenShake();
+							MachineGunPewPew(elapsedTime, numberofbullets);
+							if (Gun->mass > elapsedTime)
+							{
+								Gun->activeTime = elapsedTime + 0.08f;
+								
+								if (meshList[GEO_MACHINEGUN]->material.kAmbient.b > 0.1f)
+								{
+									meshList[GEO_MACHINEGUN]->material.kAmbient.b -= 0.05;
+									meshList[GEO_MACHINEGUN]->material.kAmbient.g -= 0.05;
+								}
+							}
 						}
 					}
 				}
@@ -1326,7 +1420,9 @@ void SceneCollision::Update(double dt)
 							float Xaxis = mousePos.x - cPlayer2D->pos.x;
 							float Yaxis = mousePos.y - cPlayer2D->pos.y;
 
-							if (!shootpistolspecial)
+							if (Gun->type != GameObject::GO_PISTOL)
+								go->angle = angle;
+							else if (!GunRightClickSpecial)
 								go->angle = angle;
 
 							if (Gun->type == GameObject::GO_SNIPER)
@@ -1370,6 +1466,18 @@ void SceneCollision::Update(double dt)
 
 
 								go->prevangle = go->angle;
+							}
+							else if (Gun->type == GameObject::GO_MACHINEGUN)
+							{
+								if (Gun->mass < elapsedTime)
+								{
+									GunRightClickSpecial = false;
+									if (meshList[GEO_MACHINEGUN]->material.kAmbient.b < 1)
+									{
+										meshList[GEO_MACHINEGUN]->material.kAmbient.b += 0.01;
+										meshList[GEO_MACHINEGUN]->material.kAmbient.g += 0.01;
+									}
+								}
 							}
 						}
 						else if (go->type == GameObject::GO_PROJECTILE)
@@ -1542,7 +1650,7 @@ void SceneCollision::Update(double dt)
 				}
 			}
 			//leveled up
-		else if (cPlayer2D->leveledUp == true) {
+			else if (cPlayer2D->leveledUp == true) {
 			elapsedTime += dt;
 			if (elapsedTime > timerBeforeUpgrade) {
 				static bool LMPressed = false;
@@ -2965,6 +3073,10 @@ void SceneCollision::RenderGO(GameObject * go)
 		case GameObject::dragon:
 			modelStack.Scale(1, 0.5, 1);
 			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//firestatus.png", true);
+			break;
+		case GameObject::machinegun:
+			modelStack.Scale(0.5, 0.25, 1);
+			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//50CalBullet.png", true);
 			break;
 		}
 
