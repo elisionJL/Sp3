@@ -30,10 +30,11 @@ void SceneCollision::Init()
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	currentState = start;
+	currentState = win;
 	//Physics code here
 	m_speed = 1.f;
 	score = 0;
+	acquiredGold = 0;
 	thickWall = 0;
 	Math::InitRNG();
 	m_objectCount = 0;
@@ -693,8 +694,8 @@ void SceneCollision::Update(double dt)
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
-				minutes = 2;
-				seconds = 30;
+				minutes = 0;
+				seconds = 0;
 				firerateUpgrade = 0;
 				MSUpgrade = 0;
 				cSoundController->StopAllSound();
@@ -928,7 +929,7 @@ void SceneCollision::Update(double dt)
 		displaynumberoffsety = 0;
 		switchdmgnum = 1;
 		coordinatesofdamagenumbers.clear();
-		seconds -= dt;
+		seconds += dt;
 		SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
 		//Add the animation for ocean boundary
 		ocean->PlayAnimation("Waves", -1, 5.f);
@@ -979,13 +980,9 @@ void SceneCollision::Update(double dt)
 				SuperPainPower = false;
 				PowerUsed = 0;
 			}
-			if (minutes == 0 && seconds < 0) {
-				currentState = win;
-				break;
-			}
-			else if (seconds <= 0) {
-				minutes -= 1;
-				seconds += 60;
+			if (seconds >= 60) {
+				minutes += 1;
+				seconds -= 60;
 			}
 			//check if player has leveled up;
 			if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
@@ -1828,8 +1825,8 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
 				currentState = main;
 				m_objectCount = 0;
-				minutes = 2;
-				seconds = 30;;
+				minutes = 0;
+				seconds = 0;;
 				m_goList.clear();
 				m_thickWallList.clear();
 			}
@@ -3933,19 +3930,46 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
-		RenderMesh(meshList[GEO_RETRY], false);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
+		if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && 
+			(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
+			meshList[GEO_RETRY]->material.kAmbient.Set()
+		}
+		RenderMesh(meshList[GEO_RETRY], false);
+		modelStack.PopMatrix();
+		
+		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
 		RenderMesh(meshList[GEO_QUIT], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.6, m_worldHeight * 0.73, 1.2);
+		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 2);
+		RenderMesh(meshList[GEO_GOLD], false);
 		modelStack.PopMatrix();
 
 		std::ostringstream ss;
 		ss.str("");
-		ss << "score: " << score;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 25, 43);
+		ss << "X" <<acquiredGold;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2.5, 51, 42.4);
+
+
+		ss.str("");
+		ss << "score:" << score;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 10, 43);
 		break;
 	}
 	case lose:
@@ -3959,19 +3983,42 @@ void SceneCollision::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.6, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
 		RenderMesh(meshList[GEO_RETRY], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 1);
 		modelStack.Scale(m_worldWidth * 0.5, 15, 1);
+		RenderMesh(meshList[GEO_BUTTONBG], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth / 2, m_worldHeight * 0.3, 2);
+		modelStack.Scale(m_worldWidth * 0.5, 12, 1);
 		RenderMesh(meshList[GEO_QUIT], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(m_worldWidth * 0.6, m_worldHeight * 0.73, 1.2);
+		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 2);
+		RenderMesh(meshList[GEO_GOLD], false);
 		modelStack.PopMatrix();
 
 		std::ostringstream ss;
 		ss.str("");
-		ss << "score: " << score;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 25, 43);
+		ss << "X" << acquiredGold;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2.5, 51, 42.4);
+
+
+		ss.str("");
+		ss << "score:" << score;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 10, 43);
 		break;
 	}
 	}

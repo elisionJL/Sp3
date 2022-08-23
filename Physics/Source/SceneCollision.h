@@ -165,7 +165,7 @@ protected:
 	bool GunRightClickSpecial;
 	float staggertimingforpistol;
 	float timerfordragon;
-
+	int acquiredGold;
 	float screenShake[2];
 	float PowerUsed;
 	bool SuperPainPower;

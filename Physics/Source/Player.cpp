@@ -229,7 +229,7 @@ void CPlayer2D::UseGold(int Gold_Used)
 	Gold -= Gold_Used;
 }
 
-void CPlayer2D::IncreaseGold(float gold)
+void CPlayer2D::IncreaseGold(int gold)
 {
 	this->Gold += gold;
 }

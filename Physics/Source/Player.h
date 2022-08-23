@@ -40,7 +40,7 @@ public:
 	void IncreaseEXPGain();
 	int GetGold();
 	void UseGold(int Gold_Used);
-	void IncreaseGold(float gold);
+	void IncreaseGold(int gold);
 protected:
 	enum DIRECTION {
 		RIGHT = 0,
