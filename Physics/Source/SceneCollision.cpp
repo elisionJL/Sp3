@@ -642,6 +642,9 @@ void SceneCollision::MachineGunPewPew(double elapsedTime, int numofshots)
 			}
 			timerforbullets.push_back(elapsedTime + 2.0f);
 			go->lifetime = timerforbullets.size() - 1;
+		}
+	}
+}
 
 void SceneCollision::WritePlayerStats()
 {
@@ -653,10 +656,6 @@ void SceneCollision::WritePlayerStats()
 			<< char16_t(cPlayer2D->GetGold()) << endl;
 		savedStats.flush();
 		savedStats.close();
-	}
-}
-
-		}
 	}
 }
 
