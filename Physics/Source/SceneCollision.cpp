@@ -1736,45 +1736,7 @@ void SceneCollision::Update(double dt)
 						else if (go->type == GameObject::GO_SHIELD)
 						{
 							go->pos = cPlayer2D->pos;
-							if (go->visible)
-							{
-								for (unsigned i = 0; i < enemyList.size(); ++i)
-								{
-									Enemy* go1 = enemyList[i];
-									Vector3 relativeVel = go->vel - go1->vel;
-
-									Vector3 disDiff = go1->pos - go->pos;
-
-									if (go->pos.y > go1->pos.y)
-									{
-										disDiff -= Vector3(0, go1->scale.y / 2, 0);
-									}
-									else
-									{
-										disDiff += Vector3(0, go1->scale.y / 2, 0);
-									}
-
-									if (go->pos.x > go1->pos.x)
-									{
-										disDiff -= Vector3(go1->scale.x / 2, 0, 0);
-									}
-									else
-									{
-										disDiff += Vector3(go1->scale.x / 2, 0, 0);
-									}
-
-
-									if (relativeVel.Dot(disDiff) <= 0) {
-										continue;
-									}
-									if (disDiff.LengthSquared() <= (go->scale.x + go1->scale.x) * (go->scale.x + go1->scale.x))
-									{
-										go->visible = false;
-										go->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
-									}
-								}
-							}
-							else if (go->activeTime < elapsedTime)
+							if (go->activeTime < elapsedTime)
 							{
 								go->visible = true;
 							}
@@ -1817,7 +1779,14 @@ void SceneCollision::Update(double dt)
 
 					if (CheckCollision(go1, cPlayer2D))
 					{
-						cPlayer2D->hp--;
+						
+						if (Shield->visible)
+						{
+							Shield->visible = false;
+							Shield->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
+						}
+						else
+							cPlayer2D->hp--;
 					}
 
 					for (unsigned j = 0; j < enemyList.size(); ++j)
@@ -2071,6 +2040,31 @@ bool SceneCollision::CheckCollision(Enemy* Enemy, CPlayer2D* cPlayer2D)
 {
 	Vector3 relativeVel = Enemy->vel - cPlayer2D->vel;
 	Vector3 disDiff = cPlayer2D->pos - Enemy->pos;
+
+	float playeroffset = -5;
+
+	SpriteAnimation* pa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
+	if (pa->getAnimationStatus("walkL") == false || pa->getAnimationStatus("idleL") == false) {
+		playeroffset = 5;
+	}
+
+	if (cPlayer2D->pos.y < Enemy->pos.y)
+	{
+		disDiff -= Vector3(0, Enemy->scale.y / 2, 0);
+	}
+	else
+	{
+		disDiff += Vector3(0, Enemy->scale.y / 2, 0);
+	}
+
+	if (cPlayer2D->pos.x < Enemy->pos.x)
+	{
+		disDiff -= Vector3(Enemy->scale.x / 2 - playeroffset, 0, 0);
+	}
+	else
+	{
+		disDiff += Vector3(Enemy->scale.x / 2 - playeroffset, 0, 0);
+	}
 
 	if (relativeVel.Dot(disDiff) <= 0) {
 		return false;
