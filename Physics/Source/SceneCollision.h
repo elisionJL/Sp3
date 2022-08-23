@@ -6,6 +6,8 @@
 #include "SceneBase.h"
 #include "Player.h"
 #include "Enemy.h"
+#include <fstream>
+#include <iostream>
 class SceneCollision : public SceneBase
 {
 public:
@@ -58,6 +60,7 @@ public:
 	void dragonshooting(int numberofshots, float strengthofproj, int piercing);
 	float CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2D);
 	void MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt);
+	void WritePlayerStats();
 protected:
 	enum upgrades {
 		atk = 0,

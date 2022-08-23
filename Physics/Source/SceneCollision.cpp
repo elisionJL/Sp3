@@ -17,6 +17,7 @@ SceneCollision::SceneCollision()
 
 SceneCollision::~SceneCollision()
 {
+
 }
 
 void SceneCollision::Init()
@@ -71,6 +72,42 @@ void SceneCollision::Init()
 	{
 		ShopUpgrades[i] = 0;
 	}
+
+	string line;
+	int GetStat = 0;
+	ifstream CurrentStats("Player_Stats.txt");
+	if (CurrentStats.is_open())
+	{
+		while (getline(CurrentStats, line))
+		{
+			if (GetStat < 6)
+				ShopUpgrades[GetStat] = stoi(line);
+			else
+				cPlayer2D->UseGold(-stoi(line));
+			GetStat += 1;
+		}
+		CurrentStats.close();
+	}
+
+
+	if (ShopUpgrades[0] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[0]; ++Upgrade)
+			cPlayer2D->IncreaseSpd();
+	if (ShopUpgrades[1] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[1]; ++Upgrade)
+			cPlayer2D->IncreaseHP();
+	if (ShopUpgrades[2] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[2]; ++Upgrade)
+			cPlayer2D->DecreaseShieldCooldown();
+	if (ShopUpgrades[3] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
+			cPlayer2D->IncreaseDmg();
+	if (ShopUpgrades[4] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
+			cPlayer2D->IncreaseLifeCount();
+	if (ShopUpgrades[5] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
+			cPlayer2D->IncreaseEXPGain();
 
 	dmgofgun = 0;
 
@@ -399,7 +436,7 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 		if (enemyList[i] == Enemy)
 		{
 			if(SuperPainPower == false)
-				cPlayer2D->xp += Enemy->expVal;
+				cPlayer2D->xp += Enemy->expVal * cPlayer2D->getExpBooster();
 			enemyList.erase(enemyList.begin() + i);
 			score += 10;
 			if (Enemy->type == GameObject::GO_BOSS_SLIME)
@@ -537,6 +574,19 @@ void SceneCollision::MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, dou
 	}*/
 }
 
+void SceneCollision::WritePlayerStats()
+{
+	ofstream savedStats("Player_Stats.txt");
+	if (savedStats.is_open())
+	{
+		savedStats << char16_t(ShopUpgrades[0]) << endl << char16_t(ShopUpgrades[1]) << endl << char16_t(ShopUpgrades[2]) << endl
+			<< char16_t(ShopUpgrades[3]) << endl << char16_t(ShopUpgrades[4]) << endl << char16_t(ShopUpgrades[5]) << endl
+			<< char16_t(cPlayer2D->GetGold()) << endl;
+		savedStats.flush();
+		savedStats.close();
+	}
+}
+
 void SceneCollision::RenderDmgNum(Vector3 posanddmg)
 {
 	/*unsigned w = Application::GetWindowWidth();
@@ -627,6 +677,8 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
+				shieldcooldowntimer = 10; //atago
+				cPlayer2D->setStats();
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
@@ -646,6 +698,7 @@ void SceneCollision::Update(double dt)
 				currentState = shop;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.17 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.17) && (mousePos.y <= (m_worldHeight * 0.1) + 4.75 && mousePos.y >= (m_worldHeight * 0.1) - 4.75)) {
+				WritePlayerStats();
 				quit = true;
 			}
 		}
@@ -870,7 +923,6 @@ void SceneCollision::Update(double dt)
 				SongVolumeChange = 0;
 				Transition = false;
 				elapsedTime = 0;
-				shieldcooldowntimer = 10; //atago
 			}
 		}
 
@@ -1481,7 +1533,7 @@ void SceneCollision::Update(double dt)
 									if (disDiff.LengthSquared() <= (go->scale.x + go1->scale.x) * (go->scale.x + go1->scale.x))
 									{
 										go->visible = false;
-										go->activeTime = elapsedTime + shieldcooldowntimer;
+										go->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
 									}
 								}
 							}
@@ -1641,6 +1693,7 @@ void SceneCollision::Update(double dt)
 				m_thickWallList.clear();
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
+				WritePlayerStats();
 				quit = true;
 			}
 		}
@@ -1660,6 +1713,7 @@ void SceneCollision::Update(double dt)
 				m_thickWallList.clear();
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
+				WritePlayerStats();
 				quit = true;
 			}
 		}
