@@ -35,6 +35,27 @@ void Enemy::Update(const double dElapsedTime, Mesh* CurrentMesh)
 		enemy->PlayAnimation("MoveRight", -1, 2.f);
 	}
 
+	//if (sCurrentState == MOVING)
+	//{
+	//	if (vel.x < 0)
+	//	{
+	//		enemy->PlayAnimation("MoveLeft", -1, 2.f);
+	//	}
+	//	else if (vel.x > 0)
+	//	{
+	//		enemy->PlayAnimation("MoveRight", -1, 2.f);
+	//	}
+	//}
+	//else if (sCurrentState == ATTACK)
+	//{
+	//	enemy->PlayAnimation("Attack", -1, 2.f);
+	//}
+	//else if (sCurrentState == DEAD)
+	//{
+	//	enemy->PlayAnimation("Die", -1, 2.f);
+	//}
+	
+
 }
 
 void Enemy::setSpawn(float playerX, float playerY, Vector3& pos)

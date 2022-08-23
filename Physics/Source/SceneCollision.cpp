@@ -1220,25 +1220,59 @@ void SceneCollision::Update(double dt)
 						Vector3 Epos;
 						Enemy* go = new Enemy();
 
-						int whichEnemytoSpawn = Math::RandIntMinMax(0, 4);
-						switch (whichEnemytoSpawn)
+						int typeOfEnemy = Math::RandIntMinMax(0, 20);
+						switch (typeOfEnemy)
 						{
-						case 0:
-							go->GEOTYPE = GEO_BOSS_SLIME;
-							break;
-						case 1:
-							go->GEOTYPE = GEO_SPIDER;
-							break;
-						case 2:
-							go->GEOTYPE = GEO_VAMPIRE;
-							break;
-						case 3:
-							go->GEOTYPE = GEO_SKELETON;
-							break;
-						case 4:
-							go->GEOTYPE = GEO_GHOST;
+						default:
+						{
+							int whichEnemytoSpawn = Math::RandIntMinMax(0, 4);
+							switch (whichEnemytoSpawn)
+							{
+							case 0:
+								go->GEOTYPE = GEO_BOSS_SLIME;
+								break;
+							case 1:
+								go->GEOTYPE = GEO_SPIDER;
+								break;
+							case 2:
+								go->GEOTYPE = GEO_VAMPIRE;
+								break;
+							case 3:
+								go->GEOTYPE = GEO_SKELETON;
+								break;
+							case 4:
+								go->GEOTYPE = GEO_GHOST;
+								break;
+							}
 							break;
 						}
+						case 20:
+							go->GEOTYPE = GEO_ZOMBIE;
+							break;
+						}
+
+						//int whichEnemytoSpawn = Math::RandIntMinMax(0, 4);
+						//switch (whichEnemytoSpawn)
+						//{
+						//case 0:
+						//	go->GEOTYPE = GEO_BOSS_SLIME;
+						//	break;
+						//case 1:
+						//	go->GEOTYPE = GEO_SPIDER;
+						//	break;
+						//case 2:
+						//	go->GEOTYPE = GEO_VAMPIRE;
+						//	break;
+						//case 3:
+						//	go->GEOTYPE = GEO_SKELETON;
+						//	break;
+						//case 4:
+						//	go->GEOTYPE = GEO_GHOST;
+						//	break;
+						//case 5:
+						//	go->GEOTYPE = GEO_ZOMBIE;
+						//	break;
+						//}
 
 						Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
 						/*go->type = GameObject::GO_BOSS_SLIME;*/ //dont need this anymore

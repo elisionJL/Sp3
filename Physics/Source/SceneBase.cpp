@@ -383,8 +383,8 @@ void SceneBase::Init()
 	meshList[GEO_BOSS_SLIME]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* boss_slime = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOSS_SLIME]);
 	//Add the animations
-	boss_slime->AddAnimation("Idle", 0, 3);
-	boss_slime->AddAnimation("Jump", 4, 15);
+	boss_slime->AddAnimation("Die", 0, 3);
+	boss_slime->AddAnimation("Attack", 4, 15);
 	boss_slime->AddAnimation("MoveRight", 16, 22);
 	boss_slime->AddAnimation("MoveLeft", 23, 30);
 
