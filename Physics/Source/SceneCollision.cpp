@@ -31,7 +31,7 @@ void SceneCollision::Init()
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	currentState = win;
+	currentState = start;
 	//Physics code here
 	m_speed = 1.f;
 	score = 0;
