@@ -138,6 +138,13 @@ void SceneBase::Init()
 	meshList[GEO_CARD] = MeshBuilder::GenerateQuad("card", Color(1, 1, 1), 1.f);
 	meshList[GEO_CARD]->textureID = LoadTexture("Image//upgrades//card.png", false);
 
+	meshList[GEO_UPGRADESELECT] = MeshBuilder::GenerateQuad("upgradeSelect", Color(1, 1, 1), 1.f);
+	meshList[GEO_UPGRADESELECT]->textureID = LoadTexture("Image//upgrades//upgradeSelect.png", true);
+
+	meshList[GEO_DIFFICULTY] = MeshBuilder::GenerateQuad("difficulty", Color(1, 1, 1), 1.f);
+
+	meshList[GEO_diffSelect] = MeshBuilder::GenerateQuad("diffSelect", Color(1, 1, 1), 1.f);
+	meshList[GEO_diffSelect]->textureID = LoadTexture("Image//diffSelect.psd", true);
 
 	meshList[GEO_ROLLBAR] = MeshBuilder::GenerateQuad("bar", Color(1,1,1),1.f);
 
@@ -173,13 +180,16 @@ void SceneBase::Init()
 	meshList[GEO_PROJECTILE] = MeshBuilder::GenerateQuad("bullet", Color(1, 1, 1), 1.f);
 
 	meshList[GEO_RETRY] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
-	meshList[GEO_RETRY]->textureID = LoadTexture("Image//retry.psd", true);
+	meshList[GEO_RETRY]->textureID = LoadTexture("Image//endScreens//retry.png", true);
 
 	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("menu", Color(1, 1, 1), 1.f);
 	meshList[GEO_MENU]->textureID = LoadTexture("Image//Super_Pain.png", true);
 
 	meshList[GEO_WIN] = MeshBuilder::GenerateQuad("win", Color(1, 1, 1), 1.f);
-	meshList[GEO_WIN]->textureID = LoadTexture("Image//winScreen.psd", true);
+	meshList[GEO_WIN]->textureID = LoadTexture("Image//endScreens//winScreen.png", true);
+
+	meshList[GEO_BUTTONBG] = MeshBuilder::GenerateQuad("button", Color(1, 1, 1), 1.f);
+	meshList[GEO_BUTTONBG]->textureID = LoadTexture("Image//endScreens//button.png", true);
 
 	meshList[GEO_LVLUPBG] = MeshBuilder::GenerateQuad("LVLUPBG", Color(1, 1, 1), 1.f);
 	meshList[GEO_LVLUPBG]->textureID = LoadTexture("Image//Tree2.png", true);
@@ -188,7 +198,7 @@ void SceneBase::Init()
 	meshList[GEO_LOSE]->textureID = LoadTexture("Image//loseScreen.psd", true);
 
 	meshList[GEO_QUIT] = MeshBuilder::GenerateQuad("quit", Color(1, 1, 1), 1.f);
-	meshList[GEO_QUIT]->textureID = LoadTexture("Image//Quit_Game.png", true);
+	meshList[GEO_QUIT]->textureID = LoadTexture("Image//endScreens//return.png", true);
 
 	meshList[GEO_SHOP] = MeshBuilder::GenerateQuad("shop", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHOP]->textureID = LoadTexture("Image//Shop.png", true);
