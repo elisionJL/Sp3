@@ -25,7 +25,6 @@ void Enemy::Update(const double dElapsedTime, Mesh* CurrentMesh)
 	SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(CurrentMesh); //here Zhi Kai
 	enemy->PlayAnimation("MoveRight", -1, 2.0f);
 	enemy->Update(dElapsedTime);
-	//SpriteAnimation* bs = dynamic_cast<SpriteAnimation*>(boss_slime);
 	//if (hp > 0)
 	//{
 	//	if (vel.x < 0)
