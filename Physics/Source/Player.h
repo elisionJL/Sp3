@@ -16,15 +16,11 @@ public:
 	virtual void Init();
 	virtual void Update(double dt);
 	virtual void Render();
-	void CollisionDetectedUp(bool Collided);
-	void CollisionDetectedDown(bool Collided);
-	void CollisionDetectedLeft(bool Collided);
-	void CollisionDetectedRight(bool Collided);
 	virtual void Exit();
 	virtual void setmeshList(Mesh* player);
 	Vector3 pos;
 	Vector3 vel;
-	float xp;
+	float xp, xpBooster;
 	bool leveledUp;
 	float hp, maxHP;
 	float rollCooldown;
@@ -38,6 +34,9 @@ public:
 	void IncreaseDmg();
 	void IncreaseLifeCount();
 	void IncreaseEXPGain();
+	void setStats();
+	float getlowerShieldTime();
+	float getExpBooster();
 	int GetGold();
 	void UseGold(int Gold_Used);
 	void IncreaseGold(int gold);
@@ -49,7 +48,7 @@ protected:
 	CPlayer2D();
 	~CPlayer2D();
 	int level;
-	int Lives;
+	int Lives, maxLives;
 	int Gold;
 	float elapsedTime;
 	float prevTime;
@@ -58,7 +57,8 @@ protected:
 	Mesh* playerMesh;
 	float m_worldWidth;
 	float m_worldHeight;
-	float dmg;
-	int Walk_Speed;
+	float dmg, maxDamage;
+	float ShieldCountDown;
+	int Walk_Speed, maxWalk_Speed;
 
 };

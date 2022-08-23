@@ -5,8 +5,8 @@
 void CPlayer2D::Init()
 {
 	maxHP = hp = 30;
-	Walk_Speed = 30;
-	dmg = Lives = 1;
+	Walk_Speed = maxWalk_Speed= 30;
+	dmg = maxDamage = Lives = maxLives = 1;
 	Gold = 0;
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -16,7 +16,9 @@ void CPlayer2D::Init()
 	sCurrentState = IDLE;
 	rollCooldown = 0;
 	maxRollCooldown = 5;
+	ShieldCountDown = 0;
 	xp = 0;
+	xpBooster = 1;
 	level = 1;
 	prevTime = elapsedTime = 0;
 	leveledUp = false;
@@ -192,7 +194,8 @@ int CPlayer2D::getState()
 
 void CPlayer2D::IncreaseSpd()
 {
-	Walk_Speed *= 1.15f;
+	maxWalk_Speed *= 1.15f;
+	Walk_Speed = maxWalk_Speed;
 }
 
 void CPlayer2D::IncreaseHP()
@@ -203,20 +206,51 @@ void CPlayer2D::IncreaseHP()
 
 void CPlayer2D::DecreaseShieldCooldown()
 {
+	ShieldCountDown += 1;
 }
 
 void CPlayer2D::IncreaseDmg()
 {
-	dmg += 1;
+	maxDamage += 1;
+	dmg = maxDamage;
 }
 
 void CPlayer2D::IncreaseLifeCount()
 {
-	Lives += 1;
+	maxLives += 1;
+	Lives = maxLives;
 }
 
 void CPlayer2D::IncreaseEXPGain()
 {
+	if (xpBooster == 1)
+		xpBooster = 1.1f;
+	else if (xpBooster == 1.1f)
+		xpBooster = 1.2f;
+	else if (xpBooster == 1.2f)
+		xpBooster = 1.3f;
+	else if (xpBooster == 1.3f)
+		xpBooster = 1.4f;
+	else if (xpBooster == 1.4f)
+		xpBooster = 1.5f;
+}
+
+void CPlayer2D::setStats()
+{
+	hp = maxHP;
+	dmg = maxDamage;
+	Lives = maxLives;
+	Walk_Speed = maxWalk_Speed;
+}
+
+float CPlayer2D::getlowerShieldTime()
+{
+	return ShieldCountDown;
+}
+
+float CPlayer2D::getExpBooster()
+{
+	return xpBooster;
 }
 
 int CPlayer2D::GetGold()
@@ -235,10 +269,11 @@ void CPlayer2D::IncreaseGold(int gold)
 }
 
 CPlayer2D::CPlayer2D() :
-	hp(0), dmg(0),
-	Walk_Speed(0), maxHP(0),
-	Lives(0), Gold(0),
-	xp(0), level(0)
+	hp(0), maxHP(0), dmg(0), maxDamage(0),
+	Walk_Speed(0), maxWalk_Speed(0),
+	Lives(0), maxLives(0), Gold(0),
+	xp(0), xpBooster(1), level(0),
+	ShieldCountDown(0)
 {
 }
 
