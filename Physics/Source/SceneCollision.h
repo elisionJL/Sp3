@@ -6,6 +6,8 @@
 #include "SceneBase.h"
 #include "Player.h"
 #include "Enemy.h"
+#include <fstream>
+#include <iostream>
 class SceneCollision : public SceneBase
 {
 public:
@@ -47,6 +49,7 @@ public:
 	void PlayerMapCheck();
 	void MapBoundary();
 	void MakeScreenShake();
+	void MakeScreenShakeForMG();
 	void shooting(double elapsedTime, int numberofshots, GameObject* Gun);
 	void PistolShooting(double elapsedTime, int numofshots);
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
@@ -59,6 +62,7 @@ public:
 	float CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2D);
 	void MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt);
 	void MachineGunPewPew(double elapsedTime, int numofshots);
+	void WritePlayerStats();
 protected:
 	enum upgrades {
 		atk = 0,

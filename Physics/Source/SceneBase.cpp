@@ -348,7 +348,7 @@ void SceneBase::Init()
 	meshList[GEO_PISTOL]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* Pistol = dynamic_cast<SpriteAnimation*>(meshList[GEO_PISTOL]);
 	//Add the animation �ROW1� that start at 0 with 4 frames
-	Pistol->AddAnimation("Shoot", 0, 6);
+	Pistol->AddAnimation("Shoot", 0, 5);
 	Pistol->AddAnimation("ShootR", 6, 12);
 
 	meshList[GEO_SNIPER] = MeshBuilder::GenerateSpriteAnimation("Sniper", 2, 6);
