@@ -98,6 +98,7 @@ void SceneCollision::Init()
 	screenShake[0] = 0;
 	screenShake[1] = 0;
 	SuperPainPower = false;
+	PowerUsed = 0;
 }
 
 GameObject* SceneCollision::FetchGO()
@@ -948,7 +949,7 @@ void SceneCollision::Update(double dt)
 		{
 			if (SuperPainPower == true)
 			{
-				elapsedTime += 1 * dt;
+				PowerUsed += 1 * dt;
 				MakeScreenShake();
 				for (int i = 0; i < enemyList.size(); ++i)
 				{
@@ -964,10 +965,11 @@ void SceneCollision::Update(double dt)
 					}
 				}
 			}
-			if (elapsedTime > 3.f && SuperPainPower == true)
+			if (PowerUsed > 1.f && SuperPainPower == true)
 			{
+				screenShake[0] = screenShake[1] = 0;
 				SuperPainPower = false;
-				elapsedTime = 0;
+				PowerUsed = 0;
 			}
 			if (minutes == 0 && seconds < 0) {
 				currentState = win;
@@ -2847,8 +2849,8 @@ void SceneCollision::MapBoundary()
 
 void SceneCollision::MakeScreenShake()
 {
-	screenShake[0] = -2.5f + static_cast<float>(rand()) * static_cast<float>(2.5f - -2.5f) / RAND_MAX;
-	screenShake[1] = -2.5f + static_cast<float>(rand()) * static_cast<float>(2.5f - -2.5f) / RAND_MAX;
+	screenShake[0] = -5 + static_cast<float>(rand()) * static_cast<float>(5 - -5) / RAND_MAX;
+	screenShake[1] = -5 + static_cast<float>(rand()) * static_cast<float>(5 - -5) / RAND_MAX;
 }
 
 float SceneCollision::calculateAngle(float x, float y)
