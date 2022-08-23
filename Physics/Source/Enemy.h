@@ -23,7 +23,6 @@ public:
 	{
 		MOVING = 0,
 		ATTACK,
-		IDLE,
 		DEAD
 	};
 
@@ -57,8 +56,8 @@ public:
 	void sethp(float Nhp);
 	float gethp();
 	void setaddress(std::string ad);
-
-	//int getDirection();
+	int getState();
+	void setState(int newState);
 
 protected:
 	enum SPAWN
