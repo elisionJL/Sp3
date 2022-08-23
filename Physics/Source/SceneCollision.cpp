@@ -628,6 +628,7 @@ void SceneCollision::MachineGunPewPew(double elapsedTime, int numofshots)
 			go->vel.Normalize() *= (velocityofbullet + 30);
 			go->amountofpierleft = 1;
 			
+			
 			go->pier.clear();
 
 			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
@@ -884,6 +885,7 @@ void SceneCollision::Update(double dt)
 					dmgofgun = 1;
 					pierceforbullet = 1;
 					firerate = 2.0f;
+					shootonceonly = 1;
 				}
 				else if (Gun->type == GameObject::GO_SHOTGUN)
 				{
@@ -1693,6 +1695,8 @@ void SceneCollision::Update(double dt)
 									{
 										meshList[GEO_MACHINEGUN]->material.kAmbient.b += 0.01;
 										meshList[GEO_MACHINEGUN]->material.kAmbient.g += 0.01;
+										meshList[GEO_PROJECTILE]->material.kAmbient.b += 0.01;
+										meshList[GEO_PROJECTILE]->material.kAmbient.g += 0.01;
 									}
 								}
 							}
@@ -1813,14 +1817,16 @@ void SceneCollision::Update(double dt)
 
 					if (CheckCollision(go1, cPlayer2D))
 					{
-						
 						if (Shield->visible)
 						{
 							Shield->visible = false;
 							Shield->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
 						}
-						else
+						else if (cPlayer2D->isInvuln < elapsedTime)
+						{
 							cPlayer2D->hp--;
+							cPlayer2D->isInvuln = elapsedTime + 0.5f;
+						}
 					}
 
 					for (unsigned j = 0; j < enemyList.size(); ++j)

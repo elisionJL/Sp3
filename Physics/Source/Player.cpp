@@ -22,6 +22,7 @@ void CPlayer2D::Init()
 	level = 1;
 	prevTime = elapsedTime = 0;
 	leveledUp = false;
+	isInvuln = false;
 }
 
 void CPlayer2D::Update(double dt)
