@@ -138,6 +138,13 @@ void SceneBase::Init()
 	meshList[GEO_CARD] = MeshBuilder::GenerateQuad("card", Color(1, 1, 1), 1.f);
 	meshList[GEO_CARD]->textureID = LoadTexture("Image//upgrades//card.png", false);
 
+	meshList[GEO_UPGRADESELECT] = MeshBuilder::GenerateQuad("upgradeSelect", Color(1, 1, 1), 1.f);
+	meshList[GEO_UPGRADESELECT]->textureID = LoadTexture("Image//upgrades//upgradeSelect.png", true);
+
+	meshList[GEO_DIFFICULTY] = MeshBuilder::GenerateQuad("difficulty", Color(1, 1, 1), 1.f);
+
+	meshList[GEO_diffSelect] = MeshBuilder::GenerateQuad("diffSelect", Color(1, 1, 1), 1.f);
+	meshList[GEO_diffSelect]->textureID = LoadTexture("Image//diffSelect.psd", true);
 
 	meshList[GEO_ROLLBAR] = MeshBuilder::GenerateQuad("bar", Color(1,1,1),1.f);
 

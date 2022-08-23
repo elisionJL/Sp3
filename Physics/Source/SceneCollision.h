@@ -83,6 +83,9 @@ protected:
 	float m_worldWidth;
 	float m_worldHeight;
 	DIFFICULTY difficulty;
+	int firerateUpgrade;
+	int MSUpgrade;
+	float hpScaling;
 	float elapsedTime;
 	float prevTime;
 	float timerbeforeweaponselect;

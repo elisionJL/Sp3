@@ -229,6 +229,11 @@ void CPlayer2D::UseGold(int Gold_Used)
 	Gold -= Gold_Used;
 }
 
+void CPlayer2D::IncreaseGold(float gold)
+{
+	this->Gold += gold;
+}
+
 CPlayer2D::CPlayer2D() :
 	hp(0), dmg(0),
 	Walk_Speed(0), maxHP(0),

@@ -85,7 +85,6 @@ void SceneCollision::Init()
 	SongVolumeChange = 0;
 
 	timerforpistol = 0;
-
 	timerfordragon = 0;
 	shootpistolspecial = false;
 	staggertimingforpistol = 0;
@@ -609,7 +608,7 @@ void SceneCollision::Update(double dt)
 		if ((!bLButtonState && Application::IsMousePressed(0)) || Application::IsKeyPressed(VK_SPACE)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				currentState = weaponselection;
+				currentState = difficultySelection;
 				timerbeforeweaponselect = 1.0f;
 				timerBeforeUpgrade = 1.0f;
 				elapsedTime = 0;
@@ -617,6 +616,8 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 2;
 				seconds = 30;
+				firerateUpgrade = 0;
+				MSUpgrade = 0;
 				cSoundController->StopAllSound();
 				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
@@ -647,19 +648,26 @@ void SceneCollision::Update(double dt)
 	}
 	case difficultySelection:
 	{
-		static bool leftclick = false;
-		if ((!leftclick && Application::IsMousePressed(0))) {
-			leftclick = true;
-		}
-		else if (leftclick && !Application::IsMousePressed(0)) {
-			leftclick = false;
-			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) &&
-				(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				difficulty = easy;
+		elapsedTime += dt;
+		if (elapsedTime > 1) {
+			static bool leftclick = false;
+			if ((!leftclick && Application::IsMousePressed(0))) {
+				leftclick = true;
 			}
-			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) &&
-				(mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
-				difficulty = hard;
+			else if (leftclick && !Application::IsMousePressed(0)) {
+				leftclick = false;
+				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
+					(mousePos.y <= (m_worldHeight * 0.5) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.5) - m_worldHeight * 0.075)) {
+					difficulty = easy;
+					hpScaling = 1.1f;
+				}
+				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
+					(mousePos.y <= (m_worldHeight * 0.3) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.3) - m_worldHeight * 0.075)) {
+					difficulty = hard;
+					hpScaling = 1.3;
+				}
+				currentState = weaponselection;
+				elapsedTime = 0;
 			}
 		}
 		break;
@@ -855,37 +863,111 @@ void SceneCollision::Update(double dt)
 				minutes -= 1;
 				seconds += 60;
 			}
-
+			//check if player has leveled up;
 			if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
 			{
 				cPlayer2D->leveledUp = true;
 				//generate 3 random upgrades for the player to choose
 				for (int i = 0; i < 3; ++i) {
-					switch (Math::RandIntMinMax(0, 7)) {
-					case 0:
-						levelUpgrades[i] = pierce;
-						break;
-					case 1:
-						levelUpgrades[i] = multishot;
-						break;
-					case 2:
-						levelUpgrades[i] = atk;
-						break;
-					case 3:
-						levelUpgrades[i] = hp;
-						break;
-					case 4:
-						levelUpgrades[i] = velocity;
-						break;
-					case 5:
-						levelUpgrades[i] = moveSpeed;
-						break;
-					case 6:
-						levelUpgrades[i] = fireRate;
-						break;
-					case 7:
-						levelUpgrades[i] = dragon;
-						break;
+					if (i == 0) {
+						switch (Math::RandIntMinMax(0, 7)) {
+						case 0:
+							levelUpgrades[i] = pierce;
+							break;
+						case 1:
+							levelUpgrades[i] = multishot;
+							break;
+						case 2:
+							levelUpgrades[i] = atk;
+							break;
+						case 3:
+							levelUpgrades[i] = hp;
+							break;
+						case 4:
+							levelUpgrades[i] = velocity;
+							break;
+						case 5:
+							levelUpgrades[i] = moveSpeed;
+							if (MSUpgrade != 5) {
+								break;
+							}
+						case 6:
+							levelUpgrades[i] = fireRate;
+							if (firerateUpgrade != 5) {
+								break;
+							}
+						case 7:
+							levelUpgrades[i] = dragon;
+							break;
+						}
+					}
+					else if (i == 1) {
+						do {
+							switch (Math::RandIntMinMax(0, 7)) {
+							case 0:
+								levelUpgrades[i] = pierce;
+								break;
+							case 1:
+								levelUpgrades[i] = multishot;
+								break;
+							case 2:
+								levelUpgrades[i] = atk;
+								break;
+							case 3:
+								levelUpgrades[i] = hp;
+								break;
+							case 4:
+								levelUpgrades[i] = velocity;
+								break;
+							case 5:
+								levelUpgrades[i] = moveSpeed;
+								if (MSUpgrade != 5) {
+									break;
+								}
+							case 6:
+								levelUpgrades[i] = fireRate;
+								if (firerateUpgrade != 5) {
+									break;
+								}
+							case 7:
+								levelUpgrades[i] = dragon;
+								break;
+							}
+						} while (levelUpgrades[1] == levelUpgrades[0]);
+					}
+					else if (i == 2) {
+						do {
+							switch (Math::RandIntMinMax(0, 7)) {
+							case 0:
+								levelUpgrades[i] = pierce;
+								break;
+							case 1:
+								levelUpgrades[i] = multishot;
+								break;
+							case 2:
+								levelUpgrades[i] = atk;
+								break;
+							case 3:
+								levelUpgrades[i] = hp;
+								break;
+							case 4:
+								levelUpgrades[i] = velocity;
+								break;
+							case 5:
+								levelUpgrades[i] = moveSpeed;
+								if (MSUpgrade != 5) {
+									break;
+								}
+							case 6:
+								levelUpgrades[i] = fireRate;
+								if (firerateUpgrade != 5) {
+									break;
+								}
+							case 7:
+								levelUpgrades[i] = dragon;
+								break;
+							}
+						} while (levelUpgrades[2] == levelUpgrades[1] || levelUpgrades[2] == levelUpgrades[0]);
 					}
 
 				}
@@ -940,7 +1022,7 @@ void SceneCollision::Update(double dt)
 					go->scale.Set(10, 10, 1);
 					go->pos = Epos;
 					go->mass = 10;
-
+					go->sethp(10 * pow(hpScaling, minutes));
 					cout << Epos.x << endl;
 					cout << Epos.y << endl;
 
@@ -1481,12 +1563,14 @@ void SceneCollision::Update(double dt)
 								break;
 							case moveSpeed:
 								cPlayer2D->IncreaseSpd();
+								MSUpgrade += 1;
 								break;
 							case velocity:
 								velocityofbullet += 5;
 								break;
 							case fireRate:
 								firerate *= 0.95;
+								firerateUpgrade += 1;
 								break;
 							case dragon:
 								if (Companion->mass == 1)
@@ -2835,7 +2919,25 @@ void SceneCollision::Render()
 		break;
 	case difficultySelection:
 	{
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.8) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.2, 1);
+		RenderMesh(meshList[GEO_diffSelect], false);
+		modelStack.PopMatrix();
 
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.5) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.2, m_worldHeight * 0.15, 1);
+		meshList[GEO_DIFFICULTY]->textureID = LoadTexture("Image//easy.psd",true);
+		RenderMesh(meshList[GEO_DIFFICULTY], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate((m_worldWidth / 2) + camera.position.x, (m_worldHeight * 0.3) + camera.position.y, zaxis += 0.001f);
+		modelStack.Scale(m_worldWidth * 0.2, m_worldHeight * 0.15, 1);
+		meshList[GEO_DIFFICULTY]->textureID = LoadTexture("Image//hard.psd",true);
+		RenderMesh(meshList[GEO_DIFFICULTY], false);
+		modelStack.PopMatrix();
 	}
 	break;
 	case weaponselection:
@@ -3278,7 +3380,7 @@ void SceneCollision::Render()
 		float expX = cPlayer2D->pos.x, expY = cPlayer2D->pos.y - (m_worldHeight * 0.45);
 		float expScaleX = m_worldWidth * 0.95, expScaleY = 2;
 		modelStack.PushMatrix();
-		modelStack.Translate(expX, expY, 4);
+		modelStack.Translate(expX, expY, zaxis += 0.001f);
 		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXPBG], false);
 		modelStack.PopMatrix();
@@ -3287,7 +3389,7 @@ void SceneCollision::Render()
 		expScaleX = Math::Min((float)(m_worldWidth * 0.75), m_worldWidth * (float)0.75 * (cPlayer2D->xp / ((cPlayer2D->getLevel() - 1) * 10 + 5)));
 
 		modelStack.PushMatrix();
-		modelStack.Translate(expScaleX / 2 + m_worldWidth * 0.12 + camera.position.x, expY, 4.1f);
+		modelStack.Translate(expScaleX / 2 + m_worldWidth * 0.12 + camera.position.x, expY, zaxis += 0.001f);
 		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXP], false);
 		modelStack.PopMatrix();
@@ -3297,7 +3399,7 @@ void SceneCollision::Render()
 		float hpX = m_worldWidth * 0.16 + camera.position.x, hpY = m_worldHeight * 0.8 + camera.position.y;
 		float hpScaleX = m_worldWidth * 0.3, hpScaleY = 10;
 		modelStack.PushMatrix();
-		modelStack.Translate(hpX, hpY, 4);
+		modelStack.Translate(hpX, hpY, zaxis += 0.001f);
 		modelStack.Scale(hpScaleX, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTHBG], false);
 		modelStack.PopMatrix();
@@ -3306,7 +3408,7 @@ void SceneCollision::Render()
 		hpScaleX = Math::Min(m_worldWidth * 0.3 * 0.73684210526, m_worldWidth * 0.3 * 0.73684210526 * (cPlayer2D->hp / cPlayer2D->maxHP));
 
 		modelStack.PushMatrix();
-		modelStack.Translate(hpScaleX / 2 + hpX - m_worldWidth * 0.075, hpY, 4.1f);
+		modelStack.Translate(hpScaleX / 2 + hpX - m_worldWidth * 0.075, hpY, zaxis += 0.001f);
 		modelStack.Scale(hpScaleX, hpScaleY, 1);
 		RenderMesh(meshList[GEO_HEALTH], false);
 		modelStack.PopMatrix();
@@ -3331,26 +3433,32 @@ void SceneCollision::Render()
 		//render if player has leveled up
 		if (cPlayer2D->leveledUp == true) {
 			modelStack.PushMatrix();
-			modelStack.Translate(camera.position.x, camera.position.y, 4.3f);
+			modelStack.Translate(camera.position.x, camera.position.y, zaxis += 0.001f);
 			modelStack.Scale(1000, 1000, 1);
 			RenderMesh(meshList[GEO_LVLUPBG], false);
+			modelStack.PopMatrix();
+			float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+			float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
+
+			modelStack.PushMatrix();
+			modelStack.Translate((m_worldWidth / 2) + cameramoveX, (m_worldHeight * 0.9) + cameramoveY, zaxis += 0.001f);
+			modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.1, 1);
+			RenderMesh(meshList[GEO_UPGRADESELECT], false);
 			modelStack.PopMatrix();
 
 			for (int i = 1; i < 4; ++i) {
 				float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
-				float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
-				float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
 				float textx;
 				Vector3 color = Vector3(1, 0, 0);
 				switch (i) {
 				case 1:
-					textx = 8;
+					textx = 14;
 					break;
 				case 2:
-					textx = 34;
+					textx = 40;
 					break;
 				case 3:
-					textx = 60;
+					textx = 65;
 					break;
 				}
 				modelStack.PushMatrix();
@@ -3367,49 +3475,51 @@ void SceneCollision::Render()
 				modelStack.PopMatrix();
 
 				modelStack.PushMatrix();
-				modelStack.Translate(x + cameramoveX, m_worldHeight * 0.6 + cameramoveY, 6.02);
-				modelStack.Scale(m_worldWidth * 0.14, m_worldHeight * 0.14, 1);
+				modelStack.Translate(x + cameramoveX, m_worldHeight * 0.45 + cameramoveY, 6.02);
+				modelStack.Scale(m_worldWidth * 0.28, m_worldHeight * 0.56, 1);
 				ss.str("");
 
 				switch (levelUpgrades[i - 1]) {
 				case pierce:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
-					ss << "pierce +1";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					//ss << "pierce +1";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
 					break;
 				case atk:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
-					ss << "damage +10%";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+					//ss << "damage +10%";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 					break;
 				case hp:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
-					ss << "110% hp";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
+					//ss << "110% hp";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
 					break;
 				case multishot:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
-					ss << "bulletcount +1";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					//ss << "bulletcount +1";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case moveSpeed:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
-					ss << "105% movespeed";
+					//ss << "105% movespeed";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
+					ss << MSUpgrade << "/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case velocity:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
-					ss << "velocity +5";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
+				//ss << "velocity +5";
+					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 					break;
 				case fireRate:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
-					ss << "110% firerate";
+					ss << firerateUpgrade <<"/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case dragon:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
-					ss << "grants a dragon companion";
+					//meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					//ss << "grants a dragon companion";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 				}
 				RenderMesh(meshList[GEO_UPGRADEICON], false);
