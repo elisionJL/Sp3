@@ -83,8 +83,6 @@ protected:
 		reverseShoot,
 		hpUpMSDOWN,
 		brokenShard,
-		rollSpam,
-		dragonOnly,
 		rateUpMSDown,
 	};
 	enum DIFFICULTY {
