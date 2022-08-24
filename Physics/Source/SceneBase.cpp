@@ -287,6 +287,9 @@ void SceneBase::Init()
 	meshList[GEO_SHIELD] = MeshBuilder::GenerateQuad("shield", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHIELD]->textureID = LoadTexture("Image//Shield.png", true);
 
+	meshList[GEO_WHEREBOSS] = MeshBuilder::GenerateQuad("arrow", Color(1, 1, 1), 1.f);
+	meshList[GEO_WHEREBOSS]->textureID = LoadTexture("Image//WhereBoss.png", true);
+
 
 
 
@@ -441,7 +444,7 @@ void SceneBase::Init()
 	//Add the animations
 	spider->AddAnimation("Attack", 8, 13);
 	spider->AddAnimation("MoveRight", 0, 7);
-	spider->AddAnimation("MoveLeft", 25, 32);
+	spider->AddAnimation("MoveLeft", 25, 31);
 	spider->AddAnimation("Die", 17, 22);
 
 	//Zombie

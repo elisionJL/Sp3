@@ -55,8 +55,8 @@ public:
 	bool bulletcollisioncheck(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void dobulletcollision(GameObject* Gun, GameObject* Bullet, Enemy* go2);
 	void DeleteEnemy(Enemy* Enemy);
-	void DamageNumbers(int damage, Enemy* Enem);
-	void RenderDmgNum(Vector3 dmgandtime);
+	void DamageNumbers(int damage, Enemy* Enem, bool critornot);
+	void RenderDmgNum(Vector3 dmgandtime, bool yesorno);
 	bool Movingofdamagenumbers(float posX, int dmg);
 	void dragonshooting(int numberofshots, float strengthofproj, int piercing);
 	float CalculateAdditionalForce(Enemy* Enemy, CPlayer2D* cPlayer2D);
@@ -86,6 +86,8 @@ protected:
 	GameObject* Companion;
 	GameObject* Gronk;
 	GameObject* Shield;
+	GameObject* ArrowToBoss;
+	Enemy* Boss;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
@@ -102,6 +104,7 @@ protected:
 	float seconds;
 	vector<Enemy*> enemyList;
 	vector<Mesh*>enemyAnimationPlayed;
+	vector<Enemy::STATES> enemycurrentstate;
 	CPlayer2D* cPlayer2D;
 	gameStates currentState;
 	Vector3 m_gravity;
@@ -145,7 +148,7 @@ protected:
 	float zaxis;
 	std::vector<double> timerforbullets;
 	std::vector<Vector3> dmgandtimefordmgnumber;
-	std::vector<double> timerfordmgnumber;
+	std::vector<Vector3> timerfordmgnumber;
 	int numberofbullets;
 	int ShopUpgrades[6];
 	bool PlayerBuy;
@@ -174,6 +177,8 @@ protected:
 	float PowerUsed;
 	bool SuperPainPower;
 	float shieldcooldowntimer;
+	int killcounter;
+	bool bossspawned;
 
 	double enemyspawn;
 	float enemyspawnspeed;
