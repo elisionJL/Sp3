@@ -502,16 +502,16 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				switch (locationOfEnemy)
 				{
 				case 0:
-					go->pos = Vector3(m_worldWidth * 3, m_worldHeight * 3, 1);
+					go->pos = Vector3(m_worldWidth * 2.5, m_worldHeight * 2.5, 1);
 					break;
 				case 1:
-					go->pos = Vector3(m_worldWidth * 3, -m_worldHeight * 3, 1);
+					go->pos = Vector3(m_worldWidth * 2.5, -m_worldHeight * 2.5, 1);
 					break;
 				case 2:
-					go->pos = Vector3(-m_worldWidth * 3, m_worldHeight * 3, 1);
+					go->pos = Vector3(-m_worldWidth * 2.5, m_worldHeight * 2.5, 1);
 					break;
 				case 3:
-					go->pos = Vector3(-m_worldWidth * 3, -m_worldHeight * 3, 1);
+					go->pos = Vector3(-m_worldWidth * 2.5, -m_worldHeight * 2.5, 1);
 					break;
 				}
 				bossspawned = true;
@@ -1978,13 +1978,33 @@ void SceneCollision::Update(double dt)
 							enemycurrentstate.push_back(go1->getState());
 						}
 
-						go1->vel = cPlayer2D->pos - go1->pos;
-						go1->vel = go1->vel.Normalized();
-						go1->vel = go1->vel * 20;;
-						//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-						//go1->pos += go1->vel * dt;
+						//Boss only chases player if they are in screen
+						if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
+						{
+							float distFromPlayerX = go1->pos.x - cPlayer2D->pos.x;
+							float distFromPlayerY = go1->pos.y - cPlayer2D->pos.y;
+							if (Vector3(distFromPlayerX, distFromPlayerY, 0).Length() < 100)
+							{
+								go1->vel = cPlayer2D->pos - go1->pos;
+								go1->vel = go1->vel.Normalized();
+								go1->vel = go1->vel * 20;
+								go1->pos += go1->vel * dt;
+							}
+							else
+							{
+								go1->vel.SetZero();
+							}
+						}
+						else
+						{
+							go1->vel = cPlayer2D->pos - go1->pos;
+							go1->vel = go1->vel.Normalized();
+							go1->vel = go1->vel * 20;
+							//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+							//go1->pos += go1->vel * dt;
 
-						go1->pos += go1->vel * dt;						
+							go1->pos += go1->vel * dt;
+						}
 					}
 
 					if (CheckCollision(go1, cPlayer2D))
