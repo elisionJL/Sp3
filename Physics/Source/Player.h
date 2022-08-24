@@ -24,6 +24,7 @@ public:
 	bool leveledUp;
 	float hp, maxHP;
 	float rollCooldown;
+	void reset();
 	float maxRollCooldown;
 	int getLevel();
 	void increaseLevel();

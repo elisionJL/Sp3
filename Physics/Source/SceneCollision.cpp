@@ -743,7 +743,7 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
 				currentState = difficultySelection;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.0f;
+				timerBeforeUpgrade = 1.5f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
@@ -1010,6 +1010,7 @@ void SceneCollision::Update(double dt)
 		}
 		else if (Transition == false)
 		{
+			//picked up super pain power up
 			if (SuperPainPower == true)
 			{
 				PowerUsed += 1 * dt;
@@ -1034,6 +1035,7 @@ void SceneCollision::Update(double dt)
 				SuperPainPower = false;
 				PowerUsed = 0;
 			}
+			//update time
 			if (seconds >= 60) {
 				minutes += 1;
 				seconds -= 60;
@@ -1148,6 +1150,7 @@ void SceneCollision::Update(double dt)
 				}
 
 			}
+			//main gameplay loop
 			if (cPlayer2D->leveledUp == false && pause == false)
 			{
 				cPlayer2D->Update(dt);
@@ -1211,7 +1214,7 @@ void SceneCollision::Update(double dt)
 				{
 					blMButtonState = false;
 				}
-
+				//enemy spawn over time
 				enemyovertime += dt;
 				if (enemyovertime)
 				{
@@ -1295,6 +1298,7 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
+				//shooting
 				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 				bool shooting = true;
 				{
@@ -1461,6 +1465,13 @@ void SceneCollision::Update(double dt)
 							Gun->mass = 0;
 						}
 						else if (Gun->type == GameObject::GO_MACHINEGUN && Gun->activeTime < elapsedTime)
+						{
+							Gun->mass = elapsedTime + 3.8f;
+							Gun->activeTime = elapsedTime + 0.5f;
+							cSoundController->PlaySoundByID(18);
+							GunRightClickSpecial = true;
+						}
+						else if (Gun->type == GameObject::GO_GL && Gun->activeTime < elapsedTime)
 						{
 							Gun->mass = elapsedTime + 3.8f;
 							Gun->activeTime = elapsedTime + 0.5f;
@@ -1841,7 +1852,7 @@ void SceneCollision::Update(double dt)
 				}
 			}
 			//leveled up
-			else if (cPlayer2D->leveledUp == true) {
+				else if (cPlayer2D->leveledUp == true) {
 				elapsedTime += dt;
 				if (elapsedTime > timerBeforeUpgrade) {
 					static bool LMPressed = false;
@@ -1936,6 +1947,9 @@ void SceneCollision::Update(double dt)
 		static bool bLButtonState = false;
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
+		}
+		else if (bLButtonState && !Application::IsMousePressed(0)) {
+			bLButtonState = false;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) 
 			{
@@ -1948,7 +1962,7 @@ void SceneCollision::Update(double dt)
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.0f;
+				timerBeforeUpgrade = 1.5f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
@@ -2037,7 +2051,11 @@ void SceneCollision::Update(double dt)
 		static bool bLButtonState = false;
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
+		}
+		else if (bLButtonState && !Application::IsMousePressed(0)) {
+			bLButtonState = false;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
+				
 				m_goList.clear();
 				enemyList.clear();
 				timerforbullets.clear();
@@ -2047,7 +2065,7 @@ void SceneCollision::Update(double dt)
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.0f;
+				timerBeforeUpgrade = 1.5f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
@@ -4157,7 +4175,12 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case dragon:
-					//meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					if (Companion->mass == 1) {
+						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					}
+					else {
+						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion2.png", true);
+					}
 					//ss << "grants a dragon companion";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 				}
