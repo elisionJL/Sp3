@@ -1323,13 +1323,14 @@ void SceneCollision::Update(double dt)
 						{
 						default:
 						{
-							int whichEnemytoSpawn = Math::RandIntMinMax(0, 1);
+							int whichEnemytoSpawn = Math::RandIntMinMax(0, 10);
 							switch (whichEnemytoSpawn)
 							{
 							case 0:
 								go->GEOTYPE = GEO_SKELETON;
+								go->rangedcooldown = elapsedTime;
 								break;
-							case 1:
+							default:
 								go->GEOTYPE = GEO_GHOST;
 								break;
 							}
@@ -1890,6 +1891,49 @@ void SceneCollision::Update(double dt)
 								go->visible = true;
 							}
 						}
+						else if (go->type == GameObject::GO_SKELETONATTACK)
+						{
+							Vector3 relativeVel = go->vel - cPlayer2D->vel;
+							Vector3 disDiff = cPlayer2D->pos - go->pos;
+
+							//float playeroffset = -5;
+
+							//SpriteAnimation* pa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
+							//if (cPlayer2D->pos.x < go->pos.x) {
+							//	playeroffset = 5;
+							//}
+
+							//if (cPlayer2D->pos.y < go->pos.y)
+							//{
+							//	disDiff -= Vector3(0, go->scale.y / 2 - 5, 0);
+							//}
+							//else
+							//{
+							//	disDiff += Vector3(0, go->scale.y / 2 - 5, 0);
+							//}
+
+							//if (cPlayer2D->pos.x < go->pos.x)
+							//{
+							//	disDiff -= Vector3(go->scale.x / 2 - playeroffset, 0, 0);
+							//}
+							//else
+							//{
+							//	disDiff += Vector3(go->scale.x / 2 - playeroffset, 0, 0);
+							//}
+							if (disDiff.LengthSquared() <= (go->scale.x + 10) * (go->scale.x + 10))
+							{
+								if (Shield->visible)
+								{
+									Shield->visible = false;
+									Shield->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
+								}
+								else if (cPlayer2D->inVuln < elapsedTime)
+								{
+									cPlayer2D->hp -= 3;
+									cPlayer2D->inVuln = elapsedTime + 0.5f;
+								}
+							}
+						}
 						else if (go->type == GameObject::GO_CHEST)
 						{
 							if (go->placed)
@@ -1984,7 +2028,31 @@ void SceneCollision::Update(double dt)
 						//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
 						//go1->pos += go1->vel * dt;
 
-						go1->pos += go1->vel * dt;						
+						go1->pos += go1->vel * dt;
+						if (go1->GEOTYPE == GEO_SKELETON)
+						{
+							float Distance = cPlayer2D->pos.Length() - go1->pos.Length();
+							if (Distance < 75 && go1->rangedcooldown < elapsedTime)
+							{
+								Vector3 center = cPlayer2D->pos - go1->pos;
+								float angle = calculateAngle(center.x, center.y);
+								float magnitude = center.Length();
+								GameObject* go = FetchGO();
+								go->pos = go1->pos;
+								go->scale.Set(4, 4, 1);
+								go->type = GameObject::GO_SKELETONATTACK;
+								go->angle = angle;
+								if (go->angle > 360) {
+									go->angle -= 360;
+								}
+								go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+								go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+								go->vel.Normalize() *= 30;
+								go->damage = 10;
+								go1->rangedcooldown = elapsedTime + 5.f;
+							}
+								
+						}
 					}
 
 					if (CheckCollision(go1, cPlayer2D))
@@ -2011,10 +2079,6 @@ void SceneCollision::Update(double dt)
 						if (go2->gethp() > 0)
 						{
 							CheckCollision(go1, go2, dt);
-							//if (CheckCollision(go1, go2,dt))
-							//{
-							//	//go1->pos -= go1->vel * dt;
-							//}
 						}
 					}
 				}
@@ -2136,6 +2200,8 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 0;
 				seconds = 0;
+				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+				G->Reset();
 				firerateUpgrade = 0;
 				Companion = FetchGO();
 				Gun = FetchGO();
@@ -2256,6 +2322,8 @@ void SceneCollision::Update(double dt)
 				companionX = 9;
 				companionY = 9;
 				GunShootingTimer = 0;
+				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+				G->Reset();
 				rotationorder = 1;
 				shootonceonly = 1;
 				GunShoot = false;
@@ -2437,11 +2505,11 @@ bool SceneCollision::CheckCollision(Enemy* Enemy, CPlayer2D* cPlayer2D)
 
 	if (cPlayer2D->pos.y < Enemy->pos.y)
 	{
-		disDiff -= Vector3(0, Enemy->scale.y / 2, 0);
+		disDiff -= Vector3(0, Enemy->scale.y / 2 + 5, 0);
 	}
 	else
 	{
-		disDiff += Vector3(0, Enemy->scale.y / 2, 0);
+		disDiff += Vector3(0, Enemy->scale.y / 2 + 5, 0);
 	}
 
 	if (cPlayer2D->pos.x < Enemy->pos.x)
@@ -3585,6 +3653,15 @@ void SceneCollision::RenderGO(GameObject * go)
 		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
 		modelStack.Scale(go->scale.x, go->scale.y, 1);
 		RenderMesh(meshList[GEO_SUPERPAIN], false);
+		modelStack.PopMatrix();
+	}
+	break;
+	case GameObject::GO_SKELETONATTACK:
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zaxis);
+		modelStack.Scale(go->scale.x, go->scale.y, 1);
+		RenderMesh(meshList[GEO_SKELETONATTACK], false);
 		modelStack.PopMatrix();
 	}
 	break;
