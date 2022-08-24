@@ -60,6 +60,7 @@ public:
 	void setaddress(std::string ad);
 	int getState();
 	void setState(int newState);
+	Enemy::STATES getstate();
 	//int getDirection();
 
 protected:

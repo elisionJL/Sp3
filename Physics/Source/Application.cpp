@@ -92,7 +92,7 @@ void Application::Init()
 	//Create a window and create its OpenGL context
 	m_width = 1920;
 	m_height = 1080;
-	m_window = glfwCreateWindow(m_width, m_height, "Physics", NULL , NULL);
+	m_window = glfwCreateWindow(m_width, m_height, "Physics", NULL, NULL);
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	m_width = mode->width;
 	m_height = mode->height;

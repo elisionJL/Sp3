@@ -157,7 +157,7 @@ void Enemy::setState(int newState)
 	switch (newState)
 	{
 	case 0:
-		sCurrentState = MOVING;
+		sCurrentState = MOVINGL;
 		break;
 	case 1:
 		sCurrentState = ATTACK;
@@ -166,6 +166,11 @@ void Enemy::setState(int newState)
 		sCurrentState = DEAD;
 		break;
 	}
+}
+
+Enemy::STATES Enemy::getstate()
+{
+	return sCurrentState;
 }
 
 

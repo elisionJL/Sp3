@@ -200,6 +200,16 @@ void CPlayer2D::reset()
 	leveledUp = false;
 }
 
+bool CPlayer2D::xpToLevel()
+{
+	if (xp >= ((level - 1) * 10) + 5) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 int CPlayer2D::getLevel()
 {
 	return level;

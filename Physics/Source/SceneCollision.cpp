@@ -401,7 +401,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			go2->setState(2);
+			DeleteEnemy(go2);
 		}
 
 
@@ -735,6 +735,187 @@ void SceneCollision::WritePlayerStats()
 	}
 }
 
+void SceneCollision::chest(Vector3 mousePos,float dt)
+{
+
+	elapsedTime += dt;
+	if (elapsedTime > timerBeforeUpgrade) {
+		static bool LMPressed = false;
+		if (Application::IsMousePressed(0) && !LMPressed) {
+			LMPressed = true;
+		}
+		else if (!Application::IsMousePressed(0) && LMPressed) {
+			LMPressed = false;
+			for (int i = 1; i < 4; ++i) {
+				float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
+				float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+
+				if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
+					(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
+
+					cPlayer2D->increaseLevel();
+
+					switch (traitsUpgrades[i - 1]) {
+					case pierce:
+						pierceforbullet += 1;
+						break;
+					case atk:
+						dmgofgun *= 1.1;
+						break;
+					case hp:
+						cPlayer2D->IncreaseHP();
+						break;
+					case multishot:
+						numberofbullets++;
+						break;
+					case moveSpeed:
+						cPlayer2D->IncreaseSpd();
+						MSUpgrade += 1;
+						break;
+					case velocity:
+						velocityofbullet += 5;
+						break;
+					case fireRate:
+						firerate *= 0.95;
+						firerateUpgrade += 1;
+						break;
+					case dragon:
+						if (Companion->mass == 1)
+						{
+							Companion->type = GameObject::GO_COMPANION;
+							Companion->mass = 5;
+							Companion->scale.Set(7, 7, 1);
+							Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
+							Companion->vel.SetZero();
+							timerfordragon = elapsedTime;
+							Companion->bounce = true;
+							Companion->damage = 10;
+						}
+						else
+						{
+							Companion->damage *= 1.1;
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+void SceneCollision::renderBossTraits()
+{
+}
+
+void SceneCollision::generateTraits()
+{
+	timerBeforeUpgrade = elapsedTime + 1;
+	//generate 3 random upgrades for the player to choose
+	for (int i = 0; i < 3; ++i) {
+		if (i == 0) {
+			switch (Math::RandIntMinMax(0, 7)) {
+			case 0:
+				levelUpgrades[i] = pierce;
+				break;
+			case 1:
+				levelUpgrades[i] = multishot;
+				break;
+			case 2:
+				levelUpgrades[i] = atk;
+				break;
+			case 3:
+				levelUpgrades[i] = hp;
+				break;
+			case 4:
+				levelUpgrades[i] = velocity;
+				break;
+			case 5:
+				levelUpgrades[i] = moveSpeed;
+				if (MSUpgrade != 5) {
+					break;
+				}
+			case 6:
+				levelUpgrades[i] = fireRate;
+				if (firerateUpgrade != 5) {
+					break;
+				}
+			case 7:
+				levelUpgrades[i] = dragon;
+				break;
+			}
+		}
+		else if (i == 1) {
+			do {
+				switch (Math::RandIntMinMax(0, 7)) {
+				case 0:
+					levelUpgrades[i] = pierce;
+					break;
+				case 1:
+					levelUpgrades[i] = multishot;
+					break;
+				case 2:
+					levelUpgrades[i] = atk;
+					break;
+				case 3:
+					levelUpgrades[i] = hp;
+					break;
+				case 4:
+					levelUpgrades[i] = velocity;
+					break;
+				case 5:
+					levelUpgrades[i] = moveSpeed;
+					if (MSUpgrade != 5) {
+						break;
+					}
+				case 6:
+					levelUpgrades[i] = fireRate;
+					if (firerateUpgrade != 5) {
+						break;
+					}
+				case 7:
+					levelUpgrades[i] = dragon;
+					break;
+				}
+			} while (levelUpgrades[1] == levelUpgrades[0]);
+		}
+		else if (i == 2) {
+			do {
+				switch (Math::RandIntMinMax(0, 7)) {
+				case 0:
+					levelUpgrades[i] = pierce;
+					break;
+				case 1:
+					levelUpgrades[i] = multishot;
+					break;
+				case 2:
+					levelUpgrades[i] = atk;
+					break;
+				case 3:
+					levelUpgrades[i] = hp;
+					break;
+				case 4:
+					levelUpgrades[i] = velocity;
+					break;
+				case 5:
+					levelUpgrades[i] = moveSpeed;
+					if (MSUpgrade != 5) {
+						break;
+					}
+				case 6:
+					levelUpgrades[i] = fireRate;
+					if (firerateUpgrade != 5) {
+						break;
+					}
+				case 7:
+					levelUpgrades[i] = dragon;
+					break;
+				}
+			} while (levelUpgrades[2] == levelUpgrades[1] || levelUpgrades[2] == levelUpgrades[0]);
+		}
+
+	}
+}
+
 void SceneCollision::RenderDmgNum(Vector3 posanddmg, bool yesorno)
 {
 	/*unsigned w = Application::GetWindowWidth();
@@ -793,7 +974,9 @@ void SceneCollision::Update(double dt)
 
 	if (Application::IsKeyPressed('9'))
 	{
-		currentState = lose;
+		cPlayer2D->leveledUp = true;
+		//elapsedTime++;
+		//currentState = lose;
 	}
 	if (Application::IsKeyPressed('0'))
 	{
@@ -824,7 +1007,9 @@ void SceneCollision::Update(double dt)
 		if ((!bLButtonState && Application::IsMousePressed(0)) || Application::IsKeyPressed(VK_SPACE)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
+				
 				currentState = difficultySelection;
+				chestOpened = false;
 				timerbeforeweaponselect = 1.0f;
 				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
@@ -1131,7 +1316,7 @@ void SceneCollision::Update(double dt)
 				seconds -= 60;
 			}
 			//check if player has leveled up;
-			if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
+			if (cPlayer2D->xpToLevel() == true && !cPlayer2D->leveledUp)
 			{
 				cPlayer2D->leveledUp = true;
 				timerBeforeUpgrade = elapsedTime + 1;
@@ -1242,7 +1427,7 @@ void SceneCollision::Update(double dt)
 
 			}
 			//main gameplay loop
-			if (cPlayer2D->leveledUp == false && pause == false)
+			if (cPlayer2D->leveledUp == false && pause == false && cPlayer2D->xpToLevel() ==false)
 			{
 				cPlayer2D->Update(dt);
 				seconds += dt;
@@ -1932,6 +2117,8 @@ void SceneCollision::Update(double dt)
 								if (!chest->getAnimationStatus("Opening"))
 								{
 									ReturnGO(go);
+									chestOpened = true;
+									generateTraits();
 									chest->truereset();
 								}
 							}
@@ -2019,7 +2206,7 @@ void SceneCollision::Update(double dt)
 				}
 			}
 			//leveled up
-			else if (cPlayer2D->leveledUp == true) {
+			else if (cPlayer2D->leveledUp == true && cPlayer2D->xpToLevel() == true) {
 				elapsedTime += dt;
 				if (elapsedTime > timerBeforeUpgrade) {
 					static bool LMPressed = false;
@@ -2036,7 +2223,7 @@ void SceneCollision::Update(double dt)
 								(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
 
 								cPlayer2D->increaseLevel();
-
+								cPlayer2D->leveledUp = false;
 								switch (levelUpgrades[i - 1]) {
 								case pierce:
 									pierceforbullet += 1;
@@ -2105,8 +2292,10 @@ void SceneCollision::Update(double dt)
 					}
 				}
 			}
+			else if (chestOpened == true) {
+				chest(mousePos,dt);
+			}
 		}
-
 		break;
 	}
 	case win:
@@ -2136,6 +2325,7 @@ void SceneCollision::Update(double dt)
 				minutes = 0;
 				seconds = 0;
 				firerateUpgrade = 0;
+				chestOpened = false;
 				Companion = FetchGO();
 				Gun = FetchGO();
 				Companion->mass = 1;
@@ -2243,6 +2433,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 0;
 				seconds = 0;
+				chestOpened = false;
 				firerateUpgrade = 0;
 				Companion = FetchGO();
 				Gun = FetchGO();
@@ -4050,6 +4241,7 @@ void SceneCollision::Render()
 		//Render Boundary
 		float RenderDistance;
 		RenderDistance = 0;
+		//render bottom
 		for (int y = 0; y < 1; ++y)
 		{
 			for (int x = -56; x < 38; ++x)
@@ -4069,6 +4261,7 @@ void SceneCollision::Render()
 				}
 			}
 		}
+		//render top
 		for (int y = 0; y < 1; ++y)
 		{
 			for (int x = -56; x < 38; ++x)
@@ -4088,6 +4281,7 @@ void SceneCollision::Render()
 				}
 			}
 		}
+		//render left
 		for (int x = 0; x < 1; ++x)
 		{
 			for (int y = -36; y < 27; ++y)
@@ -4107,6 +4301,7 @@ void SceneCollision::Render()
 				}
 			}
 		}
+		//render right
 		for (int x = 0; x < 1; ++x)
 		{
 			for (int y = -36; y < 27; ++y)
@@ -4286,7 +4481,7 @@ void SceneCollision::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 3, 56);
 
 		//render if player has leveled up
-		if (cPlayer2D->leveledUp == true) {
+		if (cPlayer2D->leveledUp == true && cPlayer2D->xpToLevel() == true) {
 			modelStack.PushMatrix();
 			modelStack.Translate(camera.position.x, camera.position.y, zaxis += 0.001f);
 			modelStack.Scale(1000, 1000, 1);
