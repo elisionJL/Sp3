@@ -24,16 +24,18 @@ void Enemy::Update(const double dElapsedTime, Mesh* CurrentMesh)
 	//Change enemy states in response to the direction they are moving
 	SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(CurrentMesh); //here Zhi Kai
 	//enemy->PlayAnimation("MoveRight", -1, 2.0f);
-	enemy->Update(dElapsedTime);
 
 	if (vel.x < 0)
 	{
 		enemy->PlayAnimation("MoveLeft", -1, 2.f);
+		sCurrentState = MOVINGL;
 	}
 	else if (vel.x > 0)
 	{
 		enemy->PlayAnimation("MoveRight", -1, 2.f);
+		sCurrentState = MOVINGR;
 	}
+	enemy->Update(dElapsedTime);
 
 	//if (sCurrentState == MOVING)
 	//{
@@ -63,7 +65,7 @@ void Enemy::setSpawn(float playerX, float playerY, Vector3& pos)
 	int spawnLocation = Math::RandIntMinMax(0, 3);
 	
 	float w, h;
-	w = 100.f;;
+	w = 100.f;
 	h = w * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	switch (spawnLocation)
 	{
@@ -118,6 +120,11 @@ void Enemy::movedistancefromotherenemies(Enemy* go1)
 	}
 }
 
+void Enemy::spawnBoss()
+{
+	int spawnLocation = Math::RandIntMinMax(0, 3);
+}
+
 void Enemy::sethp(float Nhp)
 {
 	hp = Nhp;
@@ -130,6 +137,11 @@ float Enemy::gethp()
 
 void Enemy::setaddress(std::string ad)
 {
+}
+
+Enemy::STATES Enemy::getstate()
+{
+	return sCurrentState;
 }
 
 //int Enemy::getDirection()

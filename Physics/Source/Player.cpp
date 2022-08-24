@@ -22,7 +22,7 @@ void CPlayer2D::Init()
 	level = 1;
 	prevTime = elapsedTime = 0;
 	leveledUp = false;
-	invlun = 0;
+	inVuln = 0;
 }
 
 void CPlayer2D::Update(double dt)
@@ -142,15 +142,18 @@ void CPlayer2D::Update(double dt)
 		sa->Update(dt);
 		if (sCurrentState == DODGING) {
 			pos += vel * 2 * dt;
+			inVuln += elapsedTime + 100;
 			switch (sFacingDirection) {
 			case RIGHT:
 				if (sa->getAnimationStatus("rollR") == false) {
 					sCurrentState = IDLE;
+					inVuln = elapsedTime;
 				}
 				break;
 			case LEFT:
 				if (sa->getAnimationStatus("rollL") == false) {
 					sCurrentState = IDLE;
+					inVuln = elapsedTime;
 				}
 				break;
 			}
