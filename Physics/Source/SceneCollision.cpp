@@ -401,7 +401,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			DeleteEnemy(go2);
+			go2->setState(2);
 		}
 
 
@@ -826,7 +826,7 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
 				currentState = difficultySelection;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.0f;
+				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
@@ -1076,7 +1076,6 @@ void SceneCollision::Update(double dt)
 		displaynumberoffsety = 0;
 		switchdmgnum = 1;
 		coordinatesofdamagenumbers.clear();
-		seconds += dt;
 		SpriteAnimation* ocean = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOUNDARY]);
 		//Add the animation for ocean boundary
 		ocean->PlayAnimation("Waves", -1, 5.f);
@@ -1101,6 +1100,7 @@ void SceneCollision::Update(double dt)
 		}
 		else if (Transition == false)
 		{
+			//picked up super pain power up
 			if (SuperPainPower == true)
 			{
 				PowerUsed += 1 * dt;
@@ -1125,6 +1125,7 @@ void SceneCollision::Update(double dt)
 				SuperPainPower = false;
 				PowerUsed = 0;
 			}
+			//update time
 			if (seconds >= 60) {
 				minutes += 1;
 				seconds -= 60;
@@ -1133,6 +1134,7 @@ void SceneCollision::Update(double dt)
 			if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
 			{
 				cPlayer2D->leveledUp = true;
+				timerBeforeUpgrade = elapsedTime + 1;
 				//generate 3 random upgrades for the player to choose
 				for (int i = 0; i < 3; ++i) {
 					if (i == 0) {
@@ -1239,10 +1241,11 @@ void SceneCollision::Update(double dt)
 				}
 
 			}
+			//main gameplay loop
 			if (cPlayer2D->leveledUp == false && pause == false)
 			{
 				cPlayer2D->Update(dt);
-
+				seconds += dt;
 				elapsedTime += dt;
 				static bool BPressed = false;
 				if (Application::IsKeyPressed('B') && BPressed == false) {
@@ -1304,7 +1307,7 @@ void SceneCollision::Update(double dt)
 				{
 					blMButtonState = false;
 				}
-
+				//enemy spawn over time
 				enemyovertime += dt;
 				if (enemyovertime)
 				{
@@ -1344,8 +1347,8 @@ void SceneCollision::Update(double dt)
 						go->pos = Epos;
 						go->mass = 10;
 
-						cout << Epos.x << endl;
-						cout << Epos.y << endl;
+						std::cout << Epos.x << endl;
+						std::cout << Epos.y << endl;
 
 						enemyList.push_back(go);
 
@@ -1358,6 +1361,7 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
+				//shooting
 				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 				bool shooting = true;
 				{
@@ -1524,6 +1528,13 @@ void SceneCollision::Update(double dt)
 							Gun->mass = 0;
 						}
 						else if (Gun->type == GameObject::GO_MACHINEGUN && Gun->activeTime < elapsedTime)
+						{
+							Gun->mass = elapsedTime + 3.8f;
+							Gun->activeTime = elapsedTime + 0.5f;
+							cSoundController->PlaySoundByID(18);
+							GunRightClickSpecial = true;
+						}
+						else if (Gun->type == GameObject::GO_GL && Gun->activeTime < elapsedTime)
 						{
 							Gun->mass = elapsedTime + 3.8f;
 							Gun->activeTime = elapsedTime + 0.5f;
@@ -2103,6 +2114,9 @@ void SceneCollision::Update(double dt)
 		static bool bLButtonState = false;
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
+		}
+		else if (bLButtonState && !Application::IsMousePressed(0)) {
+			bLButtonState = false;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) 
 			{
@@ -2115,14 +2129,13 @@ void SceneCollision::Update(double dt)
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.0f;
+				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
 				minutes = 0;
 				seconds = 0;
 				firerateUpgrade = 0;
-				//Companion->mass = 1;
 				Companion = FetchGO();
 				Gun = FetchGO();
 				Companion->mass = 1;
@@ -2210,7 +2223,11 @@ void SceneCollision::Update(double dt)
 		static bool bLButtonState = false;
 		if (!bLButtonState && Application::IsMousePressed(0)) {
 			bLButtonState = true;
+		}
+		else if (bLButtonState && !Application::IsMousePressed(0)) {
+			bLButtonState = false;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
+				
 				m_goList.clear();
 				enemyList.clear();
 				timerforbullets.clear();
@@ -2220,14 +2237,13 @@ void SceneCollision::Update(double dt)
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.0f;
+				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
 				minutes = 0;
 				seconds = 0;
 				firerateUpgrade = 0;
-				//Companion->mass = 1;
 				Companion = FetchGO();
 				Gun = FetchGO();
 				Companion->mass = 1;
@@ -4415,7 +4431,12 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case dragon:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					if (Companion->mass == 1) {
+						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+					}
+					else {
+						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion2.png", true);
+					}
 					//ss << "grants a dragon companion";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 				}
@@ -4460,6 +4481,7 @@ void SceneCollision::Render()
 			modelStack.PopMatrix();
 
 			ss.str("");
+			ss.precision(4);
 			if (Gun->type == GameObject::GO_BOW) {
 				ss << "dmg:" << dmgofgun * 12;
 			}

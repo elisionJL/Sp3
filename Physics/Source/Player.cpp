@@ -164,7 +164,6 @@ void CPlayer2D::Update(double dt)
 	}
 
 }
-
 void CPlayer2D::Render()
 {
 

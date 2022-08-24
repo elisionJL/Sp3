@@ -25,17 +25,24 @@ void Enemy::Update(const double dElapsedTime, Mesh* CurrentMesh)
 	SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(CurrentMesh); //here Zhi Kai
 	//enemy->PlayAnimation("MoveRight", -1, 2.0f);
 
-	if (vel.x < 0)
+	if (sCurrentState != DEAD)
 	{
-		enemy->PlayAnimation("MoveLeft", -1, 2.f);
-		sCurrentState = MOVINGL;
+		if (vel.x < 0)
+		{
+			enemy->PlayAnimation("MoveLeft", -1, 2.f);
+		}
+		else if (vel.x > 0)
+		{
+			enemy->PlayAnimation("MoveRight", -1, 2.f);
+		}
 	}
-	else if (vel.x > 0)
+	else
 	{
-		enemy->PlayAnimation("MoveRight", -1, 2.f);
-		sCurrentState = MOVINGR;
+		enemy->PlayAnimation("Die", 0, 2.f);
 	}
 	enemy->Update(dElapsedTime);
+
+
 
 	//if (sCurrentState == MOVING)
 	//{
@@ -139,10 +146,28 @@ void Enemy::setaddress(std::string ad)
 {
 }
 
-Enemy::STATES Enemy::getstate()
+int Enemy::getState()
 {
 	return sCurrentState;
 }
+
+
+void Enemy::setState(int newState)
+{
+	switch (newState)
+	{
+	case 0:
+		sCurrentState = MOVING;
+		break;
+	case 1:
+		sCurrentState = ATTACK;
+		break;
+	case 2:
+		sCurrentState = DEAD;
+		break;
+	}
+}
+
 
 //int Enemy::getDirection()
 //{

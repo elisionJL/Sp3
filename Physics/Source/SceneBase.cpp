@@ -182,6 +182,9 @@ void SceneBase::Init()
 	meshList[GEO_RETRY] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
 	meshList[GEO_RETRY]->textureID = LoadTexture("Image//endScreens//retry.png", true);
 
+	meshList[GEO_RETURN] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
+	meshList[GEO_RETURN]->textureID = LoadTexture("Image//endScreens//return.png", true);
+
 	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("menu", Color(1, 1, 1), 1.f);
 	meshList[GEO_MENU]->textureID = LoadTexture("Image//Super_Pain.png", true);
 
@@ -195,7 +198,8 @@ void SceneBase::Init()
 	meshList[GEO_LVLUPBG]->textureID = LoadTexture("Image//Tree2.png", true);
 
 	meshList[GEO_LOSE] = MeshBuilder::GenerateQuad("lose", Color(1, 1, 1), 1.f);
-	meshList[GEO_LOSE]->textureID = LoadTexture("Image//loseScreen.psd", true);
+	meshList[GEO_LOSE]->textureID = LoadTexture("Image//endScreens//loseScreen.png", true);
+
 
 	meshList[GEO_QUIT] = MeshBuilder::GenerateQuad("quit", Color(1, 1, 1), 1.f);
 	meshList[GEO_QUIT]->textureID = LoadTexture("Image//Quit_Game.png", true);
