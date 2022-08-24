@@ -1103,6 +1103,59 @@ void SceneCollision::Update(double dt)
 				Transition = false;
 				elapsedTime = 0;
 			}
+
+			unsigned size = m_goList.size();
+
+			for (unsigned i = 0; i < size; ++i)
+			{
+				GameObject* go = m_goList[i];
+				if (go->type == GameObject::GO_SHIELD)
+				{
+					go->pos = cPlayer2D->pos;
+					if (go->visible)
+					{
+						for (unsigned i = 0; i < enemyList.size(); ++i)
+						{
+							Enemy* go1 = enemyList[i];
+							Vector3 relativeVel = go->vel - go1->vel;
+
+							Vector3 disDiff = go1->pos - go->pos;
+
+							if (go->pos.y > go1->pos.y)
+							{
+								disDiff -= Vector3(0, go1->scale.y / 2, 0);
+							}
+							else
+							{
+								disDiff += Vector3(0, go1->scale.y / 2, 0);
+							}
+
+							if (go->pos.x > go1->pos.x)
+							{
+								disDiff -= Vector3(go1->scale.x / 2, 0, 0);
+							}
+							else
+							{
+								disDiff += Vector3(go1->scale.x / 2, 0, 0);
+							}
+
+
+							if (relativeVel.Dot(disDiff) <= 0) {
+								continue;
+							}
+							if (disDiff.LengthSquared() <= (go->scale.x + go1->scale.x) * (go->scale.x + go1->scale.x))
+							{
+								go->visible = false;
+								go->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
+							}
+						}
+					}
+					else if (go->activeTime < elapsedTime)
+					{
+						go->visible = true;
+					}
+				}
+			}
 		}
 		else if (Transition == false)
 		{
@@ -3884,8 +3937,8 @@ void SceneCollision::Render()
 					modelStack.PopMatrix();
 
 					modelStack.PushMatrix();
-					modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.22, 1);
-					modelStack.Scale(60, 15, 0);
+					modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.14, 1);
+					modelStack.Scale(90, 25, 0);
 					RenderMesh(meshList[GEO_STATPANEL], false);
 					modelStack.PopMatrix();
 				}
@@ -3907,9 +3960,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 3", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.2f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Bullets explode ", Color(1, 1, 1), 1, 28.5, 15);
-					RenderTextOnScreen(meshList[GEO_TEXT], "on impact but beware", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "of self damage", Color(1, 1, 1), 1, 28.5, 13);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Bullets explode on ", Color(1, 1, 1), 2, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "impact but beware", Color(1, 1, 1), 2, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "of self-harm", Color(1, 1, 1), 2, 22, 4);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.5) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.5) + scalingthegun * 2.5) &&
@@ -3926,9 +3979,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 1", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 2.f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Charge up for ", Color(1, 1, 1), 1, 28.5, 15);
-					RenderTextOnScreen(meshList[GEO_TEXT], "more damage but", Color(1, 1, 1), 1, 28.5, 13);
-					RenderTextOnScreen(meshList[GEO_TEXT], "slow to fire", Color(1, 1, 1), 1, 28.5, 11);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Charge up for more", Color(1, 1, 1), 2, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "damage but fire", Color(1, 1, 1), 2, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "slower", Color(1, 1, 1), 2, 22, 4);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.8) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.8) + scalingthegun * 2.5) &&
@@ -3945,10 +3998,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 3", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.2f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Starts with", Color(1, 1, 1), 1, 28.5, 16);
-					RenderTextOnScreen(meshList[GEO_TEXT], "multiple pallets", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "and will bounce ", Color(1, 1, 1), 1, 28.5, 12);
-					RenderTextOnScreen(meshList[GEO_TEXT], "instead of pierce", Color(1, 1, 1), 1, 28.5, 10);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Starts with multiple", Color(1, 1, 1), 1.5, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "pallets and will ", Color(1, 1, 1), 1.5, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "bounce instead of pierce", Color(1, 1, 1), 1.5, 22, 4);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.4) - scalingthegun * 3.5 && mousePos.x <= (m_worldWidth * 0.4) + scalingthegun * 3.5) &&
@@ -3965,11 +4017,10 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 10", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 3", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.5f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Not for the", Color(1, 1, 1), 1, 28.5, 16);
-					RenderTextOnScreen(meshList[GEO_TEXT], "light hearted", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "is the definition", Color(1, 1, 1), 1, 28.5, 12);
-					RenderTextOnScreen(meshList[GEO_TEXT], "of Spin2Win", Color(1, 1, 1), 1, 28.5, 10);
-
+					RenderTextOnScreen(meshList[GEO_TEXT], "Not for the light", Color(1, 1, 1), 2, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "hearted, Spin2Win", Color(1, 1, 1), 2, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "is the definition", Color(1, 1, 1), 2, 22, 4);
+		
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.6) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.6) + scalingthegun * 2.5) &&
@@ -3986,10 +4037,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 4", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "A gun for the", Color(1, 1, 1), 1, 28.5, 16);
-					RenderTextOnScreen(meshList[GEO_TEXT], "fastest in the", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "west, aiming is", Color(1, 1, 1), 1, 28.5, 12);
-					RenderTextOnScreen(meshList[GEO_TEXT], "overrated", Color(1, 1, 1), 1.5, 28.5, 10);
+					RenderTextOnScreen(meshList[GEO_TEXT], "A gun for the", Color(1, 1, 1), 1.9, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "fastest in the west,", Color(1, 1, 1), 1.9, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "aiming is overrated", Color(1, 1, 1), 1.9, 22, 4);
 				}
 			}
 		}
