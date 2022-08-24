@@ -756,45 +756,28 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 					cPlayer2D->increaseLevel();
 
 					switch (traitsUpgrades[i - 1]) {
-					case pierce:
+					case critRate:
 						pierceforbullet += 1;
 						break;
-					case atk:
+					case critDamage:
 						dmgofgun *= 1.1;
 						break;
-					case hp:
+					case reverseShoot:
 						cPlayer2D->IncreaseHP();
 						break;
-					case multishot:
+					case hpUpMSDOWN:
 						numberofbullets++;
 						break;
-					case moveSpeed:
+					case brokenShard:
 						cPlayer2D->IncreaseSpd();
 						MSUpgrade += 1;
 						break;
-					case velocity:
+					case rateUpMSDown:
 						velocityofbullet += 5;
 						break;
-					case fireRate:
+					case regen:
 						firerate *= 0.95;
 						firerateUpgrade += 1;
-						break;
-					case dragon:
-						if (Companion->mass == 1)
-						{
-							Companion->type = GameObject::GO_COMPANION;
-							Companion->mass = 5;
-							Companion->scale.Set(7, 7, 1);
-							Companion->pos.Set(cPlayer2D->pos.x, cPlayer2D->pos.y, 1);
-							Companion->vel.SetZero();
-							timerfordragon = elapsedTime;
-							Companion->bounce = true;
-							Companion->damage = 10;
-						}
-						else
-						{
-							Companion->damage *= 1.1;
-						}
 						break;
 					}
 				}
@@ -810,107 +793,90 @@ void SceneCollision::renderBossTraits()
 void SceneCollision::generateTraits()
 {
 	timerBeforeUpgrade = elapsedTime + 1;
-	//generate 3 random upgrades for the player to choose
+	//generate 3 random traits for the player to choose
 	for (int i = 0; i < 3; ++i) {
 		if (i == 0) {
-			switch (Math::RandIntMinMax(0, 7)) {
+			switch (Math::RandIntMinMax(0, 6) ){
 			case 0:
-				levelUpgrades[i] = pierce;
+				traitsUpgrades[i] = critRate;
 				break;
 			case 1:
-				levelUpgrades[i] = multishot;
+				traitsUpgrades[i] = critDamage;
 				break;
 			case 2:
-				levelUpgrades[i] = atk;
+				traitsUpgrades[i] = reverseShoot;
 				break;
 			case 3:
-				levelUpgrades[i] = hp;
+				traitsUpgrades[i] = hpUpMSDOWN;
 				break;
 			case 4:
-				levelUpgrades[i] = velocity;
+				traitsUpgrades[i] = brokenShard;
 				break;
 			case 5:
-				levelUpgrades[i] = moveSpeed;
+				traitsUpgrades[i] = rateUpMSDown;
 				if (MSUpgrade != 5) {
 					break;
 				}
 			case 6:
-				levelUpgrades[i] = fireRate;
-				if (firerateUpgrade != 5) {
-					break;
-				}
-			case 7:
-				levelUpgrades[i] = dragon;
+				traitsUpgrades[i] = regen;
 				break;
 			}
 		}
 		else if (i == 1) {
 			do {
-				switch (Math::RandIntMinMax(0, 7)) {
+				switch (Math::RandIntMinMax(0, 6)) {
 				case 0:
-					levelUpgrades[i] = pierce;
+					traitsUpgrades[i] = critRate;
 					break;
 				case 1:
-					levelUpgrades[i] = multishot;
+					traitsUpgrades[i] = critDamage;
 					break;
 				case 2:
-					levelUpgrades[i] = atk;
+					traitsUpgrades[i] = reverseShoot;
 					break;
 				case 3:
-					levelUpgrades[i] = hp;
+					traitsUpgrades[i] = hpUpMSDOWN;
 					break;
 				case 4:
-					levelUpgrades[i] = velocity;
+					traitsUpgrades[i] = brokenShard;
 					break;
 				case 5:
-					levelUpgrades[i] = moveSpeed;
+					traitsUpgrades[i] = rateUpMSDown;
 					if (MSUpgrade != 5) {
 						break;
 					}
 				case 6:
-					levelUpgrades[i] = fireRate;
-					if (firerateUpgrade != 5) {
-						break;
-					}
-				case 7:
-					levelUpgrades[i] = dragon;
+					traitsUpgrades[i] = regen;
 					break;
 				}
-			} while (levelUpgrades[1] == levelUpgrades[0]);
+			} while (traitsUpgrades[1] == traitsUpgrades[0]);
 		}
 		else if (i == 2) {
 			do {
-				switch (Math::RandIntMinMax(0, 7)) {
+				switch (Math::RandIntMinMax(0, 6) ){
 				case 0:
-					levelUpgrades[i] = pierce;
+					traitsUpgrades[i] = critRate;
 					break;
 				case 1:
-					levelUpgrades[i] = multishot;
+					traitsUpgrades[i] = critDamage;
 					break;
 				case 2:
-					levelUpgrades[i] = atk;
+					traitsUpgrades[i] = reverseShoot;
 					break;
 				case 3:
-					levelUpgrades[i] = hp;
+					traitsUpgrades[i] = hpUpMSDOWN;
 					break;
 				case 4:
-					levelUpgrades[i] = velocity;
+					traitsUpgrades[i] = brokenShard;
 					break;
 				case 5:
-					levelUpgrades[i] = moveSpeed;
-					if (MSUpgrade != 5) {
-						break;
-					}
+					traitsUpgrades[i] = rateUpMSDown;
+					break;
 				case 6:
-					levelUpgrades[i] = fireRate;
-					if (firerateUpgrade != 5) {
-						break;
-					}
-				case 7:
-					levelUpgrades[i] = dragon;
+					traitsUpgrades[i] = regen;
 					break;
 				}
-			} while (levelUpgrades[2] == levelUpgrades[1] || levelUpgrades[2] == levelUpgrades[0]);
+			} while (traitsUpgrades[2] == traitsUpgrades[1] || traitsUpgrades[2] == traitsUpgrades[0]);
 		}
 
 	}
@@ -2317,6 +2283,7 @@ void SceneCollision::Update(double dt)
 				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
+				
 				timerbeforeweaponselect = 1.0f;
 				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;

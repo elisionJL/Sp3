@@ -84,6 +84,7 @@ protected:
 		hpUpMSDOWN,
 		brokenShard,
 		rateUpMSDown,
+		regen
 	};
 	enum DIFFICULTY {
 		easy = 1,

@@ -198,6 +198,7 @@ void CPlayer2D::reset()
 	level = 1;
 	prevTime = elapsedTime = 0;
 	leveledUp = false;
+	inVuln = 0;
 }
 
 bool CPlayer2D::xpToLevel()
