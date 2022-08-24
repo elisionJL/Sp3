@@ -21,7 +21,8 @@ public:
 
 	enum STATES
 	{
-		MOVING = 0,
+		MOVINGL = 0,
+		MOVINGR,
 		ATTACK,
 		DEAD
 	};
@@ -53,6 +54,7 @@ public:
 	int mass;
 	
 	std::string address;
+	void spawnBoss();
 	void sethp(float Nhp);
 	float gethp();
 	void setaddress(std::string ad);

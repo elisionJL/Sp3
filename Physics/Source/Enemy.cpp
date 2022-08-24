@@ -72,7 +72,7 @@ void Enemy::setSpawn(float playerX, float playerY, Vector3& pos)
 	int spawnLocation = Math::RandIntMinMax(0, 3);
 	
 	float w, h;
-	w = 100.f;;
+	w = 100.f;
 	h = w * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	switch (spawnLocation)
 	{
@@ -125,6 +125,11 @@ void Enemy::movedistancefromotherenemies(Enemy* go1)
 		return;
 		cout << "enemies everywhere" << endl;
 	}
+}
+
+void Enemy::spawnBoss()
+{
+	int spawnLocation = Math::RandIntMinMax(0, 3);
 }
 
 void Enemy::sethp(float Nhp)
