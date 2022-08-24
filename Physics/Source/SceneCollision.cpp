@@ -401,7 +401,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			DeleteEnemy(go2);
+			go2->setState(2);
 		}
 
 
@@ -460,6 +460,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 		{
 			if(SuperPainPower == false)
 				cPlayer2D->xp += enemy->expVal * cPlayer2D->getExpBooster();
+			acquiredGold += 2;
 			enemyList.erase(enemyList.begin() + i);
 			score += 10;
 			if (enemy->GEOTYPE == GEO_BOSS_SLIME || enemy->GEOTYPE == GEO_SPIDER || enemy->GEOTYPE == GEO_VAMPIRE)
@@ -4062,7 +4063,7 @@ void SceneCollision::Render()
 				{
 					modelStack.PushMatrix();
 					modelStack.Translate((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * 3.05) + (9.8 * y), zaxis);
-					modelStack.Scale(10, 10, 10);
+					modelStack.Scale(m_worldWidth * .055f, m_worldHeight * .1f, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4081,7 +4082,7 @@ void SceneCollision::Render()
 				{
 					modelStack.PushMatrix();
 					modelStack.Translate((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * -3.025) - (9.8 * y), zaxis);
-					modelStack.Scale(10, 10, 10);
+					modelStack.Scale(m_worldWidth * .055f, m_worldHeight * .1f, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4100,7 +4101,7 @@ void SceneCollision::Render()
 				{
 					modelStack.PushMatrix();
 					modelStack.Translate((m_worldWidth * -2.54) - (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
-					modelStack.Scale(10, 10, 10);
+					modelStack.Scale(m_worldWidth * .055f, m_worldHeight * .1f, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4119,7 +4120,7 @@ void SceneCollision::Render()
 				{
 					modelStack.PushMatrix();
 					modelStack.Translate((m_worldWidth * 2.528) + (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
-					modelStack.Scale(10, 10, 10);
+					modelStack.Scale(m_worldWidth * .055, m_worldHeight * .1f, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}

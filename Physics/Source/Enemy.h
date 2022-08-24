@@ -58,8 +58,8 @@ public:
 	void sethp(float Nhp);
 	float gethp();
 	void setaddress(std::string ad);
-	Enemy::STATES getstate();
-
+	int getState();
+	void setState(int newState);
 	//int getDirection();
 
 protected:
@@ -81,9 +81,9 @@ protected:
 		NUM_DIRECTIONS
 	};
 
-	STATES sCurrentState;
 	//DIRECTION sFacingDirection;
 
+	STATES sCurrentState;
 	Mesh* boss_slime;
 
 };
