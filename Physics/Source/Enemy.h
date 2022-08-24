@@ -87,4 +87,3 @@ protected:
 	Mesh* boss_slime;
 
 };
-
