@@ -1899,34 +1899,13 @@ void SceneCollision::Update(double dt)
 						}
 						else if (go->type == GameObject::GO_SKELETONATTACK)
 						{
-							Vector3 relativeVel = go->vel - cPlayer2D->vel;
+							if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+							{
+								ReturnGO(go);
+							}
 							Vector3 disDiff = cPlayer2D->pos - go->pos;
 
-							//float playeroffset = -5;
-
-							//SpriteAnimation* pa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
-							//if (cPlayer2D->pos.x < go->pos.x) {
-							//	playeroffset = 5;
-							//}
-
-							//if (cPlayer2D->pos.y < go->pos.y)
-							//{
-							//	disDiff -= Vector3(0, go->scale.y / 2 - 5, 0);
-							//}
-							//else
-							//{
-							//	disDiff += Vector3(0, go->scale.y / 2 - 5, 0);
-							//}
-
-							//if (cPlayer2D->pos.x < go->pos.x)
-							//{
-							//	disDiff -= Vector3(go->scale.x / 2 - playeroffset, 0, 0);
-							//}
-							//else
-							//{
-							//	disDiff += Vector3(go->scale.x / 2 - playeroffset, 0, 0);
-							//}
-							if (disDiff.LengthSquared() <= (go->scale.x + 10) * (go->scale.x + 10))
+							if (disDiff.LengthSquared() <= (go->scale.x + 4) * (go->scale.x + 4))
 							{
 								if (Shield->visible)
 								{
@@ -1935,7 +1914,7 @@ void SceneCollision::Update(double dt)
 								}
 								else if (cPlayer2D->inVuln < elapsedTime)
 								{
-									cPlayer2D->hp -= 3;
+									cPlayer2D->hp -= 1;
 									cPlayer2D->inVuln = elapsedTime + 0.5f;
 								}
 							}
