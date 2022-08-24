@@ -392,7 +392,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			DeleteEnemy(go2);
+			go2->setState(2);
 		}
 
 
@@ -453,6 +453,7 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 				cPlayer2D->xp += Enemy->expVal * cPlayer2D->getExpBooster();
 			enemyList.erase(enemyList.begin() + i);
 			score += 10;
+			/*
 			if (Enemy->type == GameObject::GO_BOSS_SLIME)
 			{
 				GameObject* go = FetchGO();
@@ -460,7 +461,7 @@ void SceneCollision::DeleteEnemy(Enemy* Enemy)
 				go->scale.Set(4, 4, 1);
 				go->type = GameObject::GO_CHEST;
 				go->vel.SetZero();
-			}
+			}*/
 		}
 	}
 }
@@ -1813,13 +1814,15 @@ void SceneCollision::Update(double dt)
 							runanimation = false;
 						}
 					}
-
+					SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(meshList[go1->GEOTYPE]);
 					if (runanimation)
 					{
 						go1->Update(dt, meshList[go1->GEOTYPE]);
 						enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
 					}
-
+					if (go1->getState() == 2 && go1->hp <= 0 && !enemy->getAnimationStatus("Die")) {
+						DeleteEnemy(go1);
+					}
 					go1->vel = cPlayer2D->pos - go1->pos;
 					go1->vel = go1->vel.Normalized();
 					go1->vel = go1->vel * 20;;
