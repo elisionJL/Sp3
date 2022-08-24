@@ -461,11 +461,16 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 		{
 			if(SuperPainPower == false)
 				cPlayer2D->xp += enemy->expVal * cPlayer2D->getExpBooster();
-			acquiredGold += 2;
+			if (enemy->GEOTYPE == GEO_ZOMBIE)
+				acquiredGold += 10;
+			else
+				acquiredGold += 2;
+
 			enemyList.erase(enemyList.begin() + i);
 			score += 10;
 			if (enemy->GEOTYPE == GEO_BOSS_SLIME || enemy->GEOTYPE == GEO_SPIDER || enemy->GEOTYPE == GEO_VAMPIRE)
 			{
+				acquiredGold += 50;
 				GameObject* go = FetchGO();
 				go->pos = enemy->pos;
 				go->scale.Set(4, 4, 1);
@@ -1116,7 +1121,8 @@ void SceneCollision::Update(double dt)
 						Distance = -Distance;
 
 					if (Distance < 100) {
-						DeleteEnemy(enemy);
+						if (enemy->GEOTYPE != GEO_BOSS_SLIME && enemy->GEOTYPE != GEO_SPIDER && enemy->GEOTYPE != GEO_VAMPIRE)
+							DeleteEnemy(enemy);
 					}
 				}
 			}
