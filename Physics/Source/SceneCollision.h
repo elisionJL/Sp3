@@ -63,6 +63,9 @@ public:
 	void MoveEnemiesToPlayer(Enemy* enemy, CPlayer2D* cPlayer2D, double dt);
 	void MachineGunPewPew(double elapsedTime, int numofshots);
 	void WritePlayerStats();
+	void chest(Vector3 mousePos,float dt);
+	void renderBossTraits();
+	void generateTraits();
 protected:
 	enum upgrades {
 		atk = 0,
@@ -74,6 +77,15 @@ protected:
 		velocity,
 		dragon
 	};
+	enum traits {
+		critRate = 0,
+		critDamage,
+		reverseShoot,
+		hpUpMSDOWN,
+		brokenShard,
+		rateUpMSDown,
+		regen
+	};
 	enum DIFFICULTY {
 		easy = 1,
 		hard = 2
@@ -83,6 +95,7 @@ protected:
 	std::vector<GameObject *> m_goList;
 	std::vector<GameObject*> m_thickWallList;
 	upgrades levelUpgrades[3];
+	traits traitsUpgrades[3];
 	GameObject* Companion;
 	GameObject* Gronk;
 	GameObject* Shield;
@@ -132,7 +145,7 @@ protected:
 	Mesh* CurrentGun;
 
 	string GronkDialogue[50];
-
+	bool chestOpened;
 	Vector3 prevPos;
 	Vector3 u1, u2, v1, v2;
 	float calculateAngle(float x, float y);
