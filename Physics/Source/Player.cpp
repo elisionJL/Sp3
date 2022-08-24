@@ -198,6 +198,17 @@ void CPlayer2D::reset()
 	level = 1;
 	prevTime = elapsedTime = 0;
 	leveledUp = false;
+	inVuln = 0;
+}
+
+bool CPlayer2D::xpToLevel()
+{
+	if (xp >= ((level - 1) * 10) + 5) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 int CPlayer2D::getLevel()

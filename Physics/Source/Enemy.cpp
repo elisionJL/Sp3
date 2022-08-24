@@ -171,6 +171,11 @@ void Enemy::setState(int newState)
 	}
 }
 
+Enemy::STATES Enemy::getstate()
+{
+	return sCurrentState;
+}
+
 
 //int Enemy::getDirection()
 //{

@@ -26,6 +26,7 @@ public:
 	float rollCooldown;
 	void reset();
 	float maxRollCooldown;
+	bool xpToLevel();
 	int getLevel();
 	void increaseLevel();
 	int getState();
