@@ -2106,33 +2106,33 @@ void SceneCollision::Update(double dt)
 							//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
 							//go1->pos += go1->vel * dt;
 
-						go1->pos += go1->vel * dt;
-						if (go1->GEOTYPE == GEO_SKELETON)
-						{
-							float Distance = cPlayer2D->pos.Length() - go1->pos.Length();
-							if (Distance < 75 && go1->rangedcooldown < elapsedTime)
+							go1->pos += go1->vel * dt;
+							if (go1->GEOTYPE == GEO_SKELETON)
 							{
-								Vector3 center = cPlayer2D->pos - go1->pos;
-								float angle = calculateAngle(center.x, center.y);
-								float magnitude = center.Length();
-								GameObject* go = FetchGO();
-								go->pos = go1->pos;
-								go->scale.Set(4, 4, 1);
-								go->type = GameObject::GO_SKELETONATTACK;
-								go->angle = angle;
-								if (go->angle > 360) {
-									go->angle -= 360;
+								float Distance = cPlayer2D->pos.Length() - go1->pos.Length();
+								if (Distance < 75 && go1->rangedcooldown < elapsedTime)
+								{
+									Vector3 center = cPlayer2D->pos - go1->pos;
+									float angle = calculateAngle(center.x, center.y);
+									float magnitude = center.Length();
+									GameObject* go = FetchGO();
+									go->pos = go1->pos;
+									go->scale.Set(4, 4, 1);
+									go->type = GameObject::GO_SKELETONATTACK;
+									go->angle = angle;
+									if (go->angle > 360) {
+										go->angle -= 360;
+									}
+									go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+									go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+									go->vel.Normalize() *= 30;
+									go->damage = 10;
+									go1->rangedcooldown = elapsedTime + 5.f;
 								}
-								go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
-								go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
-								go->vel.Normalize() *= 30;
-								go->damage = 10;
-								go1->rangedcooldown = elapsedTime + 5.f;
+
 							}
-								
 						}
 					}
-
 					if (CheckCollision(go1, cPlayer2D))
 					{
 						if (Shield->visible)
