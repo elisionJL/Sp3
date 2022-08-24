@@ -416,28 +416,14 @@ void SceneBase::Init()
 
 
 	//Ghost
-	meshList[GEO_GHOST] = MeshBuilder::GenerateSpriteAnimation("Ghost", 5, 7);
-	meshList[GEO_GHOST]->textureID = LoadTexture("Image//GhostSS.png", true);
-	meshList[GEO_GHOST]->material.kAmbient.Set(1, 1, 1);
-	SpriteAnimation* ghost = dynamic_cast<SpriteAnimation*>(meshList[GEO_GHOST]);
+	//SpriteAnimation* ghost = dynamic_cast<SpriteAnimation*>(meshList[GEO_GHOST]);
 	//Add the animations
-	ghost->AddAnimation("Attack", 7, 13);
-	ghost->AddAnimation("MoveRight", 0, 6);
-	ghost->AddAnimation("MoveLeft", 28, 34);
-	ghost->AddAnimation("Die", 21, 26);
-	ghost->AddAnimation("Hurt", 14, 20);
+	//ghost->AddAnimation("Attack", 7, 13);
+	//ghost->AddAnimation("MoveRight", 0, 6);
+	//ghost->AddAnimation("MoveLeft", 28, 34);
+	//ghost->AddAnimation("Die", 21, 26);
+	//ghost->AddAnimation("Hurt", 14, 20);
 
-
-	//Skeleton
-	meshList[GEO_SKELETON] = MeshBuilder::GenerateSpriteAnimation("Skeleton", 4, 7);
-	meshList[GEO_SKELETON]->textureID = LoadTexture("Image//SkeletonSS.png", true);
-	meshList[GEO_SKELETON]->material.kAmbient.Set(1, 1, 1);
-	SpriteAnimation* skeleton = dynamic_cast<SpriteAnimation*>(meshList[GEO_SKELETON]);
-	//Add the animations
-	skeleton->AddAnimation("Attack", 7, 13);
-	skeleton->AddAnimation("MoveRight", 0, 6);
-	skeleton->AddAnimation("MoveLeft", 21, 27);
-	skeleton->AddAnimation("Die", 14, 20);
 
 	//Spider
 	meshList[GEO_SPIDER] = MeshBuilder::GenerateSpriteAnimation("Spider", 4, 8);

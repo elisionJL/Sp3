@@ -401,7 +401,6 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			//go2->setState(2);
 			DeleteEnemy(go2);
 		}
 
@@ -507,16 +506,16 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				switch (locationOfEnemy)
 				{
 				case 0:
-					go->pos = Vector3(m_worldWidth * 3, m_worldHeight * 3, 1);
+					go->pos = Vector3(m_worldWidth * 2.5, m_worldHeight * 2.5, 1);
 					break;
 				case 1:
-					go->pos = Vector3(m_worldWidth * 3, -m_worldHeight * 3, 1);
+					go->pos = Vector3(m_worldWidth * 2.5, -m_worldHeight * 2.5, 1);
 					break;
 				case 2:
-					go->pos = Vector3(-m_worldWidth * 3, m_worldHeight * 3, 1);
+					go->pos = Vector3(-m_worldWidth * 2.5, m_worldHeight * 2.5, 1);
 					break;
 				case 3:
-					go->pos = Vector3(-m_worldWidth * 3, -m_worldHeight * 3, 1);
+					go->pos = Vector3(-m_worldWidth * 2.5, -m_worldHeight * 2.5, 1);
 					break;
 				}
 				bossspawned = true;
@@ -741,6 +740,153 @@ void SceneCollision::WritePlayerStats()
 	}
 }
 
+void SceneCollision::chest(Vector3 mousePos,float dt)
+{
+
+	elapsedTime += dt;
+	if (elapsedTime > timerBeforeUpgrade) {
+		static bool LMPressed = false;
+		if (Application::IsMousePressed(0) && !LMPressed) {
+			LMPressed = true;
+		}
+		else if (!Application::IsMousePressed(0) && LMPressed) {
+			LMPressed = false;
+			for (int i = 1; i < 4; ++i) {
+				float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
+				float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+
+				if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
+					(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
+
+					cPlayer2D->increaseLevel();
+
+					switch (traitsUpgrades[i - 1]) {
+					case critRate:
+						pierceforbullet += 1;
+						break;
+					case critDamage:
+						dmgofgun *= 1.1;
+						break;
+					case reverseShoot:
+						cPlayer2D->IncreaseHP();
+						break;
+					case hpUpMSDOWN:
+						numberofbullets++;
+						break;
+					case brokenShard:
+						cPlayer2D->IncreaseSpd();
+						MSUpgrade += 1;
+						break;
+					case rateUpMSDown:
+						velocityofbullet += 5;
+						break;
+					case regen:
+						firerate *= 0.95;
+						firerateUpgrade += 1;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+void SceneCollision::renderBossTraits()
+{
+}
+
+void SceneCollision::generateTraits()
+{
+	timerBeforeUpgrade = elapsedTime + 1;
+	//generate 3 random traits for the player to choose
+	for (int i = 0; i < 3; ++i) {
+		if (i == 0) {
+			switch (Math::RandIntMinMax(0, 6) ){
+			case 0:
+				traitsUpgrades[i] = critRate;
+				break;
+			case 1:
+				traitsUpgrades[i] = critDamage;
+				break;
+			case 2:
+				traitsUpgrades[i] = reverseShoot;
+				break;
+			case 3:
+				traitsUpgrades[i] = hpUpMSDOWN;
+				break;
+			case 4:
+				traitsUpgrades[i] = brokenShard;
+				break;
+			case 5:
+				traitsUpgrades[i] = rateUpMSDown;
+				if (MSUpgrade != 5) {
+					break;
+				}
+			case 6:
+				traitsUpgrades[i] = regen;
+				break;
+			}
+		}
+		else if (i == 1) {
+			do {
+				switch (Math::RandIntMinMax(0, 6)) {
+				case 0:
+					traitsUpgrades[i] = critRate;
+					break;
+				case 1:
+					traitsUpgrades[i] = critDamage;
+					break;
+				case 2:
+					traitsUpgrades[i] = reverseShoot;
+					break;
+				case 3:
+					traitsUpgrades[i] = hpUpMSDOWN;
+					break;
+				case 4:
+					traitsUpgrades[i] = brokenShard;
+					break;
+				case 5:
+					traitsUpgrades[i] = rateUpMSDown;
+					if (MSUpgrade != 5) {
+						break;
+					}
+				case 6:
+					traitsUpgrades[i] = regen;
+					break;
+				}
+			} while (traitsUpgrades[1] == traitsUpgrades[0]);
+		}
+		else if (i == 2) {
+			do {
+				switch (Math::RandIntMinMax(0, 6) ){
+				case 0:
+					traitsUpgrades[i] = critRate;
+					break;
+				case 1:
+					traitsUpgrades[i] = critDamage;
+					break;
+				case 2:
+					traitsUpgrades[i] = reverseShoot;
+					break;
+				case 3:
+					traitsUpgrades[i] = hpUpMSDOWN;
+					break;
+				case 4:
+					traitsUpgrades[i] = brokenShard;
+					break;
+				case 5:
+					traitsUpgrades[i] = rateUpMSDown;
+					break;
+				case 6:
+					traitsUpgrades[i] = regen;
+					break;
+				}
+			} while (traitsUpgrades[2] == traitsUpgrades[1] || traitsUpgrades[2] == traitsUpgrades[0]);
+		}
+
+	}
+}
+
 void SceneCollision::RenderDmgNum(Vector3 posanddmg, bool yesorno)
 {
 	/*unsigned w = Application::GetWindowWidth();
@@ -799,7 +945,9 @@ void SceneCollision::Update(double dt)
 
 	if (Application::IsKeyPressed('9'))
 	{
-		currentState = lose;
+		cPlayer2D->leveledUp = true;
+		//elapsedTime++;
+		//currentState = lose;
 	}
 	if (Application::IsKeyPressed('0'))
 	{
@@ -830,7 +978,9 @@ void SceneCollision::Update(double dt)
 		if ((!bLButtonState && Application::IsMousePressed(0)) || Application::IsKeyPressed(VK_SPACE)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
+				
 				currentState = difficultySelection;
+				chestOpened = false;
 				timerbeforeweaponselect = 1.0f;
 				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
@@ -1103,6 +1253,59 @@ void SceneCollision::Update(double dt)
 				Transition = false;
 				elapsedTime = 0;
 			}
+
+			unsigned size = m_goList.size();
+
+			for (unsigned i = 0; i < size; ++i)
+			{
+				GameObject* go = m_goList[i];
+				if (go->type == GameObject::GO_SHIELD)
+				{
+					go->pos = cPlayer2D->pos;
+					if (go->visible)
+					{
+						for (unsigned i = 0; i < enemyList.size(); ++i)
+						{
+							Enemy* go1 = enemyList[i];
+							Vector3 relativeVel = go->vel - go1->vel;
+
+							Vector3 disDiff = go1->pos - go->pos;
+
+							if (go->pos.y > go1->pos.y)
+							{
+								disDiff -= Vector3(0, go1->scale.y / 2, 0);
+							}
+							else
+							{
+								disDiff += Vector3(0, go1->scale.y / 2, 0);
+							}
+
+							if (go->pos.x > go1->pos.x)
+							{
+								disDiff -= Vector3(go1->scale.x / 2, 0, 0);
+							}
+							else
+							{
+								disDiff += Vector3(go1->scale.x / 2, 0, 0);
+							}
+
+
+							if (relativeVel.Dot(disDiff) <= 0) {
+								continue;
+							}
+							if (disDiff.LengthSquared() <= (go->scale.x + go1->scale.x) * (go->scale.x + go1->scale.x))
+							{
+								go->visible = false;
+								go->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
+							}
+						}
+					}
+					else if (go->activeTime < elapsedTime)
+					{
+						go->visible = true;
+					}
+				}
+			}
 		}
 		else if (Transition == false)
 		{
@@ -1138,7 +1341,7 @@ void SceneCollision::Update(double dt)
 				seconds -= 60;
 			}
 			//check if player has leveled up;
-			if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
+			if (cPlayer2D->xpToLevel() == true && !cPlayer2D->leveledUp)
 			{
 				cPlayer2D->leveledUp = true;
 				timerBeforeUpgrade = elapsedTime + 1;
@@ -1249,7 +1452,7 @@ void SceneCollision::Update(double dt)
 
 			}
 			//main gameplay loop
-			if (cPlayer2D->leveledUp == false && pause == false)
+			if (cPlayer2D->leveledUp == false && pause == false && cPlayer2D->xpToLevel() ==false)
 			{
 				cPlayer2D->Update(dt);
 				seconds += dt;
@@ -1324,27 +1527,26 @@ void SceneCollision::Update(double dt)
 						Vector3 Epos;
 						Enemy* go = new Enemy();
 
-						int typeOfEnemy = Math::RandIntMinMax(0, 20);
+						int typeOfEnemy = 1;
 						switch (typeOfEnemy)
 						{
 						default:
 						{
-							int whichEnemytoSpawn = Math::RandIntMinMax(0, 10);
+							int whichEnemytoSpawn = Math::RandIntMinMax(0, 2);
 							switch (whichEnemytoSpawn)
 							{
 							case 0:
-								go->GEOTYPE = GEO_SKELETON;
-								go->rangedcooldown = elapsedTime;
+								go->setEnemyType(0, meshList[GEO_SKELETON]); //Set enemy type, 0 for Skeleton
 								break;
 							default:
-								go->GEOTYPE = GEO_GHOST;
+								go->setEnemyType(1, meshList[GEO_GHOST]); //Set enemy type, 1 for Ghost
 								break;
 							}
 							go->sethp(10 * pow(hpScaling, minutes));
 							break;
 						}
 						case 20:
-							go->GEOTYPE = GEO_ZOMBIE;
+							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for Ghost
 							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
@@ -1962,6 +2164,8 @@ void SceneCollision::Update(double dt)
 								if (!chest->getAnimationStatus("Opening"))
 								{
 									ReturnGO(go);
+									chestOpened = true;
+									generateTraits();
 									chest->truereset();
 								}
 							}
@@ -2002,44 +2206,61 @@ void SceneCollision::Update(double dt)
 
 						if (runanimation)
 						{
-							go1->Update(dt, meshList[go1->GEOTYPE]);
-							enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
-							enemycurrentstate.push_back(go1->getState());
+							go1->Update(dt);
 						}
 
-						go1->vel = cPlayer2D->pos - go1->pos;
-						go1->vel = go1->vel.Normalized();
-						go1->vel = go1->vel * 20;;
-						//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-						//go1->pos += go1->vel * dt;
-
-						go1->pos += go1->vel * dt;
-						if (go1->GEOTYPE == GEO_SKELETON)
+						//Boss only chases player if they are in screen
+						if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
 						{
-							float Distance = cPlayer2D->pos.Length() - go1->pos.Length();
-							if (Distance < 75 && go1->rangedcooldown < elapsedTime)
+							float distFromPlayerX = go1->pos.x - cPlayer2D->pos.x;
+							float distFromPlayerY = go1->pos.y - cPlayer2D->pos.y;
+							if (Vector3(distFromPlayerX, distFromPlayerY, 0).Length() < 100)
 							{
-								Vector3 center = cPlayer2D->pos - go1->pos;
-								float angle = calculateAngle(center.x, center.y);
-								float magnitude = center.Length();
-								GameObject* go = FetchGO();
-								go->pos = go1->pos;
-								go->scale.Set(4, 4, 1);
-								go->type = GameObject::GO_SKELETONATTACK;
-								go->angle = angle;
-								if (go->angle > 360) {
-									go->angle -= 360;
-								}
-								go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
-								go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
-								go->vel.Normalize() *= 30;
-								go->damage = 10;
-								go1->rangedcooldown = elapsedTime + 5.f;
+								go1->vel = cPlayer2D->pos - go1->pos;
+								go1->vel = go1->vel.Normalized();
+								go1->vel = go1->vel * 20;
+								go1->pos += go1->vel * dt;
 							}
-								
+							else
+							{
+								go1->vel.SetZero();
+							}
+						}
+						else
+						{
+							go1->vel = cPlayer2D->pos - go1->pos;
+							go1->vel = go1->vel.Normalized();
+							go1->vel = go1->vel * 20;
+							//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+							//go1->pos += go1->vel * dt;
+
+							go1->pos += go1->vel * dt;
+							if (go1->GEOTYPE == GEO_SKELETON)
+							{
+								float Distance = cPlayer2D->pos.Length() - go1->pos.Length();
+								if (Distance < 75 && go1->rangedcooldown < elapsedTime)
+								{
+									Vector3 center = cPlayer2D->pos - go1->pos;
+									float angle = calculateAngle(center.x, center.y);
+									float magnitude = center.Length();
+									GameObject* go = FetchGO();
+									go->pos = go1->pos;
+									go->scale.Set(4, 4, 1);
+									go->type = GameObject::GO_SKELETONATTACK;
+									go->angle = angle;
+									if (go->angle > 360) {
+										go->angle -= 360;
+									}
+									go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+									go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+									go->vel.Normalize() *= 30;
+									go->damage = 10;
+									go1->rangedcooldown = elapsedTime + 5.f;
+								}
+
+							}
 						}
 					}
-
 					if (CheckCollision(go1, cPlayer2D))
 					{
 						if (Shield->visible)
@@ -2069,7 +2290,7 @@ void SceneCollision::Update(double dt)
 				}
 			}
 			//leveled up
-			else if (cPlayer2D->leveledUp == true) {
+			else if (cPlayer2D->leveledUp == true && cPlayer2D->xpToLevel() == true) {
 				elapsedTime += dt;
 				if (elapsedTime > timerBeforeUpgrade) {
 					static bool LMPressed = false;
@@ -2086,7 +2307,7 @@ void SceneCollision::Update(double dt)
 								(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
 
 								cPlayer2D->increaseLevel();
-
+								cPlayer2D->leveledUp = false;
 								switch (levelUpgrades[i - 1]) {
 								case pierce:
 									pierceforbullet += 1;
@@ -2155,8 +2376,10 @@ void SceneCollision::Update(double dt)
 					}
 				}
 			}
+			else if (chestOpened == true) {
+				chest(mousePos,dt);
+			}
 		}
-
 		break;
 	}
 	case win:
@@ -2178,6 +2401,7 @@ void SceneCollision::Update(double dt)
 				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
+				
 				timerbeforeweaponselect = 1.0f;
 				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
@@ -2188,6 +2412,7 @@ void SceneCollision::Update(double dt)
 				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
 				G->Reset();
 				firerateUpgrade = 0;
+				chestOpened = false;
 				Companion = FetchGO();
 				Gun = FetchGO();
 				Companion->mass = 1;
@@ -2295,6 +2520,7 @@ void SceneCollision::Update(double dt)
 				m_objectCount = 0;
 				minutes = 0;
 				seconds = 0;
+				chestOpened = false;
 				firerateUpgrade = 0;
 				Companion = FetchGO();
 				Gun = FetchGO();
@@ -3940,8 +4166,8 @@ void SceneCollision::Render()
 					modelStack.PopMatrix();
 
 					modelStack.PushMatrix();
-					modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.22, 1);
-					modelStack.Scale(60, 15, 0);
+					modelStack.Translate(m_worldWidth * 0.5, m_worldHeight * 0.14, 1);
+					modelStack.Scale(90, 25, 0);
 					RenderMesh(meshList[GEO_STATPANEL], false);
 					modelStack.PopMatrix();
 				}
@@ -3963,9 +4189,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 3", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.2f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Bullets explode ", Color(1, 1, 1), 1, 28.5, 15);
-					RenderTextOnScreen(meshList[GEO_TEXT], "on impact but beware", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "of self damage", Color(1, 1, 1), 1, 28.5, 13);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Bullets explode on ", Color(1, 1, 1), 2, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "impact but beware", Color(1, 1, 1), 2, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "of self-harm", Color(1, 1, 1), 2, 22, 4);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.5) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.5) + scalingthegun * 2.5) &&
@@ -3982,9 +4208,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 1", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 2.f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Charge up for ", Color(1, 1, 1), 1, 28.5, 15);
-					RenderTextOnScreen(meshList[GEO_TEXT], "more damage but", Color(1, 1, 1), 1, 28.5, 13);
-					RenderTextOnScreen(meshList[GEO_TEXT], "slow to fire", Color(1, 1, 1), 1, 28.5, 11);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Charge up for more", Color(1, 1, 1), 2, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "damage but fire", Color(1, 1, 1), 2, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "slower", Color(1, 1, 1), 2, 22, 4);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.8) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.8) + scalingthegun * 2.5) &&
@@ -4001,10 +4227,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 3", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.2f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Starts with", Color(1, 1, 1), 1, 28.5, 16);
-					RenderTextOnScreen(meshList[GEO_TEXT], "multiple pallets", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "and will bounce ", Color(1, 1, 1), 1, 28.5, 12);
-					RenderTextOnScreen(meshList[GEO_TEXT], "instead of pierce", Color(1, 1, 1), 1, 28.5, 10);
+					RenderTextOnScreen(meshList[GEO_TEXT], "Starts with multiple", Color(1, 1, 1), 1.5, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "pallets and will ", Color(1, 1, 1), 1.5, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "bounce instead of pierce", Color(1, 1, 1), 1.5, 22, 4);
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.4) - scalingthegun * 3.5 && mousePos.x <= (m_worldWidth * 0.4) + scalingthegun * 3.5) &&
@@ -4021,11 +4246,10 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 10", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 3", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.5f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "Not for the", Color(1, 1, 1), 1, 28.5, 16);
-					RenderTextOnScreen(meshList[GEO_TEXT], "light hearted", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "is the definition", Color(1, 1, 1), 1, 28.5, 12);
-					RenderTextOnScreen(meshList[GEO_TEXT], "of Spin2Win", Color(1, 1, 1), 1, 28.5, 10);
-
+					RenderTextOnScreen(meshList[GEO_TEXT], "Not for the light", Color(1, 1, 1), 2, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "hearted, Spin2Win", Color(1, 1, 1), 2, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "is the definition", Color(1, 1, 1), 2, 22, 4);
+		
 				}
 
 				else if ((mousePos.x >= (m_worldWidth * 0.6) - scalingthegun * 2.5 && mousePos.x <= (m_worldWidth * 0.6) + scalingthegun * 2.5) &&
@@ -4042,10 +4266,9 @@ void SceneCollision::Render()
 					RenderTextOnScreen(meshList[GEO_TEXT], "Damage: 4", Color(1, 1, 1), 1.5, 28.5, 48);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Piercing: 1", Color(1, 1, 1), 1.5, 28.5, 45);
 					RenderTextOnScreen(meshList[GEO_TEXT], "Firerate: 1.f", Color(1, 1, 1), 1.5, 28.5, 42);
-					RenderTextOnScreen(meshList[GEO_TEXT], "A gun for the", Color(1, 1, 1), 1, 28.5, 16);
-					RenderTextOnScreen(meshList[GEO_TEXT], "fastest in the", Color(1, 1, 1), 1, 28.5, 14);
-					RenderTextOnScreen(meshList[GEO_TEXT], "west, aiming is", Color(1, 1, 1), 1, 28.5, 12);
-					RenderTextOnScreen(meshList[GEO_TEXT], "overrated", Color(1, 1, 1), 1.5, 28.5, 10);
+					RenderTextOnScreen(meshList[GEO_TEXT], "A gun for the", Color(1, 1, 1), 1.9, 22, 12);
+					RenderTextOnScreen(meshList[GEO_TEXT], "fastest in the west,", Color(1, 1, 1), 1.9, 22, 8);
+					RenderTextOnScreen(meshList[GEO_TEXT], "aiming is overrated", Color(1, 1, 1), 1.9, 22, 4);
 				}
 			}
 		}
@@ -4171,6 +4394,7 @@ void SceneCollision::Render()
 		//Render Boundary
 		float RenderDistance;
 		RenderDistance = 0;
+		//render bottom
 		for (int y = 0; y < 1; ++y)
 		{
 			for (int x = -59; x < 40; ++x)
@@ -4190,6 +4414,7 @@ void SceneCollision::Render()
 				}
 			}
 		}
+		//render top
 		for (int y = 0; y < 1; ++y)
 		{
 			for (int x = -59; x < 40; ++x)
@@ -4209,6 +4434,7 @@ void SceneCollision::Render()
 				}
 			}
 		}
+		//render left
 		for (int x = 0; x < 1; ++x)
 		{
 			for (int y = -43; y < 32; ++y)
@@ -4228,6 +4454,7 @@ void SceneCollision::Render()
 				}
 			}
 		}
+		//render right
 		for (int x = 0; x < 1; ++x)
 		{
 			for (int y = -43; y < 32; ++y)
@@ -4278,7 +4505,7 @@ void SceneCollision::Render()
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 				modelStack.Scale(go->scale.x, go->scale.y, 1);
-				RenderMesh(meshList[go->GEOTYPE], false); //here Zhi Kai
+				RenderMesh(go->meshList[go->CurrEnemyType], false); //here Zhi Kai
 				modelStack.PopMatrix();
 			}
 		}
@@ -4407,7 +4634,7 @@ void SceneCollision::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 3, 56);
 
 		//render if player has leveled up
-		if (cPlayer2D->leveledUp == true) {
+		if (cPlayer2D->leveledUp == true && cPlayer2D->xpToLevel() == true) {
 			modelStack.PushMatrix();
 			modelStack.Translate(camera.position.x, camera.position.y, zaxis += 0.001f);
 			modelStack.Scale(1000, 1000, 1);
