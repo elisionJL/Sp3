@@ -1377,27 +1377,26 @@ void SceneCollision::Update(double dt)
 						Vector3 Epos;
 						Enemy* go = new Enemy();
 
-						int typeOfEnemy = Math::RandIntMinMax(0, 20);
+						int typeOfEnemy = 1;
 						switch (typeOfEnemy)
 						{
 						default:
 						{
-							int whichEnemytoSpawn = Math::RandIntMinMax(0, 10);
+							int whichEnemytoSpawn = Math::RandIntMinMax(0, 2);
 							switch (whichEnemytoSpawn)
 							{
 							case 0:
-								go->GEOTYPE = GEO_SKELETON;
-								go->rangedcooldown = elapsedTime;
+								go->setEnemyType(0, meshList[GEO_SKELETON]); //Set enemy type, 0 for Skeleton
 								break;
 							default:
-								go->GEOTYPE = GEO_GHOST;
+								go->setEnemyType(1, meshList[GEO_GHOST]); //Set enemy type, 1 for Ghost
 								break;
 							}
 							go->sethp(10 * pow(hpScaling, minutes));
 							break;
 						}
 						case 20:
-							go->GEOTYPE = GEO_ZOMBIE;
+							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for Ghost
 							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
@@ -2076,9 +2075,7 @@ void SceneCollision::Update(double dt)
 
 						if (runanimation)
 						{
-							go1->Update(dt, meshList[go1->GEOTYPE]);
-							enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
-							enemycurrentstate.push_back(go1->getState());
+							go1->Update(dt);
 						}
 
 						go1->vel = cPlayer2D->pos - go1->pos;
@@ -4349,7 +4346,7 @@ void SceneCollision::Render()
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 				modelStack.Scale(go->scale.x, go->scale.y, 1);
-				RenderMesh(meshList[go->GEOTYPE], false); //here Zhi Kai
+				RenderMesh(go->meshList[go->CurrEnemyType], false); //here Zhi Kai
 				modelStack.PopMatrix();
 			}
 		}
