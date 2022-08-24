@@ -825,7 +825,7 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
 				currentState = difficultySelection;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.5f;
+				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
@@ -1133,6 +1133,7 @@ void SceneCollision::Update(double dt)
 			if (cPlayer2D->xp >= ((cPlayer2D->getLevel() - 1) * 10) + 5 && !cPlayer2D->leveledUp)
 			{
 				cPlayer2D->leveledUp = true;
+				timerBeforeUpgrade = elapsedTime + 1;
 				//generate 3 random upgrades for the player to choose
 				for (int i = 0; i < 3; ++i) {
 					if (i == 0) {
@@ -2017,7 +2018,7 @@ void SceneCollision::Update(double dt)
 				}
 			}
 			//leveled up
-				else if (cPlayer2D->leveledUp == true) {
+			else if (cPlayer2D->leveledUp == true) {
 				elapsedTime += dt;
 				if (elapsedTime > timerBeforeUpgrade) {
 					static bool LMPressed = false;
@@ -2127,7 +2128,7 @@ void SceneCollision::Update(double dt)
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.5f;
+				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
@@ -2235,7 +2236,7 @@ void SceneCollision::Update(double dt)
 				cPlayer2D->IncreaseGold(acquiredGold);
 				acquiredGold = 0;
 				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.5f;
+				timerBeforeUpgrade = 1.f;
 				elapsedTime = 0;
 				prevTime = 0;
 				m_objectCount = 0;
