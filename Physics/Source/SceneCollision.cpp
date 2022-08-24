@@ -2151,7 +2151,7 @@ void SceneCollision::Update(double dt)
 						bool runanimation = true;
 						for (int i = 0; i < enemyAnimationPlayed.size(); i++)
 						{
-							if (enemyAnimationPlayed[i] == meshList[go1->GEOTYPE] && enemycurrentstate[i] == go1->getstate())
+							if (enemyAnimationPlayed[i] == meshList[go1->GEOTYPE] && enemycurrentstate[i] == go1->getState())
 							{
 								runanimation = false;
 							}
@@ -2161,7 +2161,7 @@ void SceneCollision::Update(double dt)
 						{
 							go1->Update(dt, meshList[go1->GEOTYPE]);
 							enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
-							enemycurrentstate.push_back(go1->getstate());
+							enemycurrentstate.push_back(go1->getState());
 						}
 
 						go1->vel = cPlayer2D->pos - go1->pos;

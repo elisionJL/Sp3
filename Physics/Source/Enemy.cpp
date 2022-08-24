@@ -160,9 +160,12 @@ void Enemy::setState(int newState)
 		sCurrentState = MOVINGL;
 		break;
 	case 1:
-		sCurrentState = ATTACK;
+		sCurrentState = MOVINGR;
 		break;
 	case 2:
+		sCurrentState = ATTACK;
+		break;
+	case 3:
 		sCurrentState = DEAD;
 		break;
 	}
