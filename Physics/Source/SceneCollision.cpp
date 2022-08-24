@@ -129,6 +129,7 @@ void SceneCollision::Init()
 	Shield = FetchGO();
 	Shield->type = GameObject::GO_SHIELD;
 	Shield->scale = Vector3(15, 15, 1);
+	Shield->pos = Vector3(0, 0, 0);
 
 	enemyspawn = 0;
 	enemyspawnspeed = 0.5;
@@ -384,8 +385,16 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 			dmg = dmgofgun + (meshList[GEO_MACHINEGUN]->material.kAmbient.b / (meshList[GEO_MACHINEGUN]->material.kAmbient.b * meshList[GEO_MACHINEGUN]->material.kAmbient.b));
 		}
 
+		float critornot = Math::RandFloatMinMax(0, 100);
+		bool yesorno = false;
+		if (Gun->critchance >= critornot)
+		{
+			dmg *= Gun->critdamage;
+			yesorno = true;
+		}
+
 		go2->sethp(go2->gethp() - dmg);
-		DamageNumbers(dmg, go2);
+		DamageNumbers(dmg, go2, yesorno);
 
 
 		Bullet->amountofpierleft -= 1;
@@ -443,30 +452,96 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	}*/
 }
 
-void SceneCollision::DeleteEnemy(Enemy* Enemy)
+void SceneCollision::DeleteEnemy(Enemy* enemy)
 {
 	for (int i = 0; i < enemyList.size(); ++i)
 	{
-		if (enemyList[i] == Enemy)
+		if (enemyList[i] == enemy)
 		{
 			if(SuperPainPower == false)
-				cPlayer2D->xp += Enemy->expVal * cPlayer2D->getExpBooster();
+				cPlayer2D->xp += enemy->expVal * cPlayer2D->getExpBooster();
 			acquiredGold += 2;
 			enemyList.erase(enemyList.begin() + i);
 			score += 10;
-			if (Enemy->type == GameObject::GO_BOSS_SLIME)
+			if (enemy->GEOTYPE == GEO_BOSS_SLIME || enemy->GEOTYPE == GEO_SPIDER || enemy->GEOTYPE == GEO_VAMPIRE)
 			{
 				GameObject* go = FetchGO();
-				go->pos = Enemy->pos;
+				go->pos = enemy->pos;
 				go->scale.Set(4, 4, 1);
 				go->type = GameObject::GO_CHEST;
 				go->vel.SetZero();
+				go->placed = true;
+				bossspawned = false;
+				ArrowToBoss->visible = false;
+
+			}
+			else
+				killcounter++;
+
+			if (killcounter >= 100 && !bossspawned)
+			{
+				Vector3 Epos;
+				Enemy* go = new Enemy();
+
+				int typeOfEnemy = Math::RandIntMinMax(0, 2);
+				switch (typeOfEnemy)
+				{
+				case 0:
+					go->GEOTYPE = GEO_BOSS_SLIME;
+					break;
+				case 1:
+					go->GEOTYPE = GEO_SPIDER;
+					break;
+				case 2:
+					go->GEOTYPE = GEO_VAMPIRE;
+					break;
+				}
+
+				int locationOfEnemy = Math::RandIntMinMax(0, 3);
+				switch (locationOfEnemy)
+				{
+				case 0:
+					go->pos = Vector3(m_worldWidth * 3, m_worldHeight * 3, 1);
+					break;
+				case 1:
+					go->pos = Vector3(m_worldWidth * 3, -m_worldHeight * 3, 1);
+					break;
+				case 2:
+					go->pos = Vector3(-m_worldWidth * 3, m_worldHeight * 3, 1);
+					break;
+				case 3:
+					go->pos = Vector3(-m_worldWidth * 3, -m_worldHeight * 3, 1);
+					break;
+				}
+				bossspawned = true;
+				killcounter -= 100;
+				Boss = go;
+
+				go->scale.Set(20, 20, 1);
+				go->mass = 10;
+				go->hp = 100;
+
+				enemyList.push_back(go);
+
+				const void* address = static_cast<const void*>(go);
+				std::stringstream ss;
+				ss << address;
+				go->address = ss.str();
+
+				
+				ArrowToBoss->pos = cPlayer2D->pos;
+				ArrowToBoss->scale.Set(4, 4, 1);
+				ArrowToBoss->type = GameObject::GO_WHEREBOSS;
+				ArrowToBoss->vel.SetZero();
+				ArrowToBoss->visible = true;
+
+				enemyspawn = elapsedTime;
 			}
 		}
 	}
 }
 
-void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
+void SceneCollision::DamageNumbers(int damage, Enemy* Enem, bool critornot)
 {
 	for (int arraynumber = 0; arraynumber < dmgandtimefordmgnumber.size(); ++arraynumber)
 	{
@@ -475,11 +550,11 @@ void SceneCollision::DamageNumbers(int damage, Enemy* Enem)
 			continue;
 		}
 		dmgandtimefordmgnumber[arraynumber] = Vector3(Enem->pos.x, Enem->pos.y, damage);
-		timerfordmgnumber[arraynumber] = elapsedTime + 0.5f;
+		timerfordmgnumber[arraynumber] = Vector3(elapsedTime + 0.5f, critornot, 0);
 		break;
 	}
 	dmgandtimefordmgnumber.push_back(Vector3(Enem->pos.x, Enem->pos.y, damage));
-	timerfordmgnumber.push_back(elapsedTime + 0.5f);
+	timerfordmgnumber.push_back(Vector3(elapsedTime + 0.5f, critornot, 0));
 }
 
 bool SceneCollision::Movingofdamagenumbers(float posX, int dmg)
@@ -660,7 +735,7 @@ void SceneCollision::WritePlayerStats()
 	}
 }
 
-void SceneCollision::RenderDmgNum(Vector3 posanddmg)
+void SceneCollision::RenderDmgNum(Vector3 posanddmg, bool yesorno)
 {
 	/*unsigned w = Application::GetWindowWidth();
 	unsigned h = Application::GetWindowHeight();
@@ -698,7 +773,14 @@ void SceneCollision::RenderDmgNum(Vector3 posanddmg)
 
 	std::ostringstream ss;
 	ss << posanddmg.z;
-	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0), 2, posX, posY);
+	if (yesorno == true)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 4, posX, posY);
+	}
+	else
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, posX, posY);
+	}
 	coordinatesofdamagenumbers.push_back(posX);
 }
 
@@ -885,6 +967,7 @@ void SceneCollision::Update(double dt)
 					dmgofgun = 1;
 					pierceforbullet = 1;
 					firerate = 2.0f;
+					Gun->activeTime = 0;
 				}
 				else if (Gun->type == GameObject::GO_SHOTGUN)
 				{
@@ -934,9 +1017,15 @@ void SceneCollision::Update(double dt)
 				Gun->vel.SetZero();
 				if (Startgame)
 				{
+					killcounter = 0;
 					cSoundController->PlaySoundByID(15);
 					Transition = true;
 					elapsedTime = 2;
+					bossspawned = false;
+					ArrowToBoss = FetchGO();
+					Shield->pos = cPlayer2D->pos;
+					Gun->critchance = 50;
+					Gun->critdamage = 2;
 				}
 			}
 		}
@@ -1208,6 +1297,8 @@ void SceneCollision::Update(double dt)
 					go->address = ss.str();
 
 					blMButtonState = true;
+
+					killcounter += 100;
 				}
 				else if (!Application::IsKeyPressed('M') && blMButtonState)
 				{
@@ -1228,22 +1319,13 @@ void SceneCollision::Update(double dt)
 						{
 						default:
 						{
-							int whichEnemytoSpawn = Math::RandIntMinMax(0, 4);
+							int whichEnemytoSpawn = Math::RandIntMinMax(0, 1);
 							switch (whichEnemytoSpawn)
 							{
 							case 0:
-								go->GEOTYPE = GEO_BOSS_SLIME;
-								break;
-							case 1:
-								go->GEOTYPE = GEO_SPIDER;
-								break;
-							case 2:
-								go->GEOTYPE = GEO_VAMPIRE;
-								break;
-							case 3:
 								go->GEOTYPE = GEO_SKELETON;
 								break;
-							case 4:
+							case 1:
 								go->GEOTYPE = GEO_GHOST;
 								break;
 							}
@@ -1478,8 +1560,15 @@ void SceneCollision::Update(double dt)
 								{
 									meshList[GEO_MACHINEGUN]->material.kAmbient.b -= 0.05;
 									meshList[GEO_MACHINEGUN]->material.kAmbient.g -= 0.05;
+									meshList[GEO_PROJECTILE]->material.kAmbient.b -= 0.05;
+									meshList[GEO_PROJECTILE]->material.kAmbient.g -= 0.05;
 								}
 							}
+						}
+						else if (Gun->mass < elapsedTime && Gun->type == GameObject::GO_MACHINEGUN)
+						{
+							Gun->activeTime = elapsedTime + firerate * 10;
+							GunRightClickSpecial = false;
 						}
 					}
 				}
@@ -1673,6 +1762,8 @@ void SceneCollision::Update(double dt)
 									{
 										meshList[GEO_MACHINEGUN]->material.kAmbient.b += 0.01;
 										meshList[GEO_MACHINEGUN]->material.kAmbient.g += 0.01;
+										meshList[GEO_PROJECTILE]->material.kAmbient.b += 0.01;
+										meshList[GEO_PROJECTILE]->material.kAmbient.g += 0.01;
 									}
 								}
 							}
@@ -1741,12 +1832,6 @@ void SceneCollision::Update(double dt)
 								}
 							}
 						}
-						else if (go->type == GameObject::GO_CHEST)
-						{
-							SpriteAnimation* Chest = dynamic_cast<SpriteAnimation*>(meshList[GEO_CHEST]);
-							Chest->PlayAnimation("Opening", -1, 1.0f);
-							Chest->Update(dt);
-						}
 						else if (go->type == GameObject::GO_SHIELD)
 						{
 							go->pos = cPlayer2D->pos;
@@ -1793,6 +1878,54 @@ void SceneCollision::Update(double dt)
 								go->visible = true;
 							}
 						}
+						else if (go->type == GameObject::GO_CHEST)
+						{
+							if (go->placed)
+							{
+								Vector3 relativeVel = cPlayer2D->vel - go->vel;
+
+								Vector3 disDiff = go->pos - cPlayer2D->pos;
+
+								if (cPlayer2D->pos.y > go->pos.y)
+								{
+									disDiff -= Vector3(0, go->scale.y / 2, 0);
+								}
+								else
+								{
+									disDiff += Vector3(0, go->scale.y / 2, 0);
+								}
+
+								if (cPlayer2D->pos.x > go->pos.x)
+								{
+									disDiff -= Vector3(go->scale.x / 2, 0, 0);
+								}
+								else
+								{
+									disDiff += Vector3(go->scale.x / 2, 0, 0);
+								}
+
+
+								if (relativeVel.Dot(disDiff) <= 0) {
+									continue;
+								}
+								if (disDiff.LengthSquared() <= (10 + go->scale.x) * (10 + go->scale.x))
+								{
+									go->placed = false;
+								}
+							}
+							else
+							{
+								SpriteAnimation* chest = dynamic_cast<SpriteAnimation*>(meshList[GEO_CHEST]);
+								chest->PlayAnimation("Opening", 0, 1.0f);
+								chest->Update(dt);
+								if (!chest->getAnimationStatus("Opening"))
+								{
+									ReturnGO(go);
+									chest->truereset();
+								}
+							}
+						}
+						
 
 						if (cPlayer2D->getState() == cPlayer2D->DEAD) {
 							currentState = lose;
@@ -1800,45 +1933,60 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
+				//arrow to boss
+				if (bossspawned)
+				{
+					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
+					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Boss->pos;
+					ArrowToBoss->angle = calculateAngle(center.x, center.y);
+				}
+
 				//Enemy List
 
 				enemyAnimationPlayed.clear();
+				enemycurrentstate.clear();
 				for (unsigned i = 0; i < enemyList.size(); ++i)
 				{
 					Enemy* go1 = enemyList[i];
-					bool runanimation = true;
-					for (int i = 0; i < enemyAnimationPlayed.size(); i++)
+					//if (go1->type != GameObject::GO_BOSS_SLIME && go1->type != GameObject::GO_VAMPIRE && go1->type != GameObject::GO_SPIDER)
 					{
-						if (enemyAnimationPlayed[i] == meshList[go1->GEOTYPE])
+						bool runanimation = true;
+						for (int i = 0; i < enemyAnimationPlayed.size(); i++)
 						{
-							runanimation = false;
+							if (enemyAnimationPlayed[i] == meshList[go1->GEOTYPE] && enemycurrentstate[i] == go1->getstate())
+							{
+								runanimation = false;
+							}
 						}
+
+						if (runanimation)
+						{
+							go1->Update(dt, meshList[go1->GEOTYPE]);
+							enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
+							enemycurrentstate.push_back(go1->getstate());
+						}
+
+						go1->vel = cPlayer2D->pos - go1->pos;
+						go1->vel = go1->vel.Normalized();
+						go1->vel = go1->vel * 20;;
+						//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+						//go1->pos += go1->vel * dt;
+
+						go1->pos += go1->vel * dt;						
 					}
-
-					if (runanimation)
-					{
-						go1->Update(dt, meshList[go1->GEOTYPE]);
-						enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
-					}
-
-					go1->vel = cPlayer2D->pos - go1->pos;
-					go1->vel = go1->vel.Normalized();
-					go1->vel = go1->vel * 20;;
-					//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-					//go1->pos += go1->vel * dt;
-
-					go1->pos += go1->vel * dt;
 
 					if (CheckCollision(go1, cPlayer2D))
 					{
-						
 						if (Shield->visible)
 						{
 							Shield->visible = false;
 							Shield->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
 						}
-						else
-							cPlayer2D->hp--;
+						else if (cPlayer2D->inVuln < elapsedTime)
+						{
+							cPlayer2D->hp -= 2;
+							cPlayer2D->inVuln = elapsedTime + 0.5f;
+						}
 					}
 
 					for (unsigned j = 0; j < enemyList.size(); ++j)
@@ -4022,9 +4170,9 @@ void SceneCollision::Render()
 
 		for (int i = 0; i < timerfordmgnumber.size(); ++i)
 		{
-			if (elapsedTime < timerfordmgnumber[i])
+			if (elapsedTime < timerfordmgnumber[i].x)
 			{
-				SceneCollision::RenderDmgNum(dmgandtimefordmgnumber[i]);
+				SceneCollision::RenderDmgNum(dmgandtimefordmgnumber[i], timerfordmgnumber[i].y);
 			}
 		}
 
@@ -4085,6 +4233,16 @@ void SceneCollision::Render()
 		RenderMesh(meshList[GEO_GOLD], false);
 		modelStack.PopMatrix();
 
+		if (ArrowToBoss->visible)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(ArrowToBoss->pos.x, ArrowToBoss->pos.y, zaxis += 0.001f);
+			modelStack.Rotate(ArrowToBoss->angle, 0, 0, 1);
+			modelStack.Scale(ArrowToBoss->scale.x, ArrowToBoss->scale.y, 1);
+			RenderMesh(meshList[GEO_WHEREBOSS], false);
+			modelStack.PopMatrix();
+		}
+
 		//On screen text
 		std::ostringstream ss;
 		ss.precision(5);
@@ -4095,6 +4253,11 @@ void SceneCollision::Render()
 		ss.precision(1);
 		ss << "Gold Earned: " << acquiredGold;
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2, 7, 41);
+
+		ss.str("");
+		ss.precision(1);
+		ss << "Kills: " << killcounter;
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2, 2, 35);
 
 		ss.str("");
 		ss.precision(2);

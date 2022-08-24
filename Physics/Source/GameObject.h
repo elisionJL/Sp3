@@ -49,6 +49,7 @@ struct GameObject
 		GO_CHEST,
 		GO_SHIELD,
 		GO_MACHINEGUN,
+		GO_WHEREBOSS,
 		GO_TOTAL, //must be last
 	};
 
@@ -64,6 +65,8 @@ struct GameObject
 	std::vector<std::string> pier;
 	int amountofpierleft;
 
+	float critchance;
+	float critdamage;
 	float angle;
 	bool active;
 	float mass;
