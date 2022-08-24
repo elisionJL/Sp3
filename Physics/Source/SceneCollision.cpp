@@ -2825,12 +2825,68 @@ void SceneCollision::ShopInteraction(double dt)
 }
 void SceneCollision::ShopUI()
 {
+	double x, y, windowwidth, windowheight;
+	Application::GetCursorPos(&x, &y);
+	windowwidth = Application::GetWindowWidth();
+	windowheight = Application::GetWindowHeight();
+	Vector3 mousePos = Vector3((x / windowwidth) * m_worldWidth, ((windowheight - y) / windowheight) * m_worldHeight, 0);
+
 	modelStack.PushMatrix();
 	modelStack.Translate(m_worldWidth * 0.4, m_worldHeight * 0.45f, 4);
 	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.4, 0);
 	RenderMesh(meshList[GEO_SHOP_UI_BG], false);
 	modelStack.PopMatrix();
 
+	int shopUpgrade;
+
+	if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+	{
+		shopUpgrade = (200 * pow(1.75, ShopUpgrades[0]));
+		if(ShopUpgrades[0] >= 5)
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[0]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
+		else
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[0]) + "/5 [" + std::to_string(shopUpgrade) + "]", Color(1, 1, 1), 2, 22.5, 36);
+	}
+	else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+	{
+		shopUpgrade = (100 * pow(1.3, ShopUpgrades[1]));
+		if (ShopUpgrades[1] >= 10)
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[1]) + "/10 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
+		else
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[1]) + "/10 [" + std::to_string(shopUpgrade) + "]", Color(1, 1, 1), 2, 22.5, 36);
+	}
+	else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
+	{
+		shopUpgrade = (150 * pow(2.0, ShopUpgrades[2]));
+		if (ShopUpgrades[2] >= 5)
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[2]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
+		else
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[2]) + "/5 [" + std::to_string(shopUpgrade) + "]", Color(1, 1, 1), 2, 22.5, 36);
+	}
+	else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+	{
+		shopUpgrade = (100 * pow(1.5, ShopUpgrades[3]));
+		if (ShopUpgrades[3] >= 4)
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[3]) + "/4 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
+		else
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[3]) + "/4 [" + std::to_string(shopUpgrade) + "]", Color(1, 1, 1), 2, 22.5, 36);
+	}
+	else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+	{
+		shopUpgrade = 2000;
+		if (ShopUpgrades[4] >= 1)
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[4]) + "/1 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
+		else
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[4]) + "/1 [" + std::to_string(shopUpgrade) + "]", Color(1, 1, 1), 2, 22.5, 36);
+	}
+	else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
+	{
+		shopUpgrade = 500 * pow(1.1, ShopUpgrades[5]);
+		if (ShopUpgrades[5] >= 5)
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[5]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
+		else
+			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[5]) + "/5 [" + std::to_string(shopUpgrade) + "]", Color(1, 1, 1), 2, 22.5, 36);
+	}
 	for (int y = 0; y < 2; ++y)
 	{
 		for (int x = 0; x < 3; ++x)
@@ -2975,6 +3031,8 @@ void SceneCollision::RenderGronkDialogue()
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
+			if (MaxUpgrade == false)
+				ShopUpgrades[4] -= 1;
 			if (ShopUpgrades[4] > 1)
 				MaxUpgrade = true;
 			PlayerBuy = true;
@@ -4038,7 +4096,7 @@ void SceneCollision::Render()
 		{
 			for (int x = -56; x < 38; ++x)
 			{
-				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * 3.05) + (9.8 * y), zaxis).Length();
+				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * 3.05) + (9.8 * y), zaxis).Length();
 
 				if (RenderDistance < 0)
 					RenderDistance = -RenderDistance;
@@ -4046,8 +4104,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * 3.05) + (9.8 * y), zaxis);
-					modelStack.Scale(m_worldWidth * .055f, m_worldHeight * .1f, 10);
+					modelStack.Translate((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * 3.048) + (9.8 * y), zaxis);
+					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4057,7 +4115,7 @@ void SceneCollision::Render()
 		{
 			for (int x = -56; x < 38; ++x)
 			{
-				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * -3.05) - (9.8 * y), zaxis).Length();
+				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * -3.05) - (9.8 * y), zaxis).Length();
 
 				if (RenderDistance < 0)
 					RenderDistance = -RenderDistance;
@@ -4065,8 +4123,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth / 2) + (9.8f * x), (m_worldHeight * -3.025) - (9.8 * y), zaxis);
-					modelStack.Scale(m_worldWidth * .055f, m_worldHeight * .1f, 10);
+					modelStack.Translate((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * -3.048) - (9.8 * y), zaxis);
+					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4076,7 +4134,7 @@ void SceneCollision::Render()
 		{
 			for (int y = -36; y < 27; ++y)
 			{
-				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * -2.55) - (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
+				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * -2.55) - (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
 
 				if (RenderDistance < 0)
 					RenderDistance = -RenderDistance;
@@ -4084,8 +4142,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth * -2.54) - (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
-					modelStack.Scale(m_worldWidth * .055f, m_worldHeight * .1f, 10);
+					modelStack.Translate((m_worldWidth * -2.485) - (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
+					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4095,7 +4153,7 @@ void SceneCollision::Render()
 		{
 			for (int y = -36; y < 27; ++y)
 			{
-				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * 2.55) + (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
+				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * 2.55) + (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
 
 				if (RenderDistance < 0)
 					RenderDistance = -RenderDistance;
@@ -4103,8 +4161,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth * 2.528) + (9.8f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
-					modelStack.Scale(m_worldWidth * .055, m_worldHeight * .1f, 10);
+					modelStack.Translate((m_worldWidth * 2.485) + (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
+					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
