@@ -1346,8 +1346,8 @@ void SceneCollision::Update(double dt)
 						go->pos = Epos;
 						go->mass = 10;
 
-						cout << Epos.x << endl;
-						cout << Epos.y << endl;
+						std::cout << Epos.x << endl;
+						std::cout << Epos.y << endl;
 
 						enemyList.push_back(go);
 
