@@ -52,6 +52,7 @@ public:
 	float distFromPlayer;
 	float expVal;
 	int mass;
+	double rangedcooldown;
 	
 	std::string address;
 	void spawnBoss();
