@@ -104,7 +104,7 @@ protected:
 	float seconds;
 	vector<Enemy*> enemyList;
 	vector<Mesh*>enemyAnimationPlayed;
-	vector<Enemy::STATES> enemycurrentstate;
+	vector<int> enemycurrentstate;
 	CPlayer2D* cPlayer2D;
 	gameStates currentState;
 	Vector3 m_gravity;
