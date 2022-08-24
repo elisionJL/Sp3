@@ -4111,7 +4111,7 @@ void SceneCollision::Render()
 		RenderDistance = 0;
 		for (int y = 0; y < 1; ++y)
 		{
-			for (int x = -56; x < 38; ++x)
+			for (int x = -59; x < 40; ++x)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * 3.05) + (9.8 * y), zaxis).Length();
 
@@ -4121,8 +4121,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * 3.048) + (9.8 * y), zaxis);
-					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
+					modelStack.Translate((m_worldWidth / 2) + (((m_worldWidth * 4.95) / 99) * x), (m_worldHeight * 3.05), zaxis);
+					modelStack.Scale((m_worldWidth * 4.95) / 99, (m_worldHeight * 6.175) / 75, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4130,7 +4130,7 @@ void SceneCollision::Render()
 		}
 		for (int y = 0; y < 1; ++y)
 		{
-			for (int x = -56; x < 38; ++x)
+			for (int x = -59; x < 40; ++x)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * -3.05) - (9.8 * y), zaxis).Length();
 
@@ -4140,8 +4140,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth / 2) + (9.6f * x), (m_worldHeight * -3.048) - (9.8 * y), zaxis);
-					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
+					modelStack.Translate((m_worldWidth / 2) + (((m_worldWidth * 4.95) / 99) * x), -(m_worldHeight * 3.05), zaxis);
+					modelStack.Scale((m_worldWidth * 4.95) / 99, (m_worldHeight * 6.175) / 75, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4149,7 +4149,7 @@ void SceneCollision::Render()
 		}
 		for (int x = 0; x < 1; ++x)
 		{
-			for (int y = -36; y < 27; ++y)
+			for (int y = -43; y < 32; ++y)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * -2.55) - (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
 
@@ -4159,8 +4159,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth * -2.485) - (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
-					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
+					modelStack.Translate(-(m_worldWidth * 2.5), (m_worldHeight / 2) + (((m_worldHeight * 6.175) / 75) * y), zaxis);
+					modelStack.Scale((m_worldWidth * 4.95) / 99, (m_worldHeight * 6.175) / 75, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
@@ -4168,7 +4168,7 @@ void SceneCollision::Render()
 		}
 		for (int x = 0; x < 1; ++x)
 		{
-			for (int y = -36; y < 27; ++y)
+			for (int y = -43; y < 32; ++y)
 			{
 				RenderDistance = cPlayer2D->pos.Length() - Vector3((m_worldWidth * 2.55) + (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis).Length();
 
@@ -4178,8 +4178,8 @@ void SceneCollision::Render()
 				if (RenderDistance < 100)
 				{
 					modelStack.PushMatrix();
-					modelStack.Translate((m_worldWidth * 2.485) + (9.6f * x), (m_worldHeight / 2) + (9.8 * y), zaxis);
-					modelStack.Scale((m_worldWidth * 4.8) / 94, (m_worldHeight * 5.8) / 63, 10);
+					modelStack.Translate((m_worldWidth * 2.5), (m_worldHeight / 2) + (((m_worldHeight * 6.175) / 75) * y), zaxis);
+					modelStack.Scale((m_worldWidth * 4.95) / 99, (m_worldHeight * 6.175) / 75, 10);
 					RenderMesh(meshList[GEO_BOUNDARY], false);
 					modelStack.PopMatrix();
 				}
