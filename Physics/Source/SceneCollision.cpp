@@ -642,7 +642,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 
 				go->scale.Set(20, 20, 1);
 				go->mass = 10;
-				go->hp = 100 * pow(hpScaling, minutes);
+				go->hp = 200 * pow(hpScaling, minutes);
 
 				enemyList.push_back(go);
 
@@ -1792,12 +1792,12 @@ void SceneCollision::Update(double dt)
 								go->setEnemyType(1, meshList[GEO_GHOST]); //Set enemy type, 1 for Ghost
 								break;
 							}
-							go->sethp(10 * pow(hpScaling, minutes));
+							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
 						case 20:
 							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for ZOMBIE
-							go->sethp(20 * pow(hpScaling, minutes));
+							go->sethp(40 * pow(hpScaling, minutes));
 							break;
 						}
 
@@ -2480,8 +2480,16 @@ void SceneCollision::Update(double dt)
 							}
 							else if (cPlayer2D->inVuln < elapsedTime)
 							{
-								cPlayer2D->hp -= 2;
-								cPlayer2D->inVuln = elapsedTime + 0.5f;
+								if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
+								{
+									cPlayer2D->hp -= 10;
+									cPlayer2D->inVuln = elapsedTime + 0.5f;
+								}
+								else
+								{
+									cPlayer2D->hp -= 2;
+									cPlayer2D->inVuln = elapsedTime + 0.5f;
+								}
 							}
 						}
 
