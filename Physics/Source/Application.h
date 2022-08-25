@@ -3,7 +3,9 @@
 #define APPLICATION_H
 
 #include "timer.h"
-
+// Inputs
+#include "..\Inputs\KeyboardController.h"
+#include "..\Inputs\MouseController.h"
 class Application
 {
 public:
@@ -24,7 +26,9 @@ public:
 private:
 	Application();
 	~Application();
-
+	// Update input devices
+	void UpdateInputDevices(void);
+	void PostUpdateInputDevices(void);
 	//Declare a window object
 	StopWatch m_timer;
 };

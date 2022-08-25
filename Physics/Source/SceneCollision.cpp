@@ -27,7 +27,10 @@ void SceneCollision::Init()
 	srand(time(0));
 	cPlayer2D = CPlayer2D::GetInstance();
 	cPlayer2D->Init();
+	
 	cPlayer2D->setmeshList(meshList[GEO_PLAYER]);
+	cKeyboardController = CKeyboardController::GetInstance();
+	cMouseController = CMouseController::GetInstance();
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -37,6 +40,8 @@ void SceneCollision::Init()
 	score = 0;
 	acquiredGold = 0;
 	thickWall = 0;
+	BossKilled = 0;
+	surviveSeconds = 60;
 	Math::InitRNG();
 	m_objectCount = 0;
 	cSoundController->PlaySoundByID(1);
@@ -271,6 +276,83 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			go->lifetime = timerforbullets.size() - 1;
 
 		}
+		if (Gun->reverseShoot)
+		{
+			GameObject* go = FetchGO();
+			go->pos = cPlayer2D->pos;
+			go->scale.Set(4, 2, 1);
+			go->type = GameObject::GO_PROJECTILE;
+			go->angle = angle + 180;
+			switch (Gun->type) {
+			case GameObject::GO_PISTOL:
+				go->proj = GameObject::pistol;
+				cSoundController->StopPlayByID(13);
+				cSoundController->PlaySoundByID(13);
+				break;
+			case GameObject::GO_BOW:
+				go->proj = GameObject::bow;
+				cSoundController->StopPlayByID(10);
+				cSoundController->PlaySoundByID(10);
+				break;
+			case GameObject::GO_GL:
+				go->proj = GameObject::GL;
+				cSoundController->StopPlayByID(8);
+				cSoundController->PlaySoundByID(8);
+				break;
+			case GameObject::GO_SHOTGUN:
+				go->proj = GameObject::shotgun;
+				cSoundController->StopPlayByID(11);
+				cSoundController->PlaySoundByID(11);
+				break;
+			case GameObject::GO_SNIPER:
+				go->proj = GameObject::sniper;
+				cSoundController->StopPlayByID(12);
+				cSoundController->PlaySoundByID(12);
+				break;
+			case GameObject::GO_MACHINEGUN:
+				go->proj = GameObject::machinegun;
+				cSoundController->StopPlayByID(17);
+				cSoundController->PlaySoundByID(17);
+				break;
+			}
+			if (go->angle > 360) {
+				go->angle -= 360;
+			}
+			go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+
+			if (Gun->type == GameObject::GO_BOW)
+			{
+				go->vel.Normalize() *= velocityofbullet * (0.5 * bowframe);
+				go->bowdrawamount = bowframe;
+				go->amountofpierleft = pierceforbullet + bowframe;
+			}
+			else if (Gun->type == GameObject::GO_SNIPER)
+			{
+				go->vel.Normalize() *= velocityofbullet + (Gun->thickWall / 10);
+				go->amountofpierleft = pierceforbullet + (Gun->thickWall / 50);
+				go->damage = Gun->thickWall / 50;
+			}
+			else
+			{
+				go->vel.Normalize() *= velocityofbullet;
+				go->amountofpierleft = pierceforbullet;
+			}
+			go->pier.clear();
+
+			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+			{
+				if (timerforbullets[arraynumber] != 0)
+				{
+					continue;
+				}
+				timerforbullets[arraynumber] = elapsedTime + 2.0f;
+				go->lifetime = arraynumber;
+				break;
+			}
+			timerforbullets.push_back(elapsedTime + 2.0f);
+			go->lifetime = timerforbullets.size() - 1;
+		}
 	}
 }
 
@@ -293,6 +375,38 @@ void SceneCollision::PistolShooting(double elapsedTime, int numofshots)
 		go->scale.Set(4, 2, 1);
 		go->type = GameObject::GO_PROJECTILE;
 		go->angle = angle + i;
+		go->proj = GameObject::pistol;
+		if (go->angle > 360) {
+			go->angle -= 360;
+		}
+		go->vel.x = cos(Math::DegreeToRadian(go->angle));
+		go->vel.y = sin(Math::DegreeToRadian(go->angle));
+		Gun->angle = angle;
+
+		go->vel.Normalize() *= velocityofbullet;
+		go->amountofpierleft = pierceforbullet;
+		go->pier.clear();
+
+		for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+		{
+			if (timerforbullets[arraynumber] != 0)
+			{
+				continue;
+			}
+			timerforbullets[arraynumber] = elapsedTime + 2.0f;
+			go->lifetime = arraynumber;
+			break;
+		}
+		timerforbullets.push_back(elapsedTime + 2.0f);
+		go->lifetime = timerforbullets.size() - 1;
+	}
+	if (Gun->reverseShoot)
+	{
+		GameObject* go = FetchGO();
+		go->pos = cPlayer2D->pos;
+		go->scale.Set(4, 2, 1);
+		go->type = GameObject::GO_PROJECTILE;
+		go->angle = angle + 180;
 		go->proj = GameObject::pistol;
 		if (go->angle > 360) {
 			go->angle -= 360;
@@ -482,6 +596,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				go->placed = true;
 				bossspawned = false;
 				ArrowToBoss->visible = false;
+				++BossKilled;
 			}
 			else
 				killcounter++;
@@ -772,6 +887,7 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 						Gun->critdamage += .25;
 						break;
 					case reverseShoot:
+						Gun->reverseShoot = true;
 						cPlayer2D->IncreaseHP();
 						break;
 					case hpUpMSDOWN:
@@ -782,8 +898,8 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 						break;
 					case brokenShard:
 
-						cPlayer2D->dmg *= 2;
-						cPlayer2D->maxDamage *= 2;
+						dmgofgun *= 2;
+						//cPlayer2D->dmg *= 2;
 						cPlayer2D->maxHP *= .5;
 						cPlayer2D->hp *= .5;
 						break;
@@ -1042,7 +1158,8 @@ void SceneCollision::reset()
 	timerfordragon = 0;
 	GunRightClickSpecial = false;
 	staggertimingforpistol = 0;
-
+	BossKilled = 0;
+	surviveSeconds = 60;
 	Shield = FetchGO();
 	Shield->type = GameObject::GO_SHIELD;
 	Shield->scale = Vector3(15, 15, 1);
@@ -1113,17 +1230,17 @@ void SceneCollision::Update(double dt)
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 
-	if (Application::IsKeyPressed('9'))
+	if (cKeyboardController->IsKeyDown('9'))
 	{
 		cPlayer2D->leveledUp = true;
 		//elapsedTime++;
 		//currentState = lose;
 	}
-	if (Application::IsKeyPressed('0'))
+	if (cKeyboardController->IsKeyDown('0'))
 	{
 		currentState = win;
 	}
-	if (Application::IsKeyPressed('G'))
+	if (cKeyboardController->IsKeyDown('G'))
 	{
 		cPlayer2D->UseGold(-9999);
 	}
@@ -1145,7 +1262,7 @@ void SceneCollision::Update(double dt)
 	switch (currentState) {
 	case start:
 	{
-		if ((!bLButtonState && Application::IsMousePressed(0)) || Application::IsKeyPressed(VK_SPACE)) {
+		if ((!bLButtonState && Application::IsMousePressed(0)) || cKeyboardController->IsKeyDown(VK_SPACE)) {
 			bLButtonState = true;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.2 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.2) && (mousePos.y <= (m_worldHeight * 0.4) + 4.75 && mousePos.y >= (m_worldHeight * 0.4) - 4.75)) {
 				
@@ -1354,6 +1471,7 @@ void SceneCollision::Update(double dt)
 					Shield->pos = cPlayer2D->pos;
 					Gun->critchance = 10;
 					Gun->critdamage = 1.5;
+					Gun->reverseShoot = false;
 				}
 			}
 		}
@@ -1391,7 +1509,7 @@ void SceneCollision::Update(double dt)
 			CurrentTextWrite = true;
 			dialogueTime = 0;
 		}
-
+		
 		ShopInteraction(dt);
 		break;
 	}
@@ -1531,8 +1649,8 @@ void SceneCollision::Update(double dt)
 							levelUpgrades[i] = atk;
 							break;
 						case 3:
-							levelUpgrades[i] = hp;
-							break;
+levelUpgrades[i] = hp;
+break;
 						case 4:
 							levelUpgrades[i] = velocity;
 							break;
@@ -1552,105 +1670,101 @@ void SceneCollision::Update(double dt)
 						}
 					}
 					else if (i == 1) {
-						do {
-							switch (Math::RandIntMinMax(0, 7)) {
-							case 0:
-								levelUpgrades[i] = pierce;
-								break;
-							case 1:
-								levelUpgrades[i] = multishot;
-								break;
-							case 2:
-								levelUpgrades[i] = atk;
-								break;
-							case 3:
-								levelUpgrades[i] = hp;
-								break;
-							case 4:
-								levelUpgrades[i] = velocity;
-								break;
-							case 5:
-								levelUpgrades[i] = moveSpeed;
-								if (MSUpgrade != 5) {
-									break;
-								}
-							case 6:
-								levelUpgrades[i] = fireRate;
-								if (firerateUpgrade != 5) {
-									break;
-								}
-							case 7:
-								levelUpgrades[i] = dragon;
+					do {
+						switch (Math::RandIntMinMax(0, 7)) {
+						case 0:
+							levelUpgrades[i] = pierce;
+							break;
+						case 1:
+							levelUpgrades[i] = multishot;
+							break;
+						case 2:
+							levelUpgrades[i] = atk;
+							break;
+						case 3:
+							levelUpgrades[i] = hp;
+							break;
+						case 4:
+							levelUpgrades[i] = velocity;
+							break;
+						case 5:
+							levelUpgrades[i] = moveSpeed;
+							if (MSUpgrade != 5) {
 								break;
 							}
-						} while (levelUpgrades[1] == levelUpgrades[0]);
+						case 6:
+							levelUpgrades[i] = fireRate;
+							if (firerateUpgrade != 5) {
+								break;
+							}
+						case 7:
+							levelUpgrades[i] = dragon;
+							break;
+						}
+					} while (levelUpgrades[1] == levelUpgrades[0]);
 					}
 					else if (i == 2) {
-						do {
-							switch (Math::RandIntMinMax(0, 7)) {
-							case 0:
-								levelUpgrades[i] = pierce;
-								break;
-							case 1:
-								levelUpgrades[i] = multishot;
-								break;
-							case 2:
-								levelUpgrades[i] = atk;
-								break;
-							case 3:
-								levelUpgrades[i] = hp;
-								break;
-							case 4:
-								levelUpgrades[i] = velocity;
-								break;
-							case 5:
-								levelUpgrades[i] = moveSpeed;
-								if (MSUpgrade != 5) {
-									break;
-								}
-							case 6:
-								levelUpgrades[i] = fireRate;
-								if (firerateUpgrade != 5) {
-									break;
-								}
-							case 7:
-								levelUpgrades[i] = dragon;
+					do {
+						switch (Math::RandIntMinMax(0, 7)) {
+						case 0:
+							levelUpgrades[i] = pierce;
+							break;
+						case 1:
+							levelUpgrades[i] = multishot;
+							break;
+						case 2:
+							levelUpgrades[i] = atk;
+							break;
+						case 3:
+							levelUpgrades[i] = hp;
+							break;
+						case 4:
+							levelUpgrades[i] = velocity;
+							break;
+						case 5:
+							levelUpgrades[i] = moveSpeed;
+							if (MSUpgrade != 5) {
 								break;
 							}
-						} while (levelUpgrades[2] == levelUpgrades[1] || levelUpgrades[2] == levelUpgrades[0]);
+						case 6:
+							levelUpgrades[i] = fireRate;
+							if (firerateUpgrade != 5) {
+								break;
+							}
+						case 7:
+							levelUpgrades[i] = dragon;
+							break;
+						}
+					} while (levelUpgrades[2] == levelUpgrades[1] || levelUpgrades[2] == levelUpgrades[0]);
 					}
 
 				}
 
 			}
 			//main gameplay loop
-			if (cPlayer2D->leveledUp == false && pause == false && cPlayer2D->xpToLevel() ==false && chestOpened == false)
+			if (cPlayer2D->leveledUp == false && pause == false && cPlayer2D->xpToLevel() == false && chestOpened == false)
 			{
 				cPlayer2D->Update(dt);
 				seconds += dt;
 				elapsedTime += dt;
-				if (cPlayer2D->hp <= 0)
-					cSoundController->PlaySoundByID(23);
-				static bool BPressed = false;
-				if (Application::IsKeyPressed('B') && BPressed == false) {
-					BPressed = true;
+				if (surviveSeconds <= 0) {
+					if (cPlayer2D->pos.x > (m_worldWidth * 0.5) - 2.5 && cPlayer2D->pos.x < (m_worldWidth * 0.5) + 2.5 &&
+						cPlayer2D->pos.y >(m_worldHeight * 0.5) - 5 && cPlayer2D->pos.y < (m_worldHeight * 0.5) + 5) {
+						currentState = win;
+
+					}
 				}
-				else if (!Application::IsKeyPressed('B') && BPressed == true) {
-					BPressed = false;
+				else if (BossKilled >= 3) {
+					surviveSeconds -= dt;
+				}
+				if (cKeyboardController->IsKeyPressed('B') ){
 					pause = true;
 					break;
 				}
-
 				//Enemy Spawn
-				static bool blMButtonState = false;
-				if (Application::IsKeyPressed('M') && blMButtonState == false)
+				if (cKeyboardController->IsKeyPressed('M'))
 				{
-					killcounter += 100; 
-					blMButtonState = true;
-				}
-				else if (!Application::IsKeyPressed('M') && blMButtonState)
-				{
-					blMButtonState = false;
+					killcounter += 100;
 				}
 
 				//enemy spawn over time
@@ -4525,7 +4639,7 @@ void SceneCollision::Render()
 
 		modelStack.PushMatrix();
 		modelStack.Translate(m_worldWidth * 0.045 + camera.position.x, camera.position.y + m_worldHeight * 0.7, zaxis += 0.001f);
-		modelStack.Scale(m_worldWidth * 0.05, m_worldHeight * 0.05, 0);
+		modelStack.Scale(m_worldWidth * 0.02, m_worldHeight * 0.02, 0);
 		RenderMesh(meshList[GEO_GOLD], false);
 		modelStack.PopMatrix();
 
@@ -4548,13 +4662,27 @@ void SceneCollision::Render()
 		ss.str("");
 		ss.precision(1);
 		ss << "Gold Earned: " << acquiredGold;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2, 7, 41);
-
-		ss.str("");
-		ss.precision(1);
-		ss << "Kills: " << killcounter;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2, 2, 35);
-
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1.5, 7, 41);
+		if (BossKilled < 3) {
+			ss.str("");
+			ss.precision(1);
+			ss << "Kills:" << killcounter << "/100";
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1, 2, 38);
+			ss.str("");
+			ss << "boss Killed:" << BossKilled << "/3";
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1, 2, 35);
+		}
+		else if(surviveSeconds > 0){
+			ss.str("");
+			ss.precision(2);
+			ss << "Survive:" << surviveSeconds;
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1.5, 2, 38);
+		}
+		else {
+			ss.str("");
+			ss << "Enter the portal";
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1.5, 2, 38);
+		}
 		ss.str("");
 		ss.precision(2);
 		ss << minutes << ":" << seconds;
@@ -4564,7 +4692,14 @@ void SceneCollision::Render()
 			ss << minutes << ":0" << seconds;
 		}
 		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 3, 56);
-
+		
+		if (surviveSeconds <= 0) {
+			modelStack.PushMatrix();
+			modelStack.Translate(m_worldWidth* 0.5, m_worldHeight * 0.5 , zaxis += 1);
+			modelStack.Scale(5, 10, 1);
+			RenderMesh(meshList[GEO_PORTAL], false);
+			modelStack.PopMatrix();
+		}
 		//render if player has leveled up
 		if (cPlayer2D->leveledUp == true && cPlayer2D->xpToLevel() == true) {
 			modelStack.PushMatrix();
@@ -4880,6 +5015,16 @@ void SceneCollision::Render()
 void SceneCollision::Exit()
 {
 	SceneBase::Exit();
+	if (cKeyboardController)
+	{
+		// We won't delete this since it was created elsewhere
+		cKeyboardController = NULL;
+	}
+	if (cMouseController)
+	{
+		// We won't delete this since it was created elsewhere
+		cMouseController = NULL;
+	}
 	//Cleanup GameObjects
 	while (m_goList.size() > 0)
 	{
@@ -4893,7 +5038,10 @@ void SceneCollision::Exit()
 		delete go;
 		enemyList.pop_back();
 	}
-	cPlayer2D->Destroy();
+	if (cPlayer2D) {
+		cPlayer2D->Destroy();
+		cPlayer2D = NULL;
+	}
 
 
 }

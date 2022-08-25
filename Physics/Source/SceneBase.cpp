@@ -151,6 +151,9 @@ void SceneBase::Init()
 	meshList[GEO_ROLL] = MeshBuilder::GenerateQuad("roll", Color(1, 1, 1), 1.f);
 	meshList[GEO_ROLL]->textureID = LoadTexture("Image//roll.png", true);
 
+	meshList[GEO_PORTAL] = MeshBuilder::GenerateQuad("portal", Color(1, 1, 1), 1.f);
+	meshList[GEO_PORTAL]->textureID = LoadTexture("Image//portal.png", true);
+
 	meshList[GEO_UPGRADEICON] = MeshBuilder::GenerateQuad("icon", Color(1, 1, 1), 1.f);
 
 	meshList[GEO_PAUSEPANEL] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);

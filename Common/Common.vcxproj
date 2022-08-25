@@ -128,6 +128,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameControl\Settings.cpp" />
+    <ClCompile Include="Inputs\KeyboardController.cpp" />
+    <ClCompile Include="Inputs\MouseController.cpp" />
     <ClCompile Include="Source\MatrixStack.cpp" />
     <ClCompile Include="Source\Mtx44.cpp" />
     <ClCompile Include="Source\timer.cpp" />
@@ -137,6 +139,8 @@
     <ClInclude Include="..\Physics\Source\Application.h" />
     <ClInclude Include="DesignPatterns\SingletonTemplate.h" />
     <ClInclude Include="GameControl\Settings.h" />
+    <ClInclude Include="Inputs\KeyboardController.h" />
+    <ClInclude Include="Inputs\MouseController.h" />
     <ClInclude Include="Source\MatrixStack.h" />
     <ClInclude Include="Source\Mtx44.h" />
     <ClInclude Include="Source\MyMath.h" />
