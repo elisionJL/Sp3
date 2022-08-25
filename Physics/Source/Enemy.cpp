@@ -207,7 +207,7 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 		CurrEnemyType = 3;
 		//Skeleton
 		meshList[SKELETON] = MeshBuilder::GenerateSpriteAnimation("Skeleton", 5, 7);
-		meshList[SKELETON]->textureID = LoadTexture("Image//SkeletonSS.png", true);
+		meshList[SKELETON]->textureID = CurrentMesh->textureID;
 		meshList[SKELETON]->material.kAmbient.Set(1, 1, 1);
 
 		enemy = dynamic_cast<SpriteAnimation*>(meshList[SKELETON]);
@@ -223,7 +223,7 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 	{
 		CurrEnemyType = 4;
 		meshList[GHOST] = MeshBuilder::GenerateSpriteAnimation("Ghost", 6, 7);
-		meshList[GHOST]->textureID = LoadTexture("Image//GhostSS.png", true);
+		meshList[GHOST]->textureID = CurrentMesh->textureID;
 		meshList[GHOST]->material.kAmbient.Set(1, 1, 1);
 
 		enemy = dynamic_cast<SpriteAnimation*>(meshList[GHOST]);
@@ -234,15 +234,15 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 		enemy->AddAnimation("DieR", 21, 26);
 		enemy->AddAnimation("DieL", 35, 40);
 		enemy->AddAnimation("Hurt", 14, 20);
-		GEOTYPE = SceneBase::GEO_GHOST;
 	}
 	else if (EnemyType == 2)
 	{
 		CurrEnemyType = 5;
 		//Zombie
 		meshList[ZOMBIE] = MeshBuilder::GenerateSpriteAnimation("Zombie", 6, 9);
-		meshList[ZOMBIE]->textureID = LoadTexture("Image//ZombieSS.png", true);
+		meshList[ZOMBIE]->textureID = CurrentMesh->textureID;
 		meshList[ZOMBIE]->material.kAmbient.Set(1, 1, 1);
+
 		enemy = dynamic_cast<SpriteAnimation*>(meshList[ZOMBIE]);
 		//Add the animations
 		enemy->AddAnimation("Attack", 5, 11);
@@ -256,8 +256,9 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 	{
 		CurrEnemyType = 0; //slime
 		meshList[SLIME] = MeshBuilder::GenerateSpriteAnimation("Boss Slime", 5, 6);
-		meshList[SLIME]->textureID = LoadTexture("Image//boss_slime_sprites.png", true);
+		meshList[SLIME]->textureID = CurrentMesh->textureID;
 		meshList[SLIME]->material.kAmbient.Set(1, 1, 1);
+
 		enemy = dynamic_cast<SpriteAnimation*>(meshList[SLIME]);
 		//Add the animations
 		enemy->AddAnimation("DieL", 0, 3);
@@ -273,8 +274,9 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 
 		//Spider
 		meshList[SPIDER] = MeshBuilder::GenerateSpriteAnimation("Spider", 5, 8);
-		meshList[SPIDER]->textureID = LoadTexture("Image//spiderSS.png", true);
+		meshList[SPIDER]->textureID = CurrentMesh->textureID;
 		meshList[SPIDER]->material.kAmbient.Set(1, 1, 1);
+
 		enemy = dynamic_cast<SpriteAnimation*>(meshList[SPIDER]);
 		//Add the animations
 		enemy->AddAnimation("Attack", 8, 13);
@@ -290,8 +292,9 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 
 		//Vampire
 		meshList[VAMPIRE] = MeshBuilder::GenerateSpriteAnimation("Vampire", 6, 7);
-		meshList[VAMPIRE]->textureID = LoadTexture("Image//vampireSS.png", true);
+		meshList[VAMPIRE]->textureID = CurrentMesh->textureID;
 		meshList[VAMPIRE]->material.kAmbient.Set(1, 1, 1);
+
 		enemy = dynamic_cast<SpriteAnimation*>(meshList[VAMPIRE]);
 		//Add the animations
 		enemy->AddAnimation("Attack", 7, 12);

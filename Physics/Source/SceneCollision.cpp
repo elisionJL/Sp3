@@ -1649,8 +1649,8 @@ void SceneCollision::Update(double dt)
 							levelUpgrades[i] = atk;
 							break;
 						case 3:
-levelUpgrades[i] = hp;
-break;
+							levelUpgrades[i] = hp;
+							break;
 						case 4:
 							levelUpgrades[i] = velocity;
 							break;
