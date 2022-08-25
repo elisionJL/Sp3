@@ -40,7 +40,7 @@ void SceneCollision::Init()
 	score = 0;
 	acquiredGold = 0;
 	thickWall = 0;
-	BossKilled = 3;
+	BossKilled = 0;
 	surviveSeconds = 60;
 	Math::InitRNG();
 	m_objectCount = 0;
