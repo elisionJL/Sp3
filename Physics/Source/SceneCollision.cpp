@@ -595,8 +595,11 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				go->vel.SetZero();
 				go->placed = true;
 				bossspawned = false;
-				ArrowToBoss->visible = false;
 				++BossKilled;
+				if (BossKilled < 3)
+				{
+					ArrowToBoss->visible = false;
+				}
 			}
 			else
 				killcounter++;
@@ -1751,7 +1754,6 @@ void SceneCollision::Update(double dt)
 					if (cPlayer2D->pos.x > (m_worldWidth * 0.5) - 2.5 && cPlayer2D->pos.x < (m_worldWidth * 0.5) + 2.5 &&
 						cPlayer2D->pos.y >(m_worldHeight * 0.5) - 5 && cPlayer2D->pos.y < (m_worldHeight * 0.5) + 5) {
 						currentState = win;
-
 					}
 				}
 				else if (BossKilled >= 3) {
@@ -2396,6 +2398,12 @@ void SceneCollision::Update(double dt)
 				{
 					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
 					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Boss->pos;
+					ArrowToBoss->angle = calculateAngle(center.x, center.y);
+				}
+				else if (surviveSeconds < 60)
+				{
+					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
+					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Vector3(0, 0, 0);
 					ArrowToBoss->angle = calculateAngle(center.x, center.y);
 				}
 
