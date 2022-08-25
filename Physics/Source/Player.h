@@ -43,6 +43,7 @@ public:
 	int GetGold();
 	void UseGold(int Gold_Used);
 	void IncreaseGold(int gold);
+	float GetDmg();
 	double inVuln;
 	int Walk_Speed, maxWalk_Speed;
 	float dmg, maxDamage;

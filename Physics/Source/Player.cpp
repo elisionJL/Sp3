@@ -308,6 +308,11 @@ void CPlayer2D::IncreaseGold(int gold)
 	this->Gold += gold;
 }
 
+float CPlayer2D::GetDmg()
+{
+	return dmg;
+}
+
 CPlayer2D::CPlayer2D() :
 	hp(0), maxHP(0), dmg(0), maxDamage(0),
 	Walk_Speed(0), maxWalk_Speed(0),

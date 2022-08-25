@@ -377,18 +377,18 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	{
 	case GameObject::GO_BOSS_SLIME:*/
 
-	if (go2->getState() == 3)
+	if (go2->getState() == 3 || go2->getState() == 4)
 		return;
 
 	{
-		float dmg = dmgofgun * Bullet->bowdrawamount;
+		float dmg = dmgofgun * Bullet->bowdrawamount + cPlayer2D->GetDmg();
 
 		if (Bullet->type == GameObject::GO_EXPLOSION)
 			dmg = dmgofgun * 3.333333f;
 		else if (Bullet->proj == GameObject::dragon)
 			dmg = Bullet->damage;
 		else if (Bullet->proj == GameObject::sniper)
-			dmg = dmgofgun + Bullet->damage;
+			dmg = dmgofgun + Bullet->damage + cPlayer2D->GetDmg();
 		else if (Bullet->proj == GameObject::machinegun)
 		{
 			dmg = dmgofgun + (meshList[GEO_MACHINEGUN]->material.kAmbient.b / (meshList[GEO_MACHINEGUN]->material.kAmbient.b * meshList[GEO_MACHINEGUN]->material.kAmbient.b));
@@ -410,7 +410,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			go2->setState(3);
+			go2->dieanimation();
 		}
 
 
@@ -1210,11 +1210,13 @@ void SceneCollision::Update(double dt)
 				leftclick = false;
 				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
 					(mousePos.y <= (m_worldHeight * 0.5) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.5) - m_worldHeight * 0.075)) {
+					cSoundController->PlaySoundByID(22);
 					difficulty = easy;
 					hpScaling = 1.1f;
 				}
 				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
 					(mousePos.y <= (m_worldHeight * 0.3) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.3) - m_worldHeight * 0.075)) {
+					cSoundController->PlaySoundByID(22);
 					difficulty = hard;
 					hpScaling = 1.3;
 				}
@@ -1319,7 +1321,7 @@ void SceneCollision::Update(double dt)
 					dmgofgun = 10;
 					pierceforbullet = 3;
 					velocityofbullet = 50;
-					firerate = 1.5f;
+					firerate = 1.3f;
 					Gun->thickWall = 0;
 					Gun->prevangle = 0;
 					Gun->activeTime = 0;
@@ -1357,8 +1359,8 @@ void SceneCollision::Update(double dt)
 					bossspawned = false;
 					ArrowToBoss = FetchGO();
 					Shield->pos = cPlayer2D->pos;
-					Gun->critchance = 50;
-					Gun->critdamage = 2;
+					Gun->critchance = 10;
+					Gun->critdamage = 1.5;
 				}
 			}
 		}
@@ -1502,7 +1504,7 @@ void SceneCollision::Update(double dt)
 
 					if (Distance < 100) {
 						if (enemy->GEOTYPE != GEO_BOSS_SLIME && enemy->GEOTYPE != GEO_SPIDER && enemy->GEOTYPE != GEO_VAMPIRE)
-							enemy->setState(3);
+							enemy->dieanimation();
 					}
 				}
 			}
@@ -2193,45 +2195,7 @@ break;
 						else if (go->type == GameObject::GO_SHIELD)
 						{
 							go->pos = cPlayer2D->pos;
-							if (go->visible)
-							{
-								for (unsigned i = 0; i < enemyList.size(); ++i)
-								{
-									Enemy* go1 = enemyList[i];
-									Vector3 relativeVel = go->vel - go1->vel;
-
-									Vector3 disDiff = go1->pos - go->pos;
-
-									if (go->pos.y > go1->pos.y)
-									{
-										disDiff -= Vector3(0, go1->scale.y / 2, 0);
-									}
-									else
-									{
-										disDiff += Vector3(0, go1->scale.y / 2, 0);
-									}
-
-									if (go->pos.x > go1->pos.x)
-									{
-										disDiff -= Vector3(go1->scale.x / 2, 0, 0);
-									}
-									else
-									{
-										disDiff += Vector3(go1->scale.x / 2, 0, 0);
-									}
-
-
-									if (relativeVel.Dot(disDiff) <= 0) {
-										continue;
-									}
-									if (disDiff.LengthSquared() <= (go->scale.x + go1->scale.x) * (go->scale.x + go1->scale.x))
-									{
-										go->visible = false;
-										go->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
-									}
-								}
-							}
-							else if (go->activeTime < elapsedTime)
+							if (go->activeTime < elapsedTime)
 							{
 								go->visible = true;
 							}
@@ -2336,11 +2300,11 @@ break;
 					go1->Update(dt);
 
 					//Boss only chases player if they are in screen
-					if (go1->getState() == 3 && !go1->Deadornot())
+					if ((go1->getState() == 3 || go1->getState() == 4) && !go1->Deadornot())
 					{
 						DeleteEnemy(go1);
 					}
-					else if (go1->getState() != 3)
+					else if (go1->getState() != 3 && go1->getState() != 4)
 					{
 						if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
 						{
@@ -2352,6 +2316,11 @@ break;
 								go1->vel = go1->vel.Normalized();
 								go1->vel = go1->vel * 20;
 								go1->pos += go1->vel * dt;
+
+								//if (Vector3(distFromPlayerX, distFromPlayerY, 0).Length() < 50)
+								//{
+								//	
+								//}
 							}
 							else
 							{
@@ -2389,7 +2358,6 @@ break;
 									go->damage = 10;
 									go1->rangedcooldown = elapsedTime + 5.f;
 								}
-
 							}
 						}
 						if (CheckCollision(go1, cPlayer2D))
@@ -2964,7 +2932,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 		{
-			if (cPlayer2D->GetGold() < 200 * pow(1.75, ShopUpgrades[0]) || ShopUpgrades[0] >= 5)
+			if (cPlayer2D->GetGold() < 500 * pow(1.75, ShopUpgrades[0]) || ShopUpgrades[0] >= 5)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -2982,7 +2950,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 		{
-			if (cPlayer2D->GetGold() < 100 * pow(1.3, ShopUpgrades[1]) || ShopUpgrades[1] >= 10)
+			if (cPlayer2D->GetGold() < 750 * pow(1.3, ShopUpgrades[1]) || ShopUpgrades[1] >= 10)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -3000,7 +2968,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 		{
-			if (cPlayer2D->GetGold() < 150 * pow(2.0, ShopUpgrades[2]) || ShopUpgrades[2] >= 5)
+			if (cPlayer2D->GetGold() < 600 * pow(2.0, ShopUpgrades[2]) || ShopUpgrades[2] >= 5)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -3018,7 +2986,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 		{
-			if (cPlayer2D->GetGold() < 100 * pow(1.5, ShopUpgrades[3]) || ShopUpgrades[3] >= 4)
+			if (cPlayer2D->GetGold() < 300 * pow(1.5, ShopUpgrades[3]) || ShopUpgrades[3] >= 4)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -3055,7 +3023,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 		{
-			if (cPlayer2D->GetGold() < 500 * pow(1.1, ShopUpgrades[5]) || ShopUpgrades[5] >= 5)
+			if (cPlayer2D->GetGold() < 1250 * pow(1.2, ShopUpgrades[5]) || ShopUpgrades[5] >= 5)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -3095,7 +3063,7 @@ void SceneCollision::ShopUI()
 
 	if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 	{
-		shopUpgrade = (200 * pow(1.75, ShopUpgrades[0]));
+		shopUpgrade = (500 * pow(1.75, ShopUpgrades[0]));
 		if(ShopUpgrades[0] >= 5)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[0]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3103,7 +3071,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 	{
-		shopUpgrade = (100 * pow(1.3, ShopUpgrades[1]));
+		shopUpgrade = (750 * pow(1.3, ShopUpgrades[1]));
 		if (ShopUpgrades[1] >= 10)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[1]) + "/10 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3111,7 +3079,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 	{
-		shopUpgrade = (150 * pow(2.0, ShopUpgrades[2]));
+		shopUpgrade = (600 * pow(2.0, ShopUpgrades[2]));
 		if (ShopUpgrades[2] >= 5)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[2]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3119,7 +3087,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 	{
-		shopUpgrade = (100 * pow(1.5, ShopUpgrades[3]));
+		shopUpgrade = (300 * pow(1.5, ShopUpgrades[3]));
 		if (ShopUpgrades[3] >= 4)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[3]) + "/4 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3135,7 +3103,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 	{
-		shopUpgrade = 500 * pow(1.1, ShopUpgrades[5]);
+		shopUpgrade = 1250 * pow(1.2, ShopUpgrades[5]);
 		if (ShopUpgrades[5] >= 5)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[5]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3413,6 +3381,13 @@ void SceneCollision::RenderGronkDialogue()
 		{
 			if (CurrentCharText < GronkDialogue[randomDialogue].length())
 			{
+				int randSFX = rand() % 3 + 1;
+				if(randSFX == 1)
+					cSoundController->PlaySoundByID(19);
+				else if(randSFX == 2)
+					cSoundController->PlaySoundByID(20);
+				else
+					cSoundController->PlaySoundByID(21);
 				CurrentDialogue = GronkDialogue[randomDialogue][CurrentCharText];
 				OutputDialogue += CurrentDialogue;
 
@@ -3422,6 +3397,9 @@ void SceneCollision::RenderGronkDialogue()
 
 			else
 			{
+				cSoundController->StopPlayByID(19);
+				cSoundController->StopPlayByID(20);
+				cSoundController->StopPlayByID(21);
 				if (PlayerBuy != true && PlayerHover != true)
 				{
 					CurrentTextWrite = false;
@@ -4530,7 +4508,6 @@ void SceneCollision::Render()
 		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXP], false);
 		modelStack.PopMatrix();
-
 
 		//hp
 		float hpX = m_worldWidth * 0.16 + camera.position.x, hpY = m_worldHeight * 0.8 + camera.position.y;
