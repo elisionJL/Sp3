@@ -36,6 +36,7 @@ public:
 		VAMPIRE,
 		SKELETON,
 		GHOST,
+		ZOMBIE,
 		NUM_TYPEOFENEMY
 	};
 
@@ -60,6 +61,7 @@ public:
 	double rangedcooldown;
 	int CurrEnemyType;
 
+
 	std::string address;
 	void spawnBoss();
 	void sethp(float Nhp);
@@ -68,6 +70,7 @@ public:
 	int getState();
 	void setState(int newState);
 	void setEnemyType(int EnemyType, Mesh* CurrentMesh);
+	bool Deadornot();
 	//int getDirection();
 
 protected:

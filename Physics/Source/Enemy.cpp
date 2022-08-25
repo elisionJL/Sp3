@@ -154,6 +154,8 @@ int Enemy::getState()
 }
 
 
+
+
 void Enemy::setState(int newState)
 {
 	switch (newState)
@@ -189,9 +191,9 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 		enemy->AddAnimation("MoveRight", 0, 6);
 		enemy->AddAnimation("MoveLeft", 21, 27);
 		enemy->AddAnimation("Die", 14, 20);
+		GEOTYPE = SceneBase::GEO_SKELETON;
 	}
-
-	if (EnemyType == 1)
+	else if (EnemyType == 1)
 	{
 		CurrEnemyType = 4;
 		meshList[GHOST] = MeshBuilder::GenerateSpriteAnimation("Ghost", 5, 7);
@@ -205,7 +207,75 @@ void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 		enemy->AddAnimation("MoveLeft", 28, 34);
 		enemy->AddAnimation("Die", 21, 26);
 		enemy->AddAnimation("Hurt", 14, 20);
+		GEOTYPE = SceneBase::GEO_GHOST;
 	}
+	else if (EnemyType == 2)
+	{
+		CurrEnemyType = 5;
+		//Zombie
+		meshList[ZOMBIE] = MeshBuilder::GenerateSpriteAnimation("Zombie", 6, 9);
+		meshList[ZOMBIE]->textureID = LoadTexture("Image//ZombieSS.png", true);
+		meshList[ZOMBIE]->material.kAmbient.Set(1, 1, 1);
+		enemy = dynamic_cast<SpriteAnimation*>(meshList[ZOMBIE]);
+		//Add the animations
+		enemy->AddAnimation("Attack", 5, 11);
+		enemy->AddAnimation("MoveRight", 12, 20);
+		enemy->AddAnimation("MoveLeft", 39, 47);
+		enemy->AddAnimation("Die", 21, 27);
+		GEOTYPE = SceneBase::GEO_ZOMBIE;
+	}
+	else if (EnemyType == 3)
+	{
+		CurrEnemyType = 0; //slime
+		meshList[SLIME] = MeshBuilder::GenerateSpriteAnimation("Boss Slime", 5, 6);
+		meshList[SLIME]->textureID = LoadTexture("Image//boss_slime_sprites.png", true);
+		meshList[SLIME]->material.kAmbient.Set(1, 1, 1);
+		enemy = dynamic_cast<SpriteAnimation*>(meshList[SLIME]);
+		//Add the animations
+		enemy->AddAnimation("Die", 0, 3);
+		enemy->AddAnimation("Attack", 4, 15);
+		enemy->AddAnimation("MoveRight", 16, 22);
+		enemy->AddAnimation("MoveLeft", 23, 30);
+		GEOTYPE = SceneBase::GEO_BOSS_SLIME;
+	}
+	else if (EnemyType == 4)
+	{
+		CurrEnemyType = 1; //spider
+
+		//Spider
+		meshList[SPIDER] = MeshBuilder::GenerateSpriteAnimation("Spider", 4, 8);
+		meshList[SPIDER]->textureID = LoadTexture("Image//spiderSS.png", true);
+		meshList[SPIDER]->material.kAmbient.Set(1, 1, 1);
+		enemy = dynamic_cast<SpriteAnimation*>(meshList[SPIDER]);
+		//Add the animations
+		enemy->AddAnimation("Attack", 8, 13);
+		enemy->AddAnimation("MoveRight", 0, 7);
+		enemy->AddAnimation("MoveLeft", 25, 31);
+		enemy->AddAnimation("Die", 17, 22);
+		GEOTYPE = SceneBase::GEO_SPIDER;
+	}
+	else if (EnemyType == 5)
+	{
+		CurrEnemyType = 2; //vampire
+
+		//Vampire
+		meshList[VAMPIRE] = MeshBuilder::GenerateSpriteAnimation("Vampire", 5, 7);
+		meshList[VAMPIRE]->textureID = LoadTexture("Image//vampireSS.png", true);
+		meshList[VAMPIRE]->material.kAmbient.Set(1, 1, 1);
+		enemy = dynamic_cast<SpriteAnimation*>(meshList[VAMPIRE]);
+		//Add the animations
+		enemy->AddAnimation("Attack", 7, 12);
+		enemy->AddAnimation("MoveRight", 0, 5);
+		enemy->AddAnimation("MoveLeft", 28, 33);
+		enemy->AddAnimation("Die", 21, 27);
+		enemy->AddAnimation("Hurt", 14, 19);
+		GEOTYPE = SceneBase::GEO_VAMPIRE;
+	}
+}
+
+bool Enemy::Deadornot()
+{
+	return enemy->getAnimationStatus("Die");
 }
 
 //int Enemy::getDirection()
