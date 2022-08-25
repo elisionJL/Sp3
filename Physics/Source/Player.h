@@ -44,6 +44,9 @@ public:
 	void IncreaseGold(int gold);
 	float GetDmg();
 	double inVuln;
+	int Walk_Speed, maxWalk_Speed;
+	float dmg, maxDamage;
+	int regenMulti;
 protected:
 	enum DIRECTION {
 		RIGHT = 0,
@@ -61,8 +64,6 @@ protected:
 	Mesh* playerMesh;
 	float m_worldWidth;
 	float m_worldHeight;
-	float dmg, maxDamage;
 	float ShieldCountDown;
-	int Walk_Speed, maxWalk_Speed;
 
 };
