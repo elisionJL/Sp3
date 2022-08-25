@@ -2179,6 +2179,11 @@ void SceneCollision::Update(double dt)
 								go1->vel = go1->vel.Normalized();
 								go1->vel = go1->vel * 20;
 								go1->pos += go1->vel * dt;
+
+								//if (Vector3(distFromPlayerX, distFromPlayerY, 0).Length() < 50)
+								//{
+								//	
+								//}
 							}
 							else
 							{
@@ -2216,7 +2221,15 @@ void SceneCollision::Update(double dt)
 									go->damage = 10;
 									go1->rangedcooldown = elapsedTime + 5.f;
 								}
+							}
 
+							if (go1->GEOTYPE == GEO_ZOMBIE || go1->GEOTYPE == GEO_GHOST)
+							{
+								float Distance = go1->pos.Length() - cPlayer2D->pos.Length();
+								if (Distance <= 5)
+								{
+									go1->setState(2);
+								}
 							}
 						}
 						if (CheckCollision(go1, cPlayer2D))

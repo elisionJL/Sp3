@@ -31,13 +31,20 @@ void Enemy::Update(const double dElapsedTime)
 
 	if (sCurrentState != DEAD)
 	{
-		if (vel.x < 0)
+		if (sCurrentState == ATTACK)
 		{
-			enemy->PlayAnimation("MoveLeft", -1, 2.f);
+			enemy->PlayAnimation("Attack", -1, 2.f);
 		}
-		else if (vel.x > 0)
+		else
 		{
-			enemy->PlayAnimation("MoveRight", -1, 2.f);
+			if (vel.x < 0)
+			{
+				enemy->PlayAnimation("MoveLeft", -1, 2.f);
+			}
+			else if (vel.x > 0)
+			{
+				enemy->PlayAnimation("MoveRight", -1, 2.f);
+			}
 		}
 	}
 	else
