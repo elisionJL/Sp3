@@ -372,7 +372,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	{
 	case GameObject::GO_BOSS_SLIME:*/
 
-	if (go2->getState() == 3)
+	if (go2->getState() == 3 || go2->getState() == 4)
 		return;
 
 	{
@@ -405,7 +405,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			go2->setState(3);
+			go2->dieanimation();
 		}
 
 
@@ -1497,7 +1497,7 @@ void SceneCollision::Update(double dt)
 
 					if (Distance < 100) {
 						if (enemy->GEOTYPE != GEO_BOSS_SLIME && enemy->GEOTYPE != GEO_SPIDER && enemy->GEOTYPE != GEO_VAMPIRE)
-							enemy->setState(3);
+							enemy->dieanimation();
 					}
 				}
 			}
@@ -2192,45 +2192,7 @@ void SceneCollision::Update(double dt)
 						else if (go->type == GameObject::GO_SHIELD)
 						{
 							go->pos = cPlayer2D->pos;
-							if (go->visible)
-							{
-								for (unsigned i = 0; i < enemyList.size(); ++i)
-								{
-									Enemy* go1 = enemyList[i];
-									Vector3 relativeVel = go->vel - go1->vel;
-
-									Vector3 disDiff = go1->pos - go->pos;
-
-									if (go->pos.y > go1->pos.y)
-									{
-										disDiff -= Vector3(0, go1->scale.y / 2, 0);
-									}
-									else
-									{
-										disDiff += Vector3(0, go1->scale.y / 2, 0);
-									}
-
-									if (go->pos.x > go1->pos.x)
-									{
-										disDiff -= Vector3(go1->scale.x / 2, 0, 0);
-									}
-									else
-									{
-										disDiff += Vector3(go1->scale.x / 2, 0, 0);
-									}
-
-
-									if (relativeVel.Dot(disDiff) <= 0) {
-										continue;
-									}
-									if (disDiff.LengthSquared() <= (go->scale.x + go1->scale.x) * (go->scale.x + go1->scale.x))
-									{
-										go->visible = false;
-										go->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
-									}
-								}
-							}
-							else if (go->activeTime < elapsedTime)
+							if (go->activeTime < elapsedTime)
 							{
 								go->visible = true;
 							}
@@ -2335,11 +2297,11 @@ void SceneCollision::Update(double dt)
 					go1->Update(dt);
 
 					//Boss only chases player if they are in screen
-					if (go1->getState() == 3 && !go1->Deadornot())
+					if ((go1->getState() == 3 || go1->getState() == 4) && !go1->Deadornot())
 					{
 						DeleteEnemy(go1);
 					}
-					else if (go1->getState() != 3)
+					else if (go1->getState() != 3 && go1->getState() != 4)
 					{
 						if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
 						{
