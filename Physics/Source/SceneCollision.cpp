@@ -599,7 +599,10 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				if (BossKilled < 3)
 				{
 					ArrowToBoss->visible = false;
+					ArrowInsideArrow->visible = false;
 				}
+				else
+					Boss->timerforboss = 1;
 			}
 			else
 				killcounter++;
@@ -653,6 +656,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				std::stringstream ss;
 				ss << address;
 				go->address = ss.str();
+				Boss->timerforboss = 90;
 
 				
 				ArrowToBoss->pos = cPlayer2D->pos;
@@ -660,6 +664,12 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				ArrowToBoss->type = GameObject::GO_WHEREBOSS;
 				ArrowToBoss->vel.SetZero();
 				ArrowToBoss->visible = true;
+				
+				ArrowInsideArrow->pos = cPlayer2D->pos;
+				ArrowInsideArrow->scale.Set(4, 4, 1);
+				ArrowInsideArrow->type = GameObject::GO_WHEREBOSS;
+				ArrowInsideArrow->vel.SetZero();
+				ArrowInsideArrow->visible = true;
 
 				enemyspawn = elapsedTime;
 			}
@@ -1468,6 +1478,7 @@ void SceneCollision::Update(double dt)
 					elapsedTime = 2;
 					bossspawned = false;
 					ArrowToBoss = FetchGO();
+					ArrowInsideArrow = FetchGO();
 					Shield->pos = cPlayer2D->pos;
 					Gun->critchance = 10;
 					Gun->critdamage = 1.5;
@@ -2391,17 +2402,30 @@ void SceneCollision::Update(double dt)
 				}
 
 				//arrow to boss
-				if (bossspawned)
+				
+				if (BossKilled >= 3)
+				{
+					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
+					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Vector3(m_worldWidth * 0.5, m_worldHeight * 0.5, 0);
+					ArrowToBoss->angle = calculateAngle(center.x, center.y);
+					ArrowInsideArrow->pos = ArrowToBoss->pos;
+					Boss->timerforboss += dt;
+					ArrowInsideArrow->scale.x = Boss->timerforboss / 60 * 4;
+					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
+				}
+				else if (bossspawned)
 				{
 					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
 					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Boss->pos;
 					ArrowToBoss->angle = calculateAngle(center.x, center.y);
-				}
-				else if (surviveSeconds < 60)
-				{
-					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
-					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Vector3(0, 0, 0);
-					ArrowToBoss->angle = calculateAngle(center.x, center.y);
+					ArrowInsideArrow->pos = ArrowToBoss->pos;
+					Boss->timerforboss -= dt;
+					ArrowInsideArrow->scale.x = Boss->timerforboss / 90 * 4;
+					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
+					if (Boss->timerforboss <= 0)
+					{
+						cPlayer2D->hp = 0;
+					}
 				}
 
 				//Enemy List
@@ -4643,6 +4667,13 @@ void SceneCollision::Render()
 			modelStack.Rotate(ArrowToBoss->angle, 0, 0, 1);
 			modelStack.Scale(ArrowToBoss->scale.x, ArrowToBoss->scale.y, 1);
 			RenderMesh(meshList[GEO_WHEREBOSS], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(ArrowInsideArrow->pos.x, ArrowInsideArrow->pos.y, zaxis += 0.001f);
+			modelStack.Rotate(ArrowToBoss->angle, 0, 0, 1);
+			modelStack.Scale(ArrowInsideArrow->scale.x, ArrowInsideArrow->scale.y, 1);
+			RenderMesh(meshList[GEO_ARROWTOBOSS], false);
 			modelStack.PopMatrix();
 		}
 

@@ -104,6 +104,7 @@ protected:
 	GameObject* Gronk;
 	GameObject* Shield;
 	GameObject* ArrowToBoss;
+	GameObject* ArrowInsideArrow;
 	Enemy* Boss;
 	int BossKilled;
 	float m_speed;

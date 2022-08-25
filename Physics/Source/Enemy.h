@@ -61,6 +61,7 @@ public:
 	int mass;
 	double rangedcooldown;
 	int CurrEnemyType;
+	float timerforboss;
 	
 
 	std::string address;

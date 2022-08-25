@@ -359,6 +359,9 @@ void SceneBase::Init()
 	meshList[GEO_WHEREBOSS] = MeshBuilder::GenerateQuad("arrow", Color(1, 1, 1), 1.f);
 	meshList[GEO_WHEREBOSS]->textureID = LoadTexture("Image//WhereBoss.png", true);
 
+	meshList[GEO_ARROWTOBOSS] = MeshBuilder::GenerateQuad("arrow", Color(1, 1, 1), 1.f);
+	meshList[GEO_ARROWTOBOSS]->textureID = LoadTexture("Image//TimerForBoss.png", true);
+
 
 
 
