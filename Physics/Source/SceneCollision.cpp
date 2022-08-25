@@ -1314,7 +1314,7 @@ void SceneCollision::Update(double dt)
 					dmgofgun = 10;
 					pierceforbullet = 3;
 					velocityofbullet = 50;
-					firerate = 1.5f;
+					firerate = 1.3f;
 					Gun->thickWall = 0;
 					Gun->prevangle = 0;
 					Gun->activeTime = 0;
@@ -1352,8 +1352,8 @@ void SceneCollision::Update(double dt)
 					bossspawned = false;
 					ArrowToBoss = FetchGO();
 					Shield->pos = cPlayer2D->pos;
-					Gun->critchance = 50;
-					Gun->critdamage = 2;
+					Gun->critchance = 10;
+					Gun->critdamage = 1.5;
 				}
 			}
 		}
@@ -2313,6 +2313,11 @@ void SceneCollision::Update(double dt)
 								go1->vel = go1->vel.Normalized();
 								go1->vel = go1->vel * 20;
 								go1->pos += go1->vel * dt;
+
+								//if (Vector3(distFromPlayerX, distFromPlayerY, 0).Length() < 50)
+								//{
+								//	
+								//}
 							}
 							else
 							{
@@ -2350,7 +2355,6 @@ void SceneCollision::Update(double dt)
 									go->damage = 10;
 									go1->rangedcooldown = elapsedTime + 5.f;
 								}
-
 							}
 						}
 						if (CheckCollision(go1, cPlayer2D))

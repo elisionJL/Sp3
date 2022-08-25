@@ -29,7 +29,7 @@ void Enemy::Update(const double dElapsedTime)
 
 	//enemy->PlayAnimation("MoveRight", -1, 2.0f);
 
-	if (sCurrentState != DEADL && sCurrentState != DEADR)
+	if (sCurrentState != DEADL && sCurrentState != DEADR && sCurrentState != ATTACK)
 	{
 		if (vel.x < 0)
 		{
@@ -41,8 +41,9 @@ void Enemy::Update(const double dElapsedTime)
 			enemy->PlayAnimation("MoveRight", -1, 2.f);
 			sCurrentState = MOVINGR;
 		}
+		
 	}
-	else
+	else if (sCurrentState == DEADL || sCurrentState == DEADR)
 	{
 		if (sCurrentState == DEADL)
 		{
@@ -193,7 +194,7 @@ void Enemy::dieanimation()
 	{
 		sCurrentState = DEADL;
 	}
-	else if (sCurrentState == MOVINGR)
+	else if (sCurrentState == MOVINGR || sCurrentState == ATTACK)
 	{
 		sCurrentState = DEADR;
 	}
@@ -309,6 +310,12 @@ bool Enemy::Deadornot()
 		return enemy->getAnimationStatus("DieL");
 	else
 		return enemy->getAnimationStatus("DieR");
+}
+
+void Enemy::AttackPhase()
+{
+	enemy->PlayAnimation("Attack", -1, 2.f);
+	sCurrentState = ATTACK;
 }
 
 //int Enemy::getDirection()
