@@ -1314,7 +1314,7 @@ void SceneCollision::Update(double dt)
 					dmgofgun = 10;
 					pierceforbullet = 3;
 					velocityofbullet = 50;
-					firerate = 1.5f;
+					firerate = 1.3f;
 					Gun->thickWall = 0;
 					Gun->prevangle = 0;
 					Gun->activeTime = 0;
@@ -1352,8 +1352,8 @@ void SceneCollision::Update(double dt)
 					bossspawned = false;
 					ArrowToBoss = FetchGO();
 					Shield->pos = cPlayer2D->pos;
-					Gun->critchance = 50;
-					Gun->critdamage = 2;
+					Gun->critchance = 10;
+					Gun->critdamage = 1.5;
 				}
 			}
 		}
@@ -2354,15 +2354,6 @@ void SceneCollision::Update(double dt)
 									go->vel.Normalize() *= 30;
 									go->damage = 10;
 									go1->rangedcooldown = elapsedTime + 5.f;
-								}
-							}
-
-							if (go1->GEOTYPE == GEO_ZOMBIE || go1->GEOTYPE == GEO_GHOST)
-							{
-								float Distance = go1->pos.Length() - cPlayer2D->pos.Length();
-								if (Distance <= 5)
-								{
-									go1->setState(2);
 								}
 							}
 						}

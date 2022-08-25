@@ -73,6 +73,7 @@ public:
 	void setState(int newState);
 	void setEnemyType(int EnemyType, Mesh* CurrentMesh);
 	bool Deadornot();
+	void AttackPhase();
 	//int getDirection();
 
 protected:

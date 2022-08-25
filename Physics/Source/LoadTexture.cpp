@@ -38,6 +38,9 @@ GLuint LoadTexture(const char* file_path, const bool bInvert)				// load TGA fil
 	if (data == NULL)
 		return 0;
 
+	if (nrChannels == 0)
+		system("pause");
+
 	// Create a OpenGL texture identifier
 	GLuint image_texture;
 	glGenTextures(1, &image_texture);
