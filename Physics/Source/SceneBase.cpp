@@ -154,10 +154,74 @@ void SceneBase::Init()
 	meshList[GEO_PORTAL] = MeshBuilder::GenerateQuad("portal", Color(1, 1, 1), 1.f);
 	meshList[GEO_PORTAL]->textureID = LoadTexture("Image//portal.png", true);
 
-	meshList[GEO_UPGRADEICON] = MeshBuilder::GenerateQuad("icon", Color(1, 1, 1), 1.f);
-
 	meshList[GEO_PAUSEPANEL] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
 	meshList[GEO_PAUSEPANEL]->textureID = LoadTexture("Image//pause//panel.png", true);
+
+	meshList[GEO_PISTOLBULLET] = MeshBuilder::GenerateQuad("pistolBullet", Color(1, 1, 1), 1.f);
+	meshList[GEO_PISTOLBULLET]->textureID = LoadTexture("Image//bullet.png", true);
+
+	meshList[GEO_SHOTGUNBULLET] = MeshBuilder::GenerateQuad("shotgunbul", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHOTGUNBULLET]->textureID = LoadTexture("Image//shotgunBullet.png", true);
+
+	meshList[GEO_SNIPERBULLET] = MeshBuilder::GenerateQuad("SniperBullet", Color(1, 1, 1), 1.f);
+	meshList[GEO_SNIPERBULLET]->textureID = LoadTexture("Image//sniperBullet.png", true);
+
+	meshList[GEO_ARROW] = MeshBuilder::GenerateQuad("Arrow", Color(1, 1, 1), 1.f);
+	meshList[GEO_ARROW]->textureID = LoadTexture("Image//arrow.png", true);
+
+	meshList[GEO_LMGBULLET] = MeshBuilder::GenerateQuad("LMGBullet", Color(1, 1, 1), 1.f);
+	meshList[GEO_LMGBULLET]->textureID = LoadTexture("Image//50CalBullet.png", true);
+
+	meshList[GEO_DRAGONFIRE] = MeshBuilder::GenerateQuad("DragonFire", Color(1, 1, 1), 1.f);
+	meshList[GEO_DRAGONFIRE]->textureID = LoadTexture("Image//firestatus.png", true);
+
+	meshList[GEO_CRTRATE] = MeshBuilder::GenerateQuad("critRate", Color(1, 1, 1), 1.f);
+	meshList[GEO_CRTRATE]->textureID = LoadTexture("Image//upgrades//traits//crtRate.png", true);
+
+	meshList[GEO_CRITDMG] = MeshBuilder::GenerateQuad("critDamage", Color(1, 1, 1), 1.f);
+	meshList[GEO_CRITDMG]->textureID = LoadTexture("Image//upgrades//traits//crtDmg.png", true);
+
+	meshList[GEO_REGEN] = MeshBuilder::GenerateQuad("regen", Color(1, 1, 1), 1.f);
+	meshList[GEO_REGEN]->textureID = LoadTexture("Image//upgrades//traits//regen.png", true);
+
+	meshList[GEO_JUGG] = MeshBuilder::GenerateQuad("jugg", Color(1, 1, 1), 1.f);
+	meshList[GEO_JUGG]->textureID = LoadTexture("Image//upgrades//traits//jugg.png", true);
+
+	meshList[GEO_REVERSESHOT] = MeshBuilder::GenerateQuad("reverseShot", Color(1, 1, 1), 1.f);
+	meshList[GEO_REVERSESHOT]->textureID = LoadTexture("Image//upgrades//traits//reverseShot.png", true);
+
+	meshList[GEO_SHAPEDGLASS] = MeshBuilder::GenerateQuad("shapedGlass", Color(1, 1, 1), 1.f);
+	meshList[GEO_SHAPEDGLASS]->textureID = LoadTexture("Image//upgrades//traits//shapedGlass.png", true);
+
+	meshList[GEO_RATEUPMSDOWN] = MeshBuilder::GenerateQuad("rateupMSdown", Color(1, 1, 1), 1.f);
+	meshList[GEO_RATEUPMSDOWN]->textureID = LoadTexture("Image//upgrades//traits//rateUpMSDown2.png", true);
+
+	meshList[GEO_PIERCE] = MeshBuilder::GenerateQuad("pieceUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_PIERCE]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
+
+	meshList[GEO_ATKUP] = MeshBuilder::GenerateQuad("atkUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_ATKUP]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+
+	meshList[GEO_HPUP] = MeshBuilder::GenerateQuad("hpUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_HPUP]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+
+	meshList[GEO_MULTISHOT] = MeshBuilder::GenerateQuad("multiShotUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_MULTISHOT]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+
+	meshList[GEO_MOVESPEED] = MeshBuilder::GenerateQuad("MoveSpeedUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_MOVESPEED]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+
+	meshList[GEO_VELUP] = MeshBuilder::GenerateQuad("velUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_VELUP]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+	 
+	meshList[GEO_FIRERATE] = MeshBuilder::GenerateQuad("fireUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_FIRERATE]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
+
+	meshList[GEO_COMPANIONUPGRADE] = MeshBuilder::GenerateQuad("companionUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_COMPANIONUPGRADE]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+
+	meshList[GEO_COMPANIONDAMAGE] = MeshBuilder::GenerateQuad("CompanionDamageUpgrade", Color(1, 1, 1), 1.f);
+	meshList[GEO_COMPANIONDAMAGE]->textureID = LoadTexture("Image//upgrades//companion2.png", true);
 
 	meshList[GEO_PAUSERESUME] = MeshBuilder::GenerateQuad("pausePanel", Color(1, 1, 1), 1.f);
 	meshList[GEO_PAUSERESUME]->textureID = LoadTexture("Image//pause//resume.psd", true);
@@ -179,8 +243,6 @@ void SceneBase::Init()
 
 	meshList[GEO_SUPERPAIN] = MeshBuilder::GenerateQuad("superpain", Color(1, 1, 1), 1.f);
 	meshList[GEO_SUPERPAIN]->textureID = LoadTexture("Image//Power_Up.png", true);
-
-	meshList[GEO_PROJECTILE] = MeshBuilder::GenerateQuad("bullet", Color(1, 1, 1), 1.f);
 
 	meshList[GEO_RETRY] = MeshBuilder::GenerateQuad("retry", Color(1, 1, 1), 1.f);
 	meshList[GEO_RETRY]->textureID = LoadTexture("Image//endScreens//retry.png", true);
