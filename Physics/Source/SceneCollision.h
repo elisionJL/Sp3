@@ -7,6 +7,9 @@
 #include "Player.h"
 #include "Enemy.h"
 #include <fstream>
+// Include Keyboard controller
+#include "../Common/Inputs/KeyboardController.h"
+#include "../Common/Inputs/MouseController.h"
 #include <iostream>
 class SceneCollision : public SceneBase
 {
@@ -102,6 +105,7 @@ protected:
 	GameObject* Shield;
 	GameObject* ArrowToBoss;
 	Enemy* Boss;
+	int BossKilled;
 	float m_speed;
 	float m_worldWidth;
 	float m_worldHeight;
@@ -119,7 +123,11 @@ protected:
 	vector<Enemy*> enemyList;
 	vector<Mesh*>enemyAnimationPlayed;
 	vector<int> enemycurrentstate;
+	//Get Player singleton Instance
 	CPlayer2D* cPlayer2D;
+	// Keyboard Controller singleton instance
+	CKeyboardController* cKeyboardController;
+	CMouseController* cMouseController;
 	gameStates currentState;
 	Vector3 m_gravity;
 	GameObject* m_timeGO;
@@ -193,7 +201,7 @@ protected:
 	float shieldcooldowntimer;
 	int killcounter;
 	bool bossspawned;
-
+	float surviveSeconds;
 	double enemyspawn;
 	float enemyspawnspeed;
 	float enemyovertime;
