@@ -2925,7 +2925,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 		{
-			if (cPlayer2D->GetGold() < 200 * pow(1.75, ShopUpgrades[0]) || ShopUpgrades[0] >= 5)
+			if (cPlayer2D->GetGold() < 500 * pow(1.75, ShopUpgrades[0]) || ShopUpgrades[0] >= 5)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -2943,7 +2943,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 		{
-			if (cPlayer2D->GetGold() < 100 * pow(1.3, ShopUpgrades[1]) || ShopUpgrades[1] >= 10)
+			if (cPlayer2D->GetGold() < 750 * pow(1.3, ShopUpgrades[1]) || ShopUpgrades[1] >= 10)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -2961,7 +2961,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 		{
-			if (cPlayer2D->GetGold() < 150 * pow(2.0, ShopUpgrades[2]) || ShopUpgrades[2] >= 5)
+			if (cPlayer2D->GetGold() < 600 * pow(2.0, ShopUpgrades[2]) || ShopUpgrades[2] >= 5)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -2979,7 +2979,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 		{
-			if (cPlayer2D->GetGold() < 100 * pow(1.5, ShopUpgrades[3]) || ShopUpgrades[3] >= 4)
+			if (cPlayer2D->GetGold() < 300 * pow(1.5, ShopUpgrades[3]) || ShopUpgrades[3] >= 4)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -3016,7 +3016,7 @@ void SceneCollision::ShopInteraction(double dt)
 
 		else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 		{
-			if (cPlayer2D->GetGold() < 500 * pow(1.1, ShopUpgrades[5]) || ShopUpgrades[5] >= 5)
+			if (cPlayer2D->GetGold() < 1250 * pow(1.2, ShopUpgrades[5]) || ShopUpgrades[5] >= 5)
 			{
 				cSoundController->StopPlayByID(7);
 				cSoundController->PlaySoundByID(7);
@@ -3056,7 +3056,7 @@ void SceneCollision::ShopUI()
 
 	if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 	{
-		shopUpgrade = (200 * pow(1.75, ShopUpgrades[0]));
+		shopUpgrade = (500 * pow(1.75, ShopUpgrades[0]));
 		if(ShopUpgrades[0] >= 5)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[0]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3064,7 +3064,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 	{
-		shopUpgrade = (100 * pow(1.3, ShopUpgrades[1]));
+		shopUpgrade = (750 * pow(1.3, ShopUpgrades[1]));
 		if (ShopUpgrades[1] >= 10)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[1]) + "/10 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3072,7 +3072,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.45f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.45f)))
 	{
-		shopUpgrade = (150 * pow(2.0, ShopUpgrades[2]));
+		shopUpgrade = (600 * pow(2.0, ShopUpgrades[2]));
 		if (ShopUpgrades[2] >= 5)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[2]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3080,7 +3080,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.25f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.25f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 	{
-		shopUpgrade = (100 * pow(1.5, ShopUpgrades[3]));
+		shopUpgrade = (300 * pow(1.5, ShopUpgrades[3]));
 		if (ShopUpgrades[3] >= 4)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[3]) + "/4 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
@@ -3096,7 +3096,7 @@ void SceneCollision::ShopUI()
 	}
 	else if ((mousePos.x >= (m_worldWidth * 0.55f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.55f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f)))
 	{
-		shopUpgrade = 500 * pow(1.1, ShopUpgrades[5]);
+		shopUpgrade = 1250 * pow(1.2, ShopUpgrades[5]);
 		if (ShopUpgrades[5] >= 5)
 			RenderTextOnScreen(meshList[GEO_TEXT], std::to_string(ShopUpgrades[5]) + "/5 [Maxed]", Color(1, 1, 1), 2, 22.5, 36);
 		else
