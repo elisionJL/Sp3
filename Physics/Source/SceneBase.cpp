@@ -188,13 +188,13 @@ void SceneBase::Init()
 	meshList[GEO_JUGG]->textureID = LoadTexture("Image//upgrades//traits//jugg.png", true);
 
 	meshList[GEO_REVERSESHOT] = MeshBuilder::GenerateQuad("reverseShot", Color(1, 1, 1), 1.f);
-	meshList[GEO_REVERSESHOT]->textureID = LoadTexture("Image//upgrades//traits//rateUpMSDown2.png", true);
+	meshList[GEO_REVERSESHOT]->textureID = LoadTexture("Image//upgrades//traits//reverseShot.png", true);
 
 	meshList[GEO_SHAPEDGLASS] = MeshBuilder::GenerateQuad("shapedGlass", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHAPEDGLASS]->textureID = LoadTexture("Image//upgrades//traits//shapedGlass.png", true);
 
 	meshList[GEO_RATEUPMSDOWN] = MeshBuilder::GenerateQuad("rateupMSdown", Color(1, 1, 1), 1.f);
-	meshList[GEO_RATEUPMSDOWN]->textureID = LoadTexture("Image//upgrades//rateUpMSDown2.png", true);
+	meshList[GEO_RATEUPMSDOWN]->textureID = LoadTexture("Image//upgrades//traits//rateUpMSDown2.png", true);
 
 	meshList[GEO_PIERCE] = MeshBuilder::GenerateQuad("pieceUpgrade", Color(1, 1, 1), 1.f);
 	meshList[GEO_PIERCE]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);

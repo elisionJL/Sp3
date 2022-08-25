@@ -4826,6 +4826,7 @@ void SceneCollision::Render()
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 11);
 
 			ss.str("");
+			ss.precision(2);
 			if (Gun->type == GameObject::GO_BOW) {
 				ss << "RoF:" << firerate << "s";
 			}
