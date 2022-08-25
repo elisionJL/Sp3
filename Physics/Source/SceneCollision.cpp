@@ -605,8 +605,11 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				go->vel.SetZero();
 				go->placed = true;
 				bossspawned = false;
-				ArrowToBoss->visible = false;
 				++BossKilled;
+				if (BossKilled < 3)
+				{
+					ArrowToBoss->visible = false;
+				}
 			}
 			else
 				killcounter++;
@@ -652,7 +655,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 
 				go->scale.Set(20, 20, 1);
 				go->mass = 10;
-				go->hp = 100 * pow(hpScaling, minutes);
+				go->hp = 200 * pow(hpScaling, minutes);
 
 				enemyList.push_back(go);
 
@@ -979,29 +982,27 @@ void SceneCollision::renderBossTraits(Vector3 mousePos)
 
 		switch (traitsUpgrades[i - 1]) {
 		case critRate:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//crtRate.png", true);
+			RenderMesh(meshList[GEO_CRTRATE], false);
 			break;
 		case critDamage:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//crtDmg.png", true);
-
+			RenderMesh(meshList[GEO_CRITDMG], false);
 			break;
 		case hpUpMSDOWN:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//jugg.png", true);
+			RenderMesh(meshList[GEO_JUGG], false);
 			break;
 		case rateUpMSDown:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//rateUpMSDown2.png", true);
+			RenderMesh(meshList[GEO_RATEUPMSDOWN], false);
 			break;
 		case reverseShoot:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//reverseShot.png", true);
+			RenderMesh(meshList[GEO_REVERSESHOT], false);
 			break;
 		case brokenShard:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//shapedGlass.png", true);
+			RenderMesh(meshList[GEO_SHAPEDGLASS], false);
 			break;
 		case regen:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//regen.png", true);
+			RenderMesh(meshList[GEO_REGEN], false);
 			break;
 		}
-		RenderMesh(meshList[GEO_UPGRADEICON], false);
 
 		modelStack.PopMatrix();
 	}
@@ -1059,9 +1060,8 @@ void SceneCollision::generateTraits()
 					break;
 				case 5:
 					traitsUpgrades[i] = rateUpMSDown;
-					if (MSUpgrade != 5) {
-						break;
-					}
+					break;
+					
 				case 6:
 					traitsUpgrades[i] = regen;
 					break;
@@ -1760,7 +1760,6 @@ void SceneCollision::Update(double dt)
 					if (cPlayer2D->pos.x > (m_worldWidth * 0.5) - 2.5 && cPlayer2D->pos.x < (m_worldWidth * 0.5) + 2.5 &&
 						cPlayer2D->pos.y >(m_worldHeight * 0.5) - 5 && cPlayer2D->pos.y < (m_worldHeight * 0.5) + 5) {
 						currentState = win;
-
 					}
 				}
 				else if (BossKilled >= 3) {
@@ -1801,12 +1800,12 @@ void SceneCollision::Update(double dt)
 								go->setEnemyType(1, meshList[GEO_GHOST]); //Set enemy type, 1 for Ghost
 								break;
 							}
-							go->sethp(10 * pow(hpScaling, minutes));
+							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
 						case 20:
 							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for ZOMBIE
-							go->sethp(20 * pow(hpScaling, minutes));
+							go->sethp(40 * pow(hpScaling, minutes));
 							break;
 						}
 
@@ -2040,8 +2039,8 @@ void SceneCollision::Update(double dt)
 								{
 									meshList[GEO_MACHINEGUN]->material.kAmbient.b -= 0.05;
 									meshList[GEO_MACHINEGUN]->material.kAmbient.g -= 0.05;
-									meshList[GEO_PROJECTILE]->material.kAmbient.b -= 0.05;
-									meshList[GEO_PROJECTILE]->material.kAmbient.g -= 0.05;
+									meshList[GEO_LMGBULLET]->material.kAmbient.b -= 0.05;
+									meshList[GEO_LMGBULLET]->material.kAmbient.g -= 0.05;
 								}
 							}
 						}
@@ -2242,8 +2241,8 @@ void SceneCollision::Update(double dt)
 									{
 										meshList[GEO_MACHINEGUN]->material.kAmbient.b += 0.01;
 										meshList[GEO_MACHINEGUN]->material.kAmbient.g += 0.01;
-										meshList[GEO_PROJECTILE]->material.kAmbient.b += 0.01;
-										meshList[GEO_PROJECTILE]->material.kAmbient.g += 0.01;
+										meshList[GEO_LMGBULLET]->material.kAmbient.b += 0.01;
+										meshList[GEO_LMGBULLET]->material.kAmbient.g += 0.01;
 									}
 								}
 							}
@@ -2407,6 +2406,12 @@ void SceneCollision::Update(double dt)
 					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Boss->pos;
 					ArrowToBoss->angle = calculateAngle(center.x, center.y);
 				}
+				else if (surviveSeconds < 60)
+				{
+					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
+					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Vector3(0, 0, 0);
+					ArrowToBoss->angle = calculateAngle(center.x, center.y);
+				}
 
 				//Enemy List
 
@@ -2489,8 +2494,16 @@ void SceneCollision::Update(double dt)
 							}
 							else if (cPlayer2D->inVuln < elapsedTime)
 							{
-								cPlayer2D->hp -= 2;
-								cPlayer2D->inVuln = elapsedTime + 0.5f;
+								if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
+								{
+									cPlayer2D->hp -= 10;
+									cPlayer2D->inVuln = elapsedTime + 0.5f;
+								}
+								else
+								{
+									cPlayer2D->hp -= 2;
+									cPlayer2D->inVuln = elapsedTime + 0.5f;
+								}
 							}
 						}
 
@@ -4019,15 +4032,6 @@ void SceneCollision::RenderGO(GameObject * go)
 		modelStack.Rotate(Math::RadianToDegree(atan2f(go->normal.y, go->normal.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		switch (go->PU) {
-		case GameObject::heal:
-			RenderMesh(meshList[GEO_HEAL], false);
-			break;
-		case GameObject::rechargeUp:
-			RenderMesh(meshList[GEO_RECHARGEUP], false);
-			break;
-		case GameObject::ballUp:
-			RenderMesh(meshList[GEO_BALLUP], false);
-			break;
 		case GameObject::extend:
 			RenderMesh(meshList[GEO_EXTEND], false);
 			break;
@@ -4040,33 +4044,30 @@ void SceneCollision::RenderGO(GameObject * go)
 		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		switch (go->proj) {
+		case GameObject::GL:
 		case GameObject::pistol:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			RenderMesh(meshList[GEO_PISTOLBULLET], false);
 			break;
 		case GameObject::shotgun:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//shotgunBullet.png", true);
+			RenderMesh(meshList[GEO_SHOTGUNBULLET], false);
 			break;
 		case GameObject::sniper:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//sniperBullet.png", true);
-			break;
-		case GameObject::GL:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			RenderMesh(meshList[GEO_SNIPERBULLET], false);
 			break;
 		case GameObject::bow:
 			modelStack.Scale(1, 0.5, 1);
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
+			RenderMesh(meshList[GEO_ARROW], false);
 			break;
 		case GameObject::machinegun:
 			modelStack.Scale(0.5, 0.25, 1);
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//50CalBullet.png", true);
+			RenderMesh(meshList[GEO_LMGBULLET], false);
 			break;
 		case GameObject::dragon:
 			modelStack.Scale(1, 0.5, 1);
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//firestatus.png", true);
+			RenderMesh(meshList[GEO_DRAGONFIRE], false);
 			break;
 		}
 
-		RenderMesh(meshList[GEO_PROJECTILE], false);
 		modelStack.PopMatrix();
 		break;
 		//case GameObject::GO_BOSS_SLIME:
@@ -4754,40 +4755,40 @@ void SceneCollision::Render()
 
 				switch (levelUpgrades[i - 1]) {
 				case pierce:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
+					RenderMesh(meshList[GEO_PIERCE], false);
 					break;
 				case atk:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+					RenderMesh(meshList[GEO_ATKUP], false);
 					break;
 				case hp:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+					RenderMesh(meshList[GEO_HPUP], false);
 					break;
 				case multishot:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+					RenderMesh(meshList[GEO_MULTISHOT], false);
 					break;
 				case moveSpeed:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+					RenderMesh(meshList[GEO_MOVESPEED], false);
 					ss << MSUpgrade << "/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case velocity:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+					RenderMesh(meshList[GEO_VELUP], false);
 					break;
 				case fireRate:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
-					ss << firerateUpgrade <<"/5";
+					RenderMesh(meshList[GEO_FIRERATE], false);
+					ss << firerateUpgrade << "/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case dragon:
 					if (Companion->mass == 1) {
-						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+						//upgrade to spawn dragon
+						RenderMesh(meshList[GEO_COMPANIONUPGRADE], false);
 					}
 					else {
-						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion2.png", true);
+						//increases dragon damage
+						RenderMesh(meshList[GEO_COMPANIONDAMAGE], false);
 					}
 				}
-				RenderMesh(meshList[GEO_UPGRADEICON], false);
-
 				modelStack.PopMatrix();
 			}
 		}
@@ -4844,6 +4845,7 @@ void SceneCollision::Render()
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 11, 11);
 
 			ss.str("");
+			ss.precision(2);
 			if (Gun->type == GameObject::GO_BOW) {
 				ss << "RoF:" << firerate << "s";
 			}
