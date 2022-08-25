@@ -318,6 +318,11 @@ void SceneBase::Init()
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\SuperPainBomb.wav"), 16, true); //Button selected
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\MachineGun.ogg"), 17, true); //Machine Gun BRRRRR
 	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\FullerAuto.ogg"), 18, true); //Mini Gun BRRRRRR
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\GronkSpeak1.ogg"), 19, true); //Gronk Spek 1
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\GronkSpeak2.ogg"), 20, true); //Gronk Spek 2
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\GronkSpeak3.ogg"), 21, true); //Gronk Spek 3
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\DifficultyButtonClick.ogg"), 22, true); //Difficulty Select
+	cSoundController->LoadSound(FileSystem::getPath("Music_SFX\\Death.ogg"), 23, true); //Difficulty Select
 
 	meshList[GEO_COMPANION] = MeshBuilder::GenerateSpriteAnimation("Dragon", 5, 7);
 	meshList[GEO_COMPANION]->textureID = LoadTexture("Image//Dragon.png", true);

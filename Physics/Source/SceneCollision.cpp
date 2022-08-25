@@ -1203,11 +1203,13 @@ void SceneCollision::Update(double dt)
 				leftclick = false;
 				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
 					(mousePos.y <= (m_worldHeight * 0.5) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.5) - m_worldHeight * 0.075)) {
+					cSoundController->PlaySoundByID(22);
 					difficulty = easy;
 					hpScaling = 1.1f;
 				}
 				if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.1 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.1) &&
 					(mousePos.y <= (m_worldHeight * 0.3) + m_worldHeight * 0.075 && mousePos.y >= (m_worldHeight * 0.3) - m_worldHeight * 0.075)) {
+					cSoundController->PlaySoundByID(22);
 					difficulty = hard;
 					hpScaling = 1.3;
 				}
@@ -1627,6 +1629,8 @@ void SceneCollision::Update(double dt)
 				cPlayer2D->Update(dt);
 				seconds += dt;
 				elapsedTime += dt;
+				if (cPlayer2D->hp <= 0)
+					cSoundController->PlaySoundByID(23);
 				static bool BPressed = false;
 				if (Application::IsKeyPressed('B') && BPressed == false) {
 					BPressed = true;
@@ -3383,6 +3387,13 @@ void SceneCollision::RenderGronkDialogue()
 		{
 			if (CurrentCharText < GronkDialogue[randomDialogue].length())
 			{
+				int randSFX = rand() % 3 + 1;
+				if(randSFX == 1)
+					cSoundController->PlaySoundByID(19);
+				else if(randSFX == 2)
+					cSoundController->PlaySoundByID(20);
+				else
+					cSoundController->PlaySoundByID(21);
 				CurrentDialogue = GronkDialogue[randomDialogue][CurrentCharText];
 				OutputDialogue += CurrentDialogue;
 
@@ -3392,6 +3403,9 @@ void SceneCollision::RenderGronkDialogue()
 
 			else
 			{
+				cSoundController->StopPlayByID(19);
+				cSoundController->StopPlayByID(20);
+				cSoundController->StopPlayByID(21);
 				if (PlayerBuy != true && PlayerHover != true)
 				{
 					CurrentTextWrite = false;
@@ -4500,7 +4514,6 @@ void SceneCollision::Render()
 		modelStack.Scale(expScaleX, expScaleY, 1);
 		RenderMesh(meshList[GEO_EXP], false);
 		modelStack.PopMatrix();
-
 
 		//hp
 		float hpX = m_worldWidth * 0.16 + camera.position.x, hpY = m_worldHeight * 0.8 + camera.position.y;
