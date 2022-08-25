@@ -23,6 +23,7 @@ void CPlayer2D::Init()
 	prevTime = elapsedTime = 0;
 	leveledUp = false;
 	inVuln = 0;
+	regenMulti = 1;
 }
 
 void CPlayer2D::Update(double dt)
@@ -43,7 +44,7 @@ void CPlayer2D::Update(double dt)
 
 	if (hp < maxHP) {
 		if (elapsedTime - prevTime > 1) {
-			hp += 0.01 * maxHP;
+			hp += 0.01 * maxHP * regenMulti;
 			prevTime = elapsedTime;
 		}
 		else {
@@ -183,7 +184,6 @@ void CPlayer2D::reset()
 	maxHP = hp = 30;
 	Walk_Speed = maxWalk_Speed = 30;
 	dmg = maxDamage = Lives = maxLives = 1;
-	Gold = 0;
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	pos.Set(m_worldWidth * 0.5, m_worldHeight * 0.5, 1);
@@ -199,6 +199,7 @@ void CPlayer2D::reset()
 	prevTime = elapsedTime = 0;
 	leveledUp = false;
 	inVuln = 0;
+	regenMulti = 1;
 }
 
 bool CPlayer2D::xpToLevel()
@@ -302,6 +303,11 @@ void CPlayer2D::UseGold(int Gold_Used)
 void CPlayer2D::IncreaseGold(int gold)
 {
 	this->Gold += gold;
+}
+
+float CPlayer2D::GetDmg()
+{
+	return dmg;
 }
 
 CPlayer2D::CPlayer2D() :
