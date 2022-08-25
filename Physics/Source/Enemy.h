@@ -3,7 +3,9 @@
 #include "SceneBase.h"
 #include "GameObject.h"
 #include "Application.h"
-
+#include "SpriteAnimation.h"
+#include "MeshBuilder.h"
+#include "Mesh.h"
 class Enemy
 {
 public:
@@ -14,7 +16,7 @@ public:
 	//init
 	bool Init(void);
 	//update
-	void Update(const double dElapsedTime, Mesh* CurrentMesh);
+	void Update(const double dElapsedTime);
 	
 	static void setSpawn(float x, float y,Vector3& pos);
 	void movedistancefromotherenemies(Enemy* go1);
@@ -29,15 +31,18 @@ public:
 
 	enum TYPEOFENEMY
 	{
-		SLIME = 0,
-		SPIDER = 1,
-		VAMPIRE = 2,
-		SKELETON = 3,
-		GHOST = 4,
+		SLIME,
+		SPIDER,
+		VAMPIRE,
+		SKELETON,
+		GHOST,
 		NUM_TYPEOFENEMY
 	};
 
 	//public vars
+	SpriteAnimation* enemy;
+	Mesh* meshList[NUM_TYPEOFENEMY];
+
 	SceneBase::GEOMETRY_TYPE GEOTYPE;
 	Vector3 pos;
 	Vector3 vel;
@@ -53,7 +58,8 @@ public:
 	float expVal;
 	int mass;
 	double rangedcooldown;
-	
+	int CurrEnemyType;
+
 	std::string address;
 	void spawnBoss();
 	void sethp(float Nhp);
@@ -61,7 +67,7 @@ public:
 	void setaddress(std::string ad);
 	int getState();
 	void setState(int newState);
-	Enemy::STATES getstate();
+	void setEnemyType(int EnemyType, Mesh* CurrentMesh);
 	//int getDirection();
 
 protected:

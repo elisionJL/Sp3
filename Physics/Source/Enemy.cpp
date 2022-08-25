@@ -1,6 +1,10 @@
+#include "GL\glew.h"
+
 #include "Enemy.h"
 #include "SpriteAnimation.h"
 #include "iostream"
+#include "LoadTexture.h"
+
 Enemy::Enemy()
 {
 	vel = 0;
@@ -12,17 +16,17 @@ Enemy::~Enemy()
 {
 }
 
-bool Enemy::Init(void)
+bool Enemy::Init()
 {
 	return false;
 }
 
-void Enemy::Update(const double dElapsedTime, Mesh* CurrentMesh)
+void Enemy::Update(const double dElapsedTime)
 {
 	//Update enemy movement to chase player
 
 	//Change enemy states in response to the direction they are moving
-	SpriteAnimation* enemy = dynamic_cast<SpriteAnimation*>(CurrentMesh); //here Zhi Kai
+
 	//enemy->PlayAnimation("MoveRight", -1, 2.0f);
 
 	if (sCurrentState != DEAD)
@@ -41,8 +45,6 @@ void Enemy::Update(const double dElapsedTime, Mesh* CurrentMesh)
 		enemy->PlayAnimation("Die", 0, 2.f);
 	}
 	enemy->Update(dElapsedTime);
-
-
 
 	//if (sCurrentState == MOVING)
 	//{
@@ -171,11 +173,40 @@ void Enemy::setState(int newState)
 	}
 }
 
-Enemy::STATES Enemy::getstate()
+void Enemy::setEnemyType(int EnemyType, Mesh* CurrentMesh)
 {
-	return sCurrentState;
-}
+	if (EnemyType == 0)
+	{
+		CurrEnemyType = 3;
+		//Skeleton
+		meshList[SKELETON] = MeshBuilder::GenerateSpriteAnimation("Skeleton", 4, 7);
+		meshList[SKELETON]->textureID = LoadTexture("Image//SkeletonSS.png", true);
+		meshList[SKELETON]->material.kAmbient.Set(1, 1, 1);
 
+		enemy = dynamic_cast<SpriteAnimation*>(meshList[SKELETON]);
+		//Add the animations
+		enemy->AddAnimation("Attack", 7, 13);
+		enemy->AddAnimation("MoveRight", 0, 6);
+		enemy->AddAnimation("MoveLeft", 21, 27);
+		enemy->AddAnimation("Die", 14, 20);
+	}
+
+	if (EnemyType == 1)
+	{
+		CurrEnemyType = 4;
+		meshList[GHOST] = MeshBuilder::GenerateSpriteAnimation("Ghost", 5, 7);
+		meshList[GHOST]->textureID = LoadTexture("Image//GhostSS.png", true);
+		meshList[GHOST]->material.kAmbient.Set(1, 1, 1);
+
+		enemy = dynamic_cast<SpriteAnimation*>(meshList[GHOST]);
+
+		enemy->AddAnimation("Attack", 7, 13);
+		enemy->AddAnimation("MoveRight", 0, 6);
+		enemy->AddAnimation("MoveLeft", 28, 34);
+		enemy->AddAnimation("Die", 21, 26);
+		enemy->AddAnimation("Hurt", 14, 20);
+	}
+}
 
 //int Enemy::getDirection()
 //{

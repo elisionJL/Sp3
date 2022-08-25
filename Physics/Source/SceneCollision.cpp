@@ -506,16 +506,16 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				switch (locationOfEnemy)
 				{
 				case 0:
-					go->pos = Vector3(m_worldWidth * 3, m_worldHeight * 3, 1);
+					go->pos = Vector3(m_worldWidth * 2.5, m_worldHeight * 2.5, 1);
 					break;
 				case 1:
-					go->pos = Vector3(m_worldWidth * 3, -m_worldHeight * 3, 1);
+					go->pos = Vector3(m_worldWidth * 2.5, -m_worldHeight * 2.5, 1);
 					break;
 				case 2:
-					go->pos = Vector3(-m_worldWidth * 3, m_worldHeight * 3, 1);
+					go->pos = Vector3(-m_worldWidth * 2.5, m_worldHeight * 2.5, 1);
 					break;
 				case 3:
-					go->pos = Vector3(-m_worldWidth * 3, -m_worldHeight * 3, 1);
+					go->pos = Vector3(-m_worldWidth * 2.5, -m_worldHeight * 2.5, 1);
 					break;
 				}
 				bossspawned = true;
@@ -1694,27 +1694,26 @@ void SceneCollision::Update(double dt)
 						Vector3 Epos;
 						Enemy* go = new Enemy();
 
-						int typeOfEnemy = Math::RandIntMinMax(0, 20);
+						int typeOfEnemy = 1;
 						switch (typeOfEnemy)
 						{
 						default:
 						{
-							int whichEnemytoSpawn = Math::RandIntMinMax(0, 10);
+							int whichEnemytoSpawn = Math::RandIntMinMax(0, 2);
 							switch (whichEnemytoSpawn)
 							{
 							case 0:
-								go->GEOTYPE = GEO_SKELETON;
-								go->rangedcooldown = elapsedTime;
+								go->setEnemyType(0, meshList[GEO_SKELETON]); //Set enemy type, 0 for Skeleton
 								break;
 							default:
-								go->GEOTYPE = GEO_GHOST;
+								go->setEnemyType(1, meshList[GEO_GHOST]); //Set enemy type, 1 for Ghost
 								break;
 							}
 							go->sethp(10 * pow(hpScaling, minutes));
 							break;
 						}
 						case 20:
-							go->GEOTYPE = GEO_ZOMBIE;
+							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for Ghost
 							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
@@ -2269,34 +2268,13 @@ void SceneCollision::Update(double dt)
 						}
 						else if (go->type == GameObject::GO_SKELETONATTACK)
 						{
-							Vector3 relativeVel = go->vel - cPlayer2D->vel;
+							if (go->pos.x > camera.position.x + m_worldWidth || go->pos.x - camera.position.x < 0 || go->pos.y > camera.position.y + m_worldHeight || go->pos.y - camera.position.y < 0)
+							{
+								ReturnGO(go);
+							}
 							Vector3 disDiff = cPlayer2D->pos - go->pos;
 
-							//float playeroffset = -5;
-
-							//SpriteAnimation* pa = dynamic_cast<SpriteAnimation*>(meshList[GEO_PLAYER]);
-							//if (cPlayer2D->pos.x < go->pos.x) {
-							//	playeroffset = 5;
-							//}
-
-							//if (cPlayer2D->pos.y < go->pos.y)
-							//{
-							//	disDiff -= Vector3(0, go->scale.y / 2 - 5, 0);
-							//}
-							//else
-							//{
-							//	disDiff += Vector3(0, go->scale.y / 2 - 5, 0);
-							//}
-
-							//if (cPlayer2D->pos.x < go->pos.x)
-							//{
-							//	disDiff -= Vector3(go->scale.x / 2 - playeroffset, 0, 0);
-							//}
-							//else
-							//{
-							//	disDiff += Vector3(go->scale.x / 2 - playeroffset, 0, 0);
-							//}
-							if (disDiff.LengthSquared() <= (go->scale.x + 10) * (go->scale.x + 10))
+							if (disDiff.LengthSquared() <= (go->scale.x + 4) * (go->scale.x + 4))
 							{
 								if (Shield->visible)
 								{
@@ -2305,7 +2283,7 @@ void SceneCollision::Update(double dt)
 								}
 								else if (cPlayer2D->inVuln < elapsedTime)
 								{
-									cPlayer2D->hp -= 3;
+									cPlayer2D->hp -= 1;
 									cPlayer2D->inVuln = elapsedTime + 0.5f;
 								}
 							}
@@ -2396,44 +2374,61 @@ void SceneCollision::Update(double dt)
 
 						if (runanimation)
 						{
-							go1->Update(dt, meshList[go1->GEOTYPE]);
-							enemyAnimationPlayed.push_back(meshList[go1->GEOTYPE]);
-							enemycurrentstate.push_back(go1->getState());
+							go1->Update(dt);
 						}
 
-						go1->vel = cPlayer2D->pos - go1->pos;
-						go1->vel = go1->vel.Normalized();
-						go1->vel = go1->vel * 20;;
-						//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
-						//go1->pos += go1->vel * dt;
-
-						go1->pos += go1->vel * dt;
-						if (go1->GEOTYPE == GEO_SKELETON)
+						//Boss only chases player if they are in screen
+						if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
 						{
-							float Distance = cPlayer2D->pos.Length() - go1->pos.Length();
-							if (Distance < 75 && go1->rangedcooldown < elapsedTime)
+							float distFromPlayerX = go1->pos.x - cPlayer2D->pos.x;
+							float distFromPlayerY = go1->pos.y - cPlayer2D->pos.y;
+							if (Vector3(distFromPlayerX, distFromPlayerY, 0).Length() < 100)
 							{
-								Vector3 center = cPlayer2D->pos - go1->pos;
-								float angle = calculateAngle(center.x, center.y);
-								float magnitude = center.Length();
-								GameObject* go = FetchGO();
-								go->pos = go1->pos;
-								go->scale.Set(4, 4, 1);
-								go->type = GameObject::GO_SKELETONATTACK;
-								go->angle = angle;
-								if (go->angle > 360) {
-									go->angle -= 360;
-								}
-								go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
-								go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
-								go->vel.Normalize() *= 30;
-								go->damage = 10;
-								go1->rangedcooldown = elapsedTime + 5.f;
+								go1->vel = cPlayer2D->pos - go1->pos;
+								go1->vel = go1->vel.Normalized();
+								go1->vel = go1->vel * 20;
+								go1->pos += go1->vel * dt;
 							}
-								
+							else
+							{
+								go1->vel.SetZero();
+							}
+						}
+						else
+						{
+							go1->vel = cPlayer2D->pos - go1->pos;
+							go1->vel = go1->vel.Normalized();
+							go1->vel = go1->vel * 20;
+							//MoveEnemiesToPlayer(go1, cPlayer2D, dt);
+							//go1->pos += go1->vel * dt;
+
+							go1->pos += go1->vel * dt;
+							if (go1->GEOTYPE == GEO_SKELETON)
+							{
+								float Distance = cPlayer2D->pos.Length() - go1->pos.Length();
+								if (Distance < 75 && go1->rangedcooldown < elapsedTime)
+								{
+									Vector3 center = cPlayer2D->pos - go1->pos;
+									float angle = calculateAngle(center.x, center.y);
+									float magnitude = center.Length();
+									GameObject* go = FetchGO();
+									go->pos = go1->pos;
+									go->scale.Set(4, 4, 1);
+									go->type = GameObject::GO_SKELETONATTACK;
+									go->angle = angle;
+									if (go->angle > 360) {
+										go->angle -= 360;
+									}
+									go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+									go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+									go->vel.Normalize() *= 30;
+									go->damage = 10;
+									go1->rangedcooldown = elapsedTime + 5.f;
+								}
+
+							}
 						}
 					}
-
 					if (CheckCollision(go1, cPlayer2D))
 					{
 						if (Shield->visible)
@@ -4504,7 +4499,7 @@ void SceneCollision::Render()
 				modelStack.PushMatrix();
 				modelStack.Translate(go->pos.x, go->pos.y, zaxis += 0.001f);
 				modelStack.Scale(go->scale.x, go->scale.y, 1);
-				RenderMesh(meshList[go->GEOTYPE], false); //here Zhi Kai
+				RenderMesh(go->meshList[go->CurrEnemyType], false); //here Zhi Kai
 				modelStack.PopMatrix();
 			}
 		}
