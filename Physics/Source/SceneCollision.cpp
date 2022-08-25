@@ -376,14 +376,14 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 		return;
 
 	{
-		float dmg = dmgofgun * Bullet->bowdrawamount;
+		float dmg = dmgofgun * Bullet->bowdrawamount + cPlayer2D->GetDmg();
 
 		if (Bullet->type == GameObject::GO_EXPLOSION)
 			dmg = dmgofgun * 3.333333f;
 		else if (Bullet->proj == GameObject::dragon)
 			dmg = Bullet->damage;
 		else if (Bullet->proj == GameObject::sniper)
-			dmg = dmgofgun + Bullet->damage;
+			dmg = dmgofgun + Bullet->damage + cPlayer2D->GetDmg();
 		else if (Bullet->proj == GameObject::machinegun)
 		{
 			dmg = dmgofgun + (meshList[GEO_MACHINEGUN]->material.kAmbient.b / (meshList[GEO_MACHINEGUN]->material.kAmbient.b * meshList[GEO_MACHINEGUN]->material.kAmbient.b));

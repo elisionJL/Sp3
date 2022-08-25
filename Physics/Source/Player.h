@@ -42,6 +42,7 @@ public:
 	int GetGold();
 	void UseGold(int Gold_Used);
 	void IncreaseGold(int gold);
+	float GetDmg();
 	double inVuln;
 protected:
 	enum DIRECTION {
