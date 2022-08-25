@@ -372,18 +372,18 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	{
 	case GameObject::GO_BOSS_SLIME:*/
 
-	if (go2->getState() == 3)
+	if (go2->getState() == 3 || go2->getState() == 4)
 		return;
 
 	{
-		float dmg = dmgofgun * Bullet->bowdrawamount;
+		float dmg = dmgofgun * Bullet->bowdrawamount + cPlayer2D->GetDmg();
 
 		if (Bullet->type == GameObject::GO_EXPLOSION)
 			dmg = dmgofgun * 3.333333f;
 		else if (Bullet->proj == GameObject::dragon)
 			dmg = Bullet->damage;
 		else if (Bullet->proj == GameObject::sniper)
-			dmg = dmgofgun + Bullet->damage;
+			dmg = dmgofgun + Bullet->damage + cPlayer2D->GetDmg();
 		else if (Bullet->proj == GameObject::machinegun)
 		{
 			dmg = dmgofgun + (meshList[GEO_MACHINEGUN]->material.kAmbient.b / (meshList[GEO_MACHINEGUN]->material.kAmbient.b * meshList[GEO_MACHINEGUN]->material.kAmbient.b));
@@ -405,7 +405,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			go2->setState(3);
+			go2->dieanimation();
 		}
 
 
@@ -754,6 +754,7 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 		}
 		else if (!Application::IsMousePressed(0) && LMPressed) {
 			LMPressed = false;
+			chestOpened = false;
 			for (int i = 1; i < 4; ++i) {
 				float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
 				float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
@@ -765,27 +766,34 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 
 					switch (traitsUpgrades[i - 1]) {
 					case critRate:
-						pierceforbullet += 1;
+						Gun->critchance += 10;
 						break;
 					case critDamage:
-						dmgofgun *= 1.1;
+						Gun->critdamage += .25;
 						break;
 					case reverseShoot:
 						cPlayer2D->IncreaseHP();
 						break;
 					case hpUpMSDOWN:
-						numberofbullets++;
+						cPlayer2D->maxWalk_Speed *= 0.8;
+						cPlayer2D->Walk_Speed = cPlayer2D->maxWalk_Speed;
+						cPlayer2D->maxHP *= 1.5;
+						cPlayer2D->hp *= 1.5;
 						break;
 					case brokenShard:
-						cPlayer2D->IncreaseSpd();
-						MSUpgrade += 1;
+
+						cPlayer2D->dmg *= 2;
+						cPlayer2D->maxDamage *= 2;
+						cPlayer2D->maxHP *= .5;
+						cPlayer2D->hp *= .5;
 						break;
 					case rateUpMSDown:
-						velocityofbullet += 5;
+						firerate *= 0.7;
+						cPlayer2D->maxWalk_Speed *= 0.8;
+						cPlayer2D->Walk_Speed = cPlayer2D->maxWalk_Speed;
 						break;
 					case regen:
-						firerate *= 0.95;
-						firerateUpgrade += 1;
+						cPlayer2D->regenMulti *= 2;
 						break;
 					}
 				}
@@ -794,8 +802,83 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 	}
 }
 
-void SceneCollision::renderBossTraits()
+
+void SceneCollision::renderBossTraits(Vector3 mousePos)
 {
+	modelStack.PushMatrix();
+	modelStack.Translate(camera.position.x, camera.position.y, zaxis += 0.001f);
+	modelStack.Scale(1000, 1000, 1);
+	RenderMesh(meshList[GEO_LVLUPBG], false);
+	modelStack.PopMatrix();
+	float cameramoveX = cPlayer2D->pos.x - m_worldWidth * 0.5;
+	float cameramoveY = cPlayer2D->pos.y - m_worldHeight * 0.5;
+
+	modelStack.PushMatrix();
+	modelStack.Translate((m_worldWidth / 2) + cameramoveX, (m_worldHeight * 0.9) + cameramoveY, zaxis += 0.001f);
+	modelStack.Scale(m_worldWidth * 0.6, m_worldHeight * 0.1, 1);
+	RenderMesh(meshList[GEO_UPGRADESELECT], false);
+	modelStack.PopMatrix();
+
+	for (int i = 1; i < 4; ++i) {
+		float x = (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + (m_worldWidth * 0.14);
+		float textx;
+		Vector3 color = Vector3(1, 0, 0);
+		switch (i) {
+		case 1:
+			textx = 14;
+			break;
+		case 2:
+			textx = 40;
+			break;
+		case 3:
+			textx = 65;
+			break;
+		}
+		modelStack.PushMatrix();
+		modelStack.Translate(x + cameramoveX, m_worldHeight * 0.45 + cameramoveY, 6.01);
+		modelStack.Scale(m_worldWidth * 0.28, m_worldHeight * 0.56, 1);
+		if ((mousePos.x >= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) && mousePos.x <= (i * 0.04 * m_worldWidth) + ((i - 1) * 0.28 * m_worldWidth) + m_worldWidth * 0.28) &&
+			(mousePos.y <= m_worldHeight * 0.73 && mousePos.y >= m_worldHeight * 0.17)) {
+			meshList[GEO_CARD]->material.kAmbient.Set(1, 1, 0);
+		}
+		else {
+			meshList[GEO_CARD]->material.kAmbient.Set(1, 1, 1);
+		}
+		RenderMesh(meshList[GEO_CARD], true);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(x + cameramoveX, m_worldHeight * 0.45 + cameramoveY, 6.02);
+		modelStack.Scale(m_worldWidth * 0.28, m_worldHeight * 0.56, 1);
+
+		switch (traitsUpgrades[i - 1]) {
+		case critRate:
+			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//crtRate.png", true);
+			break;
+		case critDamage:
+			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//crtDmg.png", true);
+
+			break;
+		case hpUpMSDOWN:
+			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//jugg.png", true);
+			break;
+		case rateUpMSDown:
+			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//rateUpMSDown2.png", true);
+			break;
+		case reverseShoot:
+			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//reverseShot.png", true);
+			break;
+		case brokenShard:
+			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//shapedGlass.png", true);
+			break;
+		case regen:
+			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//regen.png", true);
+			break;
+		}
+		RenderMesh(meshList[GEO_UPGRADEICON], false);
+
+		modelStack.PopMatrix();
+	}
 }
 
 void SceneCollision::generateTraits()
@@ -888,6 +971,90 @@ void SceneCollision::generateTraits()
 		}
 
 	}
+}
+
+void SceneCollision::reset()
+{
+	m_goList.clear();
+	enemyList.clear();
+	timerforbullets.clear();
+	dmgandtimefordmgnumber.clear();
+	timerfordmgnumber.clear();
+	coordinatesofdamagenumbers.clear();
+	acquiredGold = 0;
+	timerbeforeweaponselect = 1.0f;
+	timerBeforeUpgrade = 1.f;
+	elapsedTime = 0;
+	prevTime = 0;
+	m_objectCount = 0;
+	minutes = 0;
+	seconds = 0;
+	chestOpened = false;
+	firerateUpgrade = 0;
+	Companion = FetchGO();
+	Gun = FetchGO();
+	Companion->mass = 1;
+	flip = 1;
+	OutputDialogue = "";
+	CurrentTextWrite = false, TextFinished = false;
+	CurrentCharText = 0;
+	randomDialogue = 0;
+	companionX = 9;
+	companionY = 9;
+	GunShootingTimer = 0;
+	SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
+	G->Reset();
+	rotationorder = 1;
+	shootonceonly = 1;
+	GunShoot = false;
+	needtofinishanimation = false;
+	PlayerBuy = false;
+	currentlyHovering = false;
+	shopClick = 0;
+	zaxis = 1;
+	pause = false;
+	MSUpgrade = 0;
+	cPlayer2D->reset();
+	if (ShopUpgrades[0] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[0]; ++Upgrade)
+			cPlayer2D->IncreaseSpd();
+	if (ShopUpgrades[1] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[1]; ++Upgrade)
+			cPlayer2D->IncreaseHP();
+	if (ShopUpgrades[2] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[2]; ++Upgrade)
+			cPlayer2D->DecreaseShieldCooldown();
+	if (ShopUpgrades[3] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
+			cPlayer2D->IncreaseDmg();
+	if (ShopUpgrades[4] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
+			cPlayer2D->IncreaseLifeCount();
+	if (ShopUpgrades[5] > 0)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
+			cPlayer2D->IncreaseEXPGain();
+	dmgofgun = 0;
+	velocityofbullet = 20;
+	bowframe = 0;
+	MaxUpgrade = false;
+	Transition = false;
+	timerforpistol = 0;
+	timerfordragon = 0;
+	GunRightClickSpecial = false;
+	staggertimingforpistol = 0;
+
+	Shield = FetchGO();
+	Shield->type = GameObject::GO_SHIELD;
+	Shield->scale = Vector3(15, 15, 1);
+
+	enemyspawn = 0;
+	enemyspawnspeed = 0.5;
+	enemyovertime = 0;
+
+	screenShake[0] = 0;
+	screenShake[1] = 0;
+	SuperPainPower = false;
+	PowerUsed = 0;
 }
 
 void SceneCollision::RenderDmgNum(Vector3 posanddmg, bool yesorno)
@@ -1328,7 +1495,7 @@ void SceneCollision::Update(double dt)
 
 					if (Distance < 100) {
 						if (enemy->GEOTYPE != GEO_BOSS_SLIME && enemy->GEOTYPE != GEO_SPIDER && enemy->GEOTYPE != GEO_VAMPIRE)
-							enemy->setState(3);
+							enemy->dieanimation();
 					}
 				}
 			}
@@ -1455,7 +1622,7 @@ void SceneCollision::Update(double dt)
 
 			}
 			//main gameplay loop
-			if (cPlayer2D->leveledUp == false && pause == false && cPlayer2D->xpToLevel() ==false)
+			if (cPlayer2D->leveledUp == false && pause == false && cPlayer2D->xpToLevel() ==false && chestOpened == false)
 			{
 				cPlayer2D->Update(dt);
 				seconds += dt;
@@ -2021,45 +2188,7 @@ void SceneCollision::Update(double dt)
 						else if (go->type == GameObject::GO_SHIELD)
 						{
 							go->pos = cPlayer2D->pos;
-							if (go->visible)
-							{
-								for (unsigned i = 0; i < enemyList.size(); ++i)
-								{
-									Enemy* go1 = enemyList[i];
-									Vector3 relativeVel = go->vel - go1->vel;
-
-									Vector3 disDiff = go1->pos - go->pos;
-
-									if (go->pos.y > go1->pos.y)
-									{
-										disDiff -= Vector3(0, go1->scale.y / 2, 0);
-									}
-									else
-									{
-										disDiff += Vector3(0, go1->scale.y / 2, 0);
-									}
-
-									if (go->pos.x > go1->pos.x)
-									{
-										disDiff -= Vector3(go1->scale.x / 2, 0, 0);
-									}
-									else
-									{
-										disDiff += Vector3(go1->scale.x / 2, 0, 0);
-									}
-
-
-									if (relativeVel.Dot(disDiff) <= 0) {
-										continue;
-									}
-									if (disDiff.LengthSquared() <= (go->scale.x + go1->scale.x) * (go->scale.x + go1->scale.x))
-									{
-										go->visible = false;
-										go->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
-									}
-								}
-							}
-							else if (go->activeTime < elapsedTime)
+							if (go->activeTime < elapsedTime)
 							{
 								go->visible = true;
 							}
@@ -2132,6 +2261,7 @@ void SceneCollision::Update(double dt)
 									chestOpened = true;
 									generateTraits();
 									chest->truereset();
+									break;
 								}
 							}
 						}
@@ -2163,11 +2293,11 @@ void SceneCollision::Update(double dt)
 					go1->Update(dt);
 
 					//Boss only chases player if they are in screen
-					if (go1->getState() == 3 && !go1->Deadornot())
+					if ((go1->getState() == 3 || go1->getState() == 4) && !go1->Deadornot())
 					{
 						DeleteEnemy(go1);
 					}
-					else if (go1->getState() != 3)
+					else if (go1->getState() != 3 && go1->getState() != 4)
 					{
 						if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
 						{
@@ -2365,104 +2495,17 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) 
 			{
-				m_goList.clear();
-				enemyList.clear();
-				timerforbullets.clear();
-				dmgandtimefordmgnumber.clear();
-				timerfordmgnumber.clear();
-				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
-				acquiredGold = 0;
-				
-				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.f;
-				elapsedTime = 0;
-				prevTime = 0;
-				m_objectCount = 0;
-				minutes = 0;
-				seconds = 0;
-				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
-				G->Reset();
-				firerateUpgrade = 0;
-				chestOpened = false;
-				Companion = FetchGO();
-				Gun = FetchGO();
-				Companion->mass = 1;
-				flip = 1;
-				OutputDialogue = "";
-				CurrentTextWrite = false, TextFinished = false;
-				CurrentCharText = 0;
-				randomDialogue = 0;
-				companionX = 9;
-				companionY = 9;
-				GunShootingTimer = 0;
-				rotationorder = 1;
-				shootonceonly = 1;
-				GunShoot = false;
-				needtofinishanimation = false;
-				PlayerBuy = false;
-				currentlyHovering = false;
-				shopClick = 0;
-				zaxis = 1;
-				pause = false;
-				MSUpgrade = 0;
-				cPlayer2D->reset();
-				if (ShopUpgrades[0] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[0]; ++Upgrade)
-						cPlayer2D->IncreaseSpd();
-				if (ShopUpgrades[1] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[1]; ++Upgrade)
-						cPlayer2D->IncreaseHP();
-				if (ShopUpgrades[2] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[2]; ++Upgrade)
-						cPlayer2D->DecreaseShieldCooldown();
-				if (ShopUpgrades[3] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
-						cPlayer2D->IncreaseDmg();
-				if (ShopUpgrades[4] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
-						cPlayer2D->IncreaseLifeCount();
-				if (ShopUpgrades[5] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
-						cPlayer2D->IncreaseEXPGain();
-
-				dmgofgun = 0;
-
-				velocityofbullet = 20;
-
-				bowframe = 0;
-
-				MaxUpgrade = false;
-
-				Transition = false;
-
-				timerforpistol = 0;
-				timerfordragon = 0;
-				GunRightClickSpecial = false;
-				staggertimingforpistol = 0;
-
-				Shield = FetchGO();
-				Shield->type = GameObject::GO_SHIELD;
-				Shield->scale = Vector3(15, 15, 1);
-
-				enemyspawn = 0;
-				enemyspawnspeed = 0.5;
-				enemyovertime = 0;
-
-				screenShake[0] = 0;
-				screenShake[1] = 0;
-				SuperPainPower = false;
-				PowerUsed = 0;
-
+				reset();
 				SpawnMapObjects();
-
 				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.3) + 6 && mousePos.y >= (m_worldHeight * 0.3) - 6)) 
 			{
-				WritePlayerStats();
-				quit = true;
+				cPlayer2D->IncreaseGold(acquiredGold);
+				reset();
+				currentState = start;
 			}
 		}
 		break;
@@ -2476,102 +2519,15 @@ void SceneCollision::Update(double dt)
 		else if (bLButtonState && !Application::IsMousePressed(0)) {
 			bLButtonState = false;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
-				
-				m_goList.clear();
-				enemyList.clear();
-				timerforbullets.clear();
-				dmgandtimefordmgnumber.clear();
-				timerfordmgnumber.clear();
-				coordinatesofdamagenumbers.clear();
 				cPlayer2D->IncreaseGold(acquiredGold);
-				acquiredGold = 0;
-				timerbeforeweaponselect = 1.0f;
-				timerBeforeUpgrade = 1.f;
-				elapsedTime = 0;
-				prevTime = 0;
-				m_objectCount = 0;
-				minutes = 0;
-				seconds = 0;
-				chestOpened = false;
-				firerateUpgrade = 0;
-				Companion = FetchGO();
-				Gun = FetchGO();
-				Companion->mass = 1;
-				flip = 1;
-				OutputDialogue = "";
-				CurrentTextWrite = false, TextFinished = false;
-				CurrentCharText = 0;
-				randomDialogue = 0;
-				companionX = 9;
-				companionY = 9;
-				GunShootingTimer = 0;
-				SpriteAnimation* G = dynamic_cast<SpriteAnimation*>(CurrentGun);
-				G->Reset();
-				rotationorder = 1;
-				shootonceonly = 1;
-				GunShoot = false;
-				needtofinishanimation = false;
-				PlayerBuy = false;
-				currentlyHovering = false;
-				shopClick = 0;
-				zaxis = 1;
-				pause = false;
-				MSUpgrade = 0;
-				cPlayer2D->reset();
-				if (ShopUpgrades[0] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[0]; ++Upgrade)
-						cPlayer2D->IncreaseSpd();
-				if (ShopUpgrades[1] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[1]; ++Upgrade)
-						cPlayer2D->IncreaseHP();
-				if (ShopUpgrades[2] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[2]; ++Upgrade)
-						cPlayer2D->DecreaseShieldCooldown();
-				if (ShopUpgrades[3] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
-						cPlayer2D->IncreaseDmg();
-				if (ShopUpgrades[4] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
-						cPlayer2D->IncreaseLifeCount();
-				if (ShopUpgrades[5] > 0)
-					for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
-						cPlayer2D->IncreaseEXPGain();
-
-				dmgofgun = 0;
-
-				velocityofbullet = 20;
-
-				bowframe = 0;
-
-				MaxUpgrade = false;
-
-				Transition = false;
-
-				timerforpistol = 0;
-				timerfordragon = 0;
-				GunRightClickSpecial = false;
-				staggertimingforpistol = 0;
-
-				Shield = FetchGO();
-				Shield->type = GameObject::GO_SHIELD;
-				Shield->scale = Vector3(15, 15, 1);
-
-				enemyspawn = 0;
-				enemyspawnspeed = 0.5;
-				enemyovertime = 0;
-
-				screenShake[0] = 0;
-				screenShake[1] = 0;
-				SuperPainPower = false;
-				PowerUsed = 0;
-
+				reset();
 				SpawnMapObjects();
-
 				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
-				WritePlayerStats();
-				quit = true;
+				cPlayer2D->IncreaseGold(acquiredGold);
+					reset();
+				currentState = start;
 			}
 		}
 		break;
@@ -4657,35 +4613,23 @@ void SceneCollision::Render()
 				switch (levelUpgrades[i - 1]) {
 				case pierce:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
-					//ss << "pierce +1";
-					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
 					break;
 				case atk:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
-					//ss << "damage +10%";
-					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 					break;
 				case hp:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
-					//ss << "110% hp";
-					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx + 2, 20);
 					break;
 				case multishot:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
-					//ss << "bulletcount +1";
-					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case moveSpeed:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
-					//ss << "105% movespeed";
-					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					ss << MSUpgrade << "/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case velocity:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
-				//ss << "velocity +5";
-					//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 					break;
 				case fireRate:
 					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
@@ -4699,8 +4643,6 @@ void SceneCollision::Render()
 					else {
 						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion2.png", true);
 					}
-					//ss << "grants a dragon companion";
-					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx, 20);
 				}
 				RenderMesh(meshList[GEO_UPGRADEICON], false);
 
@@ -4787,7 +4729,9 @@ void SceneCollision::Render()
 			ss << "MS:" << moveSpeed;
 			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 50, 14);
 		}
-
+		else if (chestOpened == true) {
+			renderBossTraits(mousePos);
+		}
 		if (Transition == true)
 		{
 			if (elapsedTime >= 3.f)

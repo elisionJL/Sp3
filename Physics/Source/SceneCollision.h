@@ -64,8 +64,9 @@ public:
 	void MachineGunPewPew(double elapsedTime, int numofshots);
 	void WritePlayerStats();
 	void chest(Vector3 mousePos,float dt);
-	void renderBossTraits();
+	void renderBossTraits(Vector3 mousePos);
 	void generateTraits();
+	void reset();
 protected:
 	enum upgrades {
 		atk = 0,
