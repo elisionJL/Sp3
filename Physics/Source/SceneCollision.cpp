@@ -859,29 +859,27 @@ void SceneCollision::renderBossTraits(Vector3 mousePos)
 
 		switch (traitsUpgrades[i - 1]) {
 		case critRate:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//crtRate.png", true);
+			RenderMesh(meshList[GEO_CRTRATE], false);
 			break;
 		case critDamage:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//crtDmg.png", true);
-
+			RenderMesh(meshList[GEO_CRITDMG], false);
 			break;
 		case hpUpMSDOWN:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//jugg.png", true);
+			RenderMesh(meshList[GEO_JUGG], false);
 			break;
 		case rateUpMSDown:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//rateUpMSDown2.png", true);
+			RenderMesh(meshList[GEO_RATEUPMSDOWN], false);
 			break;
 		case reverseShoot:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//reverseShot.png", true);
+			RenderMesh(meshList[GEO_REVERSESHOT], false);
 			break;
 		case brokenShard:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//shapedGlass.png", true);
+			RenderMesh(meshList[GEO_SHAPEDGLASS], false);
 			break;
 		case regen:
-			meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//traits//regen.png", true);
+			RenderMesh(meshList[GEO_REGEN], false);
 			break;
 		}
-		RenderMesh(meshList[GEO_UPGRADEICON], false);
 
 		modelStack.PopMatrix();
 	}
@@ -939,9 +937,8 @@ void SceneCollision::generateTraits()
 					break;
 				case 5:
 					traitsUpgrades[i] = rateUpMSDown;
-					if (MSUpgrade != 5) {
-						break;
-					}
+					break;
+					
 				case 6:
 					traitsUpgrades[i] = regen;
 					break;
@@ -1920,8 +1917,8 @@ break;
 								{
 									meshList[GEO_MACHINEGUN]->material.kAmbient.b -= 0.05;
 									meshList[GEO_MACHINEGUN]->material.kAmbient.g -= 0.05;
-									meshList[GEO_PROJECTILE]->material.kAmbient.b -= 0.05;
-									meshList[GEO_PROJECTILE]->material.kAmbient.g -= 0.05;
+									meshList[GEO_LMGBULLET]->material.kAmbient.b -= 0.05;
+									meshList[GEO_LMGBULLET]->material.kAmbient.g -= 0.05;
 								}
 							}
 						}
@@ -2122,8 +2119,8 @@ break;
 									{
 										meshList[GEO_MACHINEGUN]->material.kAmbient.b += 0.01;
 										meshList[GEO_MACHINEGUN]->material.kAmbient.g += 0.01;
-										meshList[GEO_PROJECTILE]->material.kAmbient.b += 0.01;
-										meshList[GEO_PROJECTILE]->material.kAmbient.g += 0.01;
+										meshList[GEO_LMGBULLET]->material.kAmbient.b += 0.01;
+										meshList[GEO_LMGBULLET]->material.kAmbient.g += 0.01;
 									}
 								}
 							}
@@ -3905,15 +3902,6 @@ void SceneCollision::RenderGO(GameObject * go)
 		modelStack.Rotate(Math::RadianToDegree(atan2f(go->normal.y, go->normal.x)), 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		switch (go->PU) {
-		case GameObject::heal:
-			RenderMesh(meshList[GEO_HEAL], false);
-			break;
-		case GameObject::rechargeUp:
-			RenderMesh(meshList[GEO_RECHARGEUP], false);
-			break;
-		case GameObject::ballUp:
-			RenderMesh(meshList[GEO_BALLUP], false);
-			break;
 		case GameObject::extend:
 			RenderMesh(meshList[GEO_EXTEND], false);
 			break;
@@ -3926,33 +3914,30 @@ void SceneCollision::RenderGO(GameObject * go)
 		modelStack.Rotate(go->angle, 0, 0, 1);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		switch (go->proj) {
+		case GameObject::GL:
 		case GameObject::pistol:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			RenderMesh(meshList[GEO_PISTOLBULLET], false);
 			break;
 		case GameObject::shotgun:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//shotgunBullet.png", true);
+			RenderMesh(meshList[GEO_SHOTGUNBULLET], false);
 			break;
 		case GameObject::sniper:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//sniperBullet.png", true);
-			break;
-		case GameObject::GL:
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//bullet.png", true);
+			RenderMesh(meshList[GEO_SNIPERBULLET], false);
 			break;
 		case GameObject::bow:
 			modelStack.Scale(1, 0.5, 1);
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//arrow.png", true);
+			RenderMesh(meshList[GEO_ARROW], false);
 			break;
 		case GameObject::machinegun:
 			modelStack.Scale(0.5, 0.25, 1);
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//50CalBullet.png", true);
+			RenderMesh(meshList[GEO_LMGBULLET], false);
 			break;
 		case GameObject::dragon:
 			modelStack.Scale(1, 0.5, 1);
-			meshList[GEO_PROJECTILE]->textureID = LoadTexture("Image//firestatus.png", true);
+			RenderMesh(meshList[GEO_DRAGONFIRE], false);
 			break;
 		}
 
-		RenderMesh(meshList[GEO_PROJECTILE], false);
 		modelStack.PopMatrix();
 		break;
 		//case GameObject::GO_BOSS_SLIME:
@@ -4640,40 +4625,40 @@ void SceneCollision::Render()
 
 				switch (levelUpgrades[i - 1]) {
 				case pierce:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//pierceUp.png", true);
+					RenderMesh(meshList[GEO_PIERCE], false);
 					break;
 				case atk:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//atkUp.png", true);
+					RenderMesh(meshList[GEO_ATKUP], false);
 					break;
 				case hp:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//hpUp.png", true);
+					RenderMesh(meshList[GEO_HPUP], false);
 					break;
 				case multishot:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//multishot.png", true);
+					RenderMesh(meshList[GEO_MULTISHOT], false);
 					break;
 				case moveSpeed:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//moveSpeedUp.png", true);
+					RenderMesh(meshList[GEO_MOVESPEED], false);
 					ss << MSUpgrade << "/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case velocity:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//velUp.png", true);
+					RenderMesh(meshList[GEO_VELUP], false);
 					break;
 				case fireRate:
-					meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//fireRateUp.png", true);
-					ss << firerateUpgrade <<"/5";
+					RenderMesh(meshList[GEO_FIRERATE], false);
+					ss << firerateUpgrade << "/5";
 					RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 1, textx - 1, 20);
 					break;
 				case dragon:
 					if (Companion->mass == 1) {
-						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion.png", true);
+						//upgrade to spawn dragon
+						RenderMesh(meshList[GEO_COMPANIONUPGRADE], false);
 					}
 					else {
-						meshList[GEO_UPGRADEICON]->textureID = LoadTexture("Image//upgrades//companion2.png", true);
+						//increases dragon damage
+						RenderMesh(meshList[GEO_COMPANIONDAMAGE], false);
 					}
 				}
-				RenderMesh(meshList[GEO_UPGRADEICON], false);
-
 				modelStack.PopMatrix();
 			}
 		}
