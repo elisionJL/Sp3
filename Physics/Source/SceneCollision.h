@@ -188,7 +188,7 @@ protected:
 	std::vector<Vector3> coordinatesofdamagenumbers;
 	int bowframe;
 	float firerate;
-	bool MaxUpgrade;
+	bool MaxUpgrade[6];
 	bool Transition;
 	float SongVolumeChange;
 	float timerforpistol;
