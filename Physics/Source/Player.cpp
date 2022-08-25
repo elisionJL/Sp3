@@ -24,6 +24,8 @@ void CPlayer2D::Init()
 	leveledUp = false;
 	inVuln = 0;
 	regenMulti = 1;
+	cKeyBoardController = CKeyboardController::GetInstance();
+	cKeyBoardController->Reset();
 }
 
 void CPlayer2D::Update(double dt)
@@ -69,16 +71,16 @@ void CPlayer2D::Update(double dt)
 	}
 	else if (hp > 0) {
 		rollCooldown += dt;
-		if (Application::IsKeyPressed('Q') && sCurrentState != DODGING && rollCooldown > maxRollCooldown) {
+		if (cKeyBoardController->IsKeyPressed('Q') && sCurrentState != DODGING && rollCooldown > maxRollCooldown) {
 			sCurrentState = DODGING;
 			rollCooldown = 0;
 		}
-		if (Application::IsKeyPressed('W')) {
+		if (cKeyBoardController->IsKeyDown('W')) {
 			vel.y = Walk_Speed;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
 		}
-		else if (Application::IsKeyPressed('S')) {
+		else if (cKeyBoardController->IsKeyDown('S')) {
 			vel.y = -Walk_Speed;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
@@ -89,13 +91,13 @@ void CPlayer2D::Update(double dt)
 				sCurrentState = IDLE;
 		}
 		
-		if (Application::IsKeyPressed('D')) {
+		if (cKeyBoardController->IsKeyDown('D')) {
 			sFacingDirection = RIGHT;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
 			vel.x = Walk_Speed;
 		}
-		else if (Application::IsKeyPressed('A')) {
+		else if (cKeyBoardController->IsKeyDown('A')) {
 			sFacingDirection = LEFT;
 			if (sCurrentState != DODGING)
 				sCurrentState = MOVING;
@@ -200,6 +202,7 @@ void CPlayer2D::reset()
 	leveledUp = false;
 	inVuln = 0;
 	regenMulti = 1;
+	cKeyBoardController->Reset();
 }
 
 bool CPlayer2D::xpToLevel()

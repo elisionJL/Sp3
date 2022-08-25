@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include <vector>
 #include "SceneBase.h"
+#include "../Common/Inputs/KeyboardController.h"
 class CPlayer2D : public CSingletonTemplate<CPlayer2D> , public SceneBase {
 	friend CSingletonTemplate<CPlayer2D>;
 public:
@@ -59,6 +60,7 @@ protected:
 	int Gold;
 	float elapsedTime;
 	float prevTime;
+	CKeyboardController* cKeyBoardController;
 	STATES sCurrentState;
 	DIRECTION sFacingDirection;
 	Mesh* playerMesh;

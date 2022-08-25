@@ -12,6 +12,9 @@
     <Filter Include="DesignPattern">
       <UniqueIdentifier>{071abfc0-2b7a-4680-9da7-c00f798efcc0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Inputs">
+      <UniqueIdentifier>{46962593-4eda-4d88-ab27-38361d53537f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MatrixStack.cpp">
@@ -28,6 +31,12 @@
     </ClCompile>
     <ClCompile Include="GameControl\Settings.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Inputs\KeyboardController.cpp">
+      <Filter>Inputs</Filter>
+    </ClCompile>
+    <ClCompile Include="Inputs\MouseController.cpp">
+      <Filter>Inputs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +66,12 @@
     </ClInclude>
     <ClInclude Include="..\Physics\Source\Application.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inputs\KeyboardController.h">
+      <Filter>Inputs</Filter>
+    </ClInclude>
+    <ClInclude Include="Inputs\MouseController.h">
+      <Filter>Inputs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

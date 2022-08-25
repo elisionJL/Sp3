@@ -18,6 +18,19 @@ const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
 int m_width, m_height;
 
+/**
+ @brief Define the key input callback
+ @param window The window to receive the the instructions
+ @param key The key code
+ @param scancode The scan code
+ @param action The action to take
+ @param mods The modifications
+ */
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	CKeyboardController::GetInstance()->Update(key, action);
+}
+
 //Define an error callback
 static void error_callback(int error, const char* description)
 {
@@ -25,12 +38,12 @@ static void error_callback(int error, const char* description)
 	_fgetchar();
 }
 
-//Define the key input callback
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-}
+////Define the key input callback
+//static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+//{
+//	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+//		glfwSetWindowShouldClose(window, GL_TRUE);
+//}
 
 
 void resize_callback(GLFWwindow* window, int w, int h)
@@ -42,8 +55,47 @@ void resize_callback(GLFWwindow* window, int w, int h)
 
 bool Application::IsKeyPressed(unsigned short key)
 {
-    return ((GetAsyncKeyState(key) & 0x8001) != 0);
+	bool bKeyPressed = false;
+	while (1)
+	{
+		if ((GetAsyncKeyState(key) & 0x8001) != 0)
+			bKeyPressed = true;
+		else
+		{
+			if (GetAsyncKeyState(key) == false)
+				break;
+		}
+	}
+
+	return bKeyPressed; // ((GetAsyncKeyState(key) & 0x8001) != 0);
 }
+/*
+ @brief Callback function whenever the mouse has events
+ @param window The window to receive the the instructions
+ @param button An integer value of the mouse button causing the event
+ @param action An integer value of the action caused by the mouse button
+ @param mods An integer value storing the mods of the event
+ */
+	void MouseButtonCallbacks(GLFWwindow* window, int button, int action, int mods)
+{
+	// Send the callback to the mouse controller to handle
+	if (action == GLFW_PRESS)
+		CMouseController::GetInstance()->UpdateMouseButtonPressed(button);
+	else
+		CMouseController::GetInstance()->UpdateMouseButtonReleased(button);
+}
+
+/**
+ @brief Callback function whenever the mouse has events
+ @param window The window to receive the the instructions
+ @param xoffset A double value of the mouse scroll offset in the x-axis
+ @param yoffset A double value of the mouse scroll offset in the y-axis
+ */
+void MouseScrollCallbacks(GLFWwindow* window, double xoffset, double yoffset)
+{
+	CMouseController::GetInstance()->UpdateMouseScroll(xoffset, yoffset);
+}
+
 bool Application::IsMousePressed(unsigned short key) //0 - Left, 1 - Right, 2 - Middle
 {
 	return glfwGetMouseButton(m_window, key) != 0;
@@ -110,7 +162,9 @@ void Application::Init()
 	glfwMakeContextCurrent(m_window);
 
 	//Sets the key callback
-	//glfwSetKeyCallback(m_window, key_callback);
+	//Set the mouse button callback function
+	glfwSetMouseButtonCallback(m_window, MouseButtonCallbacks);
+	glfwSetKeyCallback(m_window, key_callback);
 	glfwSetWindowSizeCallback(m_window, resize_callback);
 
 	glewExperimental = true; // Needed for core profile
@@ -139,17 +193,45 @@ void Application::Run()
 		scene->Render();
 		//Swap buffers
 		glfwSwapBuffers(m_window);
-		//Get and organize events, like keyboard and mouse input, window resizing, etc...
+		// Perform Post Update Input Devices
+		PostUpdateInputDevices();
+
+		// Poll events
 		glfwPollEvents();
+
+		// Update Input Devices
+		UpdateInputDevices();
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 
 	} //Check if the ESC key had been pressed or if the window had been closed
 	scene->Exit();
 	delete scene;
 }
+/**
+@brief Get updates from the input devices
+*/
+void Application::UpdateInputDevices(void)
+{
+	// Update Mouse Position
+	double dMouse_X, dMouse_Y;
+	glfwGetCursorPos(m_window, &dMouse_X, &dMouse_Y);
+	CMouseController::GetInstance()->UpdateMousePosition(dMouse_X, dMouse_Y);
+}
+
+/**
+ @brief End updates from the input devices. This method is not used anymore
+ */
+void Application::PostUpdateInputDevices(void)
+{
+	CKeyboardController::GetInstance()->PostUpdate();
+}
 
 void Application::Exit()
 {
+	// Destroy the mouse instance
+	CMouseController::GetInstance()->Destroy();
+	// Destroy the keyboard instance
+	CKeyboardController::GetInstance()->Destroy();
 	//Close OpenGL window and terminate GLFW
 	glfwDestroyWindow(m_window);
 	//Finalize and clean up GLFW
