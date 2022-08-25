@@ -223,6 +223,9 @@ int CPlayer2D::getLevel()
 void CPlayer2D::increaseLevel()
 {
 	xp -= ((level - 1) * 10) + 5;
+	if (xp < 0) {
+		xp = 0;
+	}
 	level += 1;
 	leveledUp = false;
 }
