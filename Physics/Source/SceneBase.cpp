@@ -287,8 +287,9 @@ void SceneBase::Init()
 	meshList[GEO_SHIELD] = MeshBuilder::GenerateQuad("shield", Color(1, 1, 1), 1.f);
 	meshList[GEO_SHIELD]->textureID = LoadTexture("Image//Shield.png", true);
 
-	meshList[GEO_SKELETONATTACK] = MeshBuilder::GenerateQuad("shield", Color(1, 1, 1), 1.f);
+	meshList[GEO_SKELETONATTACK] = MeshBuilder::GenerateQuad("skeleattack", Color(1, 1, 1), 1.f);
 	meshList[GEO_SKELETONATTACK]->textureID = LoadTexture("Image//Shield.png", true);
+	meshList[GEO_SKELETONATTACK]->material.kAmbient.Set(1, 1, 0);
 
 	meshList[GEO_WHEREBOSS] = MeshBuilder::GenerateQuad("arrow", Color(1, 1, 1), 1.f);
 	meshList[GEO_WHEREBOSS]->textureID = LoadTexture("Image//WhereBoss.png", true);

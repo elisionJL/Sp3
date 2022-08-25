@@ -26,7 +26,8 @@ public:
 		MOVINGL = 0,
 		MOVINGR,
 		ATTACK,
-		DEAD
+		DEADL,
+		DEADR
 	};
 
 	enum TYPEOFENEMY
@@ -60,9 +61,10 @@ public:
 	int mass;
 	double rangedcooldown;
 	int CurrEnemyType;
-
+	
 
 	std::string address;
+	void dieanimation();
 	void spawnBoss();
 	void sethp(float Nhp);
 	float gethp();
