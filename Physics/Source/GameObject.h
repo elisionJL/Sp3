@@ -66,6 +66,7 @@ struct GameObject
 	std::vector<std::string> pier;
 	int amountofpierleft;
 
+	bool reverseShoot;
 	float critchance;
 	float critdamage;
 	float angle;

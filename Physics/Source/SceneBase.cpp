@@ -399,6 +399,25 @@ void SceneBase::Init()
 	Companion->AddAnimation("ShootR", 22, 28);
 	Companion->AddAnimation("ShootL", 29, 35);
 
+	//Enemy
+	meshList[GEO_SKELETON] = MeshBuilder::GenerateQuad("skeleton", Color(1, 1, 1), 1.f);
+	meshList[GEO_SKELETON]->textureID = LoadTexture("Image//SkeletonSS.png", true);
+
+	meshList[GEO_GHOST] = MeshBuilder::GenerateQuad("ghost", Color(1, 1, 1), 1.f);
+	meshList[GEO_GHOST]->textureID = LoadTexture("Image//GhostSS.png", true);
+
+	meshList[GEO_ZOMBIE] = MeshBuilder::GenerateQuad("zombie", Color(1, 1, 1), 1.f);
+	meshList[GEO_ZOMBIE]->textureID = LoadTexture("Image//ZombieSS.png", true);
+
+	meshList[GEO_BOSS_SLIME] = MeshBuilder::GenerateQuad("slime", Color(1, 1, 1), 1.f);
+	meshList[GEO_BOSS_SLIME]->textureID = LoadTexture("Image//boss_slime_sprites.png", true);
+
+	meshList[GEO_SPIDER] = MeshBuilder::GenerateQuad("spider", Color(1, 1, 1), 1.f);
+	meshList[GEO_SPIDER]->textureID = LoadTexture("Image//spiderSS.png", true);
+
+	meshList[GEO_VAMPIRE] = MeshBuilder::GenerateQuad("vampire", Color(1, 1, 1), 1.f);
+	meshList[GEO_VAMPIRE]->textureID = LoadTexture("Image//vampireSS.png", true);
+
 	meshList[GEO_CHEST] = MeshBuilder::GenerateSpriteAnimation("Chest", 1, 4);
 	meshList[GEO_CHEST]->textureID = LoadTexture("Image//Chest.png", true);
 	meshList[GEO_CHEST]->material.kAmbient.Set(1, 1, 1);
@@ -458,65 +477,9 @@ void SceneBase::Init()
 	meshList[GEO_GRONK]->textureID = LoadTexture("Image//Gronk.png", true);
 	meshList[GEO_GRONK]->material.kAmbient.Set(1, 1, 1);
 	SpriteAnimation* gronk = dynamic_cast<SpriteAnimation*>(meshList[GEO_GRONK]);
+
 	//Add the animation for gronk
 	gronk->AddAnimation("Idle", 0, 12);
-
-	//Slime
-	//meshList[GEO_BOSS_SLIME] = MeshBuilder::GenerateSpriteAnimation("Boss Slime", 5, 6);
-	//meshList[GEO_BOSS_SLIME]->textureID = LoadTexture("Image//boss_slime_sprites.png", true);
-	//meshList[GEO_BOSS_SLIME]->material.kAmbient.Set(1, 1, 1);
-	//SpriteAnimation* boss_slime = dynamic_cast<SpriteAnimation*>(meshList[GEO_BOSS_SLIME]);
-	////Add the animations
-	//boss_slime->AddAnimation("Die", 0, 3);
-	//boss_slime->AddAnimation("Attack", 4, 15);
-	//boss_slime->AddAnimation("MoveRight", 16, 22);
-	//boss_slime->AddAnimation("MoveLeft", 23, 30);
-
-
-	////Vampire
-	//meshList[GEO_VAMPIRE] = MeshBuilder::GenerateSpriteAnimation("Vampire", 5, 7);
-	//meshList[GEO_VAMPIRE]->textureID = LoadTexture("Image//vampireSS.png", true);
-	//meshList[GEO_VAMPIRE]->material.kAmbient.Set(1, 1, 1);
-	//SpriteAnimation* vampire = dynamic_cast<SpriteAnimation*>(meshList[GEO_VAMPIRE]);
-	////Add the animations
-	//vampire->AddAnimation("Attack", 7, 12);
-	//vampire->AddAnimation("MoveRight", 0, 5);
-	//vampire->AddAnimation("MoveLeft", 28, 33);
-	//vampire->AddAnimation("Die", 21, 27);
-	//vampire->AddAnimation("Hurt", 14, 19);
-
-
-	//Ghost
-	//SpriteAnimation* ghost = dynamic_cast<SpriteAnimation*>(meshList[GEO_GHOST]);
-	//Add the animations
-	//ghost->AddAnimation("Attack", 7, 13);
-	//ghost->AddAnimation("MoveRight", 0, 6);
-	//ghost->AddAnimation("MoveLeft", 28, 34);
-	//ghost->AddAnimation("Die", 21, 26);
-	//ghost->AddAnimation("Hurt", 14, 20);
-
-
-	////Spider
-	//meshList[GEO_SPIDER] = MeshBuilder::GenerateSpriteAnimation("Spider", 4, 8);
-	//meshList[GEO_SPIDER]->textureID = LoadTexture("Image//spiderSS.png", true);
-	//meshList[GEO_SPIDER]->material.kAmbient.Set(1, 1, 1);
-	//SpriteAnimation* spider = dynamic_cast<SpriteAnimation*>(meshList[GEO_SPIDER]);
-	////Add the animations
-	//spider->AddAnimation("Attack", 8, 13);
-	//spider->AddAnimation("MoveRight", 0, 7);
-	//spider->AddAnimation("MoveLeft", 25, 31);
-	//spider->AddAnimation("Die", 17, 22);
-
-	////Zombie
-	//meshList[GEO_ZOMBIE] = MeshBuilder::GenerateSpriteAnimation("Zombie", 6, 9);
-	//meshList[GEO_ZOMBIE]->textureID = LoadTexture("Image//ZombieSS.png", true);
-	//meshList[GEO_ZOMBIE]->material.kAmbient.Set(1, 1, 1);
-	//SpriteAnimation* zombie = dynamic_cast<SpriteAnimation*>(meshList[GEO_ZOMBIE]);
-	////Add the animations
-	//zombie->AddAnimation("Attack", 5, 11);
-	//zombie->AddAnimation("MoveRight", 12, 20);
-	//zombie->AddAnimation("MoveLeft", 39, 47);
-	//zombie->AddAnimation("Die", 21, 27);
 
 	//Boundary
 	meshList[GEO_BOUNDARY] = MeshBuilder::GenerateSpriteAnimation("boundary", 2, 8);

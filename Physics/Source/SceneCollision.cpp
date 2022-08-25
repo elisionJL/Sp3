@@ -276,6 +276,83 @@ void SceneCollision::shooting(double elapsedTime, int numberofshots, GameObject*
 			go->lifetime = timerforbullets.size() - 1;
 
 		}
+		if (Gun->reverseShoot)
+		{
+			GameObject* go = FetchGO();
+			go->pos = cPlayer2D->pos;
+			go->scale.Set(4, 2, 1);
+			go->type = GameObject::GO_PROJECTILE;
+			go->angle = angle + 180;
+			switch (Gun->type) {
+			case GameObject::GO_PISTOL:
+				go->proj = GameObject::pistol;
+				cSoundController->StopPlayByID(13);
+				cSoundController->PlaySoundByID(13);
+				break;
+			case GameObject::GO_BOW:
+				go->proj = GameObject::bow;
+				cSoundController->StopPlayByID(10);
+				cSoundController->PlaySoundByID(10);
+				break;
+			case GameObject::GO_GL:
+				go->proj = GameObject::GL;
+				cSoundController->StopPlayByID(8);
+				cSoundController->PlaySoundByID(8);
+				break;
+			case GameObject::GO_SHOTGUN:
+				go->proj = GameObject::shotgun;
+				cSoundController->StopPlayByID(11);
+				cSoundController->PlaySoundByID(11);
+				break;
+			case GameObject::GO_SNIPER:
+				go->proj = GameObject::sniper;
+				cSoundController->StopPlayByID(12);
+				cSoundController->PlaySoundByID(12);
+				break;
+			case GameObject::GO_MACHINEGUN:
+				go->proj = GameObject::machinegun;
+				cSoundController->StopPlayByID(17);
+				cSoundController->PlaySoundByID(17);
+				break;
+			}
+			if (go->angle > 360) {
+				go->angle -= 360;
+			}
+			go->vel.x = cos(Math::DegreeToRadian(go->angle)) * magnitude;
+			go->vel.y = sin(Math::DegreeToRadian(go->angle)) * magnitude;
+
+			if (Gun->type == GameObject::GO_BOW)
+			{
+				go->vel.Normalize() *= velocityofbullet * (0.5 * bowframe);
+				go->bowdrawamount = bowframe;
+				go->amountofpierleft = pierceforbullet + bowframe;
+			}
+			else if (Gun->type == GameObject::GO_SNIPER)
+			{
+				go->vel.Normalize() *= velocityofbullet + (Gun->thickWall / 10);
+				go->amountofpierleft = pierceforbullet + (Gun->thickWall / 50);
+				go->damage = Gun->thickWall / 50;
+			}
+			else
+			{
+				go->vel.Normalize() *= velocityofbullet;
+				go->amountofpierleft = pierceforbullet;
+			}
+			go->pier.clear();
+
+			for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+			{
+				if (timerforbullets[arraynumber] != 0)
+				{
+					continue;
+				}
+				timerforbullets[arraynumber] = elapsedTime + 2.0f;
+				go->lifetime = arraynumber;
+				break;
+			}
+			timerforbullets.push_back(elapsedTime + 2.0f);
+			go->lifetime = timerforbullets.size() - 1;
+		}
 	}
 }
 
@@ -298,6 +375,38 @@ void SceneCollision::PistolShooting(double elapsedTime, int numofshots)
 		go->scale.Set(4, 2, 1);
 		go->type = GameObject::GO_PROJECTILE;
 		go->angle = angle + i;
+		go->proj = GameObject::pistol;
+		if (go->angle > 360) {
+			go->angle -= 360;
+		}
+		go->vel.x = cos(Math::DegreeToRadian(go->angle));
+		go->vel.y = sin(Math::DegreeToRadian(go->angle));
+		Gun->angle = angle;
+
+		go->vel.Normalize() *= velocityofbullet;
+		go->amountofpierleft = pierceforbullet;
+		go->pier.clear();
+
+		for (int arraynumber = 0; arraynumber < timerforbullets.size(); ++arraynumber)
+		{
+			if (timerforbullets[arraynumber] != 0)
+			{
+				continue;
+			}
+			timerforbullets[arraynumber] = elapsedTime + 2.0f;
+			go->lifetime = arraynumber;
+			break;
+		}
+		timerforbullets.push_back(elapsedTime + 2.0f);
+		go->lifetime = timerforbullets.size() - 1;
+	}
+	if (Gun->reverseShoot)
+	{
+		GameObject* go = FetchGO();
+		go->pos = cPlayer2D->pos;
+		go->scale.Set(4, 2, 1);
+		go->type = GameObject::GO_PROJECTILE;
+		go->angle = angle + 180;
 		go->proj = GameObject::pistol;
 		if (go->angle > 360) {
 			go->angle -= 360;
@@ -778,6 +887,7 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 						Gun->critdamage += .25;
 						break;
 					case reverseShoot:
+						Gun->reverseShoot = true;
 						cPlayer2D->IncreaseHP();
 						break;
 					case hpUpMSDOWN:
@@ -1358,6 +1468,7 @@ void SceneCollision::Update(double dt)
 					Shield->pos = cPlayer2D->pos;
 					Gun->critchance = 10;
 					Gun->critdamage = 1.5;
+					Gun->reverseShoot = false;
 				}
 			}
 		}
@@ -1535,8 +1646,8 @@ void SceneCollision::Update(double dt)
 							levelUpgrades[i] = atk;
 							break;
 						case 3:
-levelUpgrades[i] = hp;
-break;
+							levelUpgrades[i] = hp;
+							break;
 						case 4:
 							levelUpgrades[i] = velocity;
 							break;
@@ -2012,12 +2123,12 @@ break;
 							{
 								Companion->PlayAnimation("ShootL", -1, 2.0f);
 								Companion->Update(dt);
-								if (Companion->getcurrentanimationframe("ShootR") == 31 && go->bounce)
+								if (Companion->getcurrentanimationframe("ShootL") == 31 && go->bounce)
 								{
 									SceneCollision::dragonshooting(numberofbullets, 35, 2);
 									go->bounce = false;
 								}
-								else if (Companion->getcurrentanimationframe("ShootR") == 34 && !go->bounce)
+								else if (Companion->getcurrentanimationframe("ShootL") == 34 && !go->bounce)
 								{
 									timerfordragon = elapsedTime + 5;
 									go->bounce = true;
@@ -2038,7 +2149,7 @@ break;
 									go->bounce = true;
 								}
 							}
-							else if (flip == 1 && mousePos.x > go->pos.x)
+							else if (mousePos.x > go->pos.x)
 							{
 								Companion->PlayAnimation("RunningR", -1, 2.0f);
 								Companion->Update(dt);
