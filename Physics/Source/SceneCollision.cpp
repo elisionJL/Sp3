@@ -371,6 +371,10 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 	/*switch (go2->type)
 	{
 	case GameObject::GO_BOSS_SLIME:*/
+
+	if (go2->getState() == 3)
+		return;
+
 	{
 		float dmg = dmgofgun * Bullet->bowdrawamount;
 
@@ -401,7 +405,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 
 		if (go2->gethp() <= 0)
 		{
-			DeleteEnemy(go2);
+			go2->setState(3);
 		}
 
 
@@ -478,7 +482,6 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				go->placed = true;
 				bossspawned = false;
 				ArrowToBoss->visible = false;
-
 			}
 			else
 				killcounter++;
@@ -492,13 +495,13 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				switch (typeOfEnemy)
 				{
 				case 0:
-					go->GEOTYPE = GEO_BOSS_SLIME;
+					go->setEnemyType(3, meshList[GEO_BOSS_SLIME]);
 					break;
 				case 1:
-					go->GEOTYPE = GEO_SPIDER;
+					go->setEnemyType(4, meshList[GEO_SPIDER]);
 					break;
 				case 2:
-					go->GEOTYPE = GEO_VAMPIRE;
+					go->setEnemyType(5, meshList[GEO_VAMPIRE]);
 					break;
 				}
 
@@ -524,7 +527,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 
 				go->scale.Set(20, 20, 1);
 				go->mass = 10;
-				go->hp = 100;
+				go->hp = 100 * pow(hpScaling, minutes);
 
 				enemyList.push_back(go);
 
@@ -1492,11 +1495,11 @@ void SceneCollision::Update(double dt)
 
 					if (Distance < 100) {
 						if (enemy->GEOTYPE != GEO_BOSS_SLIME && enemy->GEOTYPE != GEO_SPIDER && enemy->GEOTYPE != GEO_VAMPIRE)
-							DeleteEnemy(enemy);
+							enemy->setState(3);
 					}
 				}
 			}
-			if (PowerUsed > 1.f && SuperPainPower == true)
+			if (PowerUsed > 2.f && SuperPainPower == true)
 			{
 				screenShake[0] = screenShake[1] = 0;
 				SuperPainPower = false;
@@ -1638,52 +1641,14 @@ void SceneCollision::Update(double dt)
 				static bool blMButtonState = false;
 				if (Application::IsKeyPressed('M') && blMButtonState == false)
 				{
-					Vector3 Epos;
-					//GameObject* enemy = FetchGO();
-					Enemy* go = new Enemy();
-
-					int whichEnemytoSpawn = Math::RandIntMinMax(0, 4); //here Zhi Kai
-					switch (whichEnemytoSpawn)
-					{
-					case 0:
-						go->GEOTYPE = GEO_BOSS_SLIME;
-						break;
-					case 1:
-						go->GEOTYPE = GEO_SPIDER;
-						break;
-					case 2:
-						go->GEOTYPE = GEO_VAMPIRE;
-						break;
-					case 3:
-						go->GEOTYPE = GEO_SKELETON;
-						break;
-					case 4:
-						go->GEOTYPE = GEO_GHOST;
-						break;
-					}
-
-					Enemy::setSpawn(cPlayer2D->pos.x, cPlayer2D->pos.y, Epos);
-					/*go->type = GameObject::GO_BOSS_SLIME;*/ //dont need this anymore
-					go->scale.Set(10, 10, 1);
-					go->pos = Epos;
-					go->mass = 10;
-					go->sethp(10 * pow(hpScaling, minutes));
-
-					enemyList.push_back(go);
-
-					const void* address = static_cast<const void*>(go);
-					std::stringstream ss;
-					ss << address;
-					go->address = ss.str();
-
+					killcounter += 100; 
 					blMButtonState = true;
-
-					killcounter += 100;
 				}
 				else if (!Application::IsKeyPressed('M') && blMButtonState)
 				{
 					blMButtonState = false;
 				}
+
 				//enemy spawn over time
 				enemyovertime += dt;
 				if (enemyovertime)
@@ -1694,12 +1659,12 @@ void SceneCollision::Update(double dt)
 						Vector3 Epos;
 						Enemy* go = new Enemy();
 
-						int typeOfEnemy = 1;
+						int typeOfEnemy = Math::RandIntMinMax(0, 20);
 						switch (typeOfEnemy)
 						{
 						default:
 						{
-							int whichEnemytoSpawn = Math::RandIntMinMax(0, 2);
+							int whichEnemytoSpawn = Math::RandIntMinMax(0, 20);
 							switch (whichEnemytoSpawn)
 							{
 							case 0:
@@ -1713,7 +1678,7 @@ void SceneCollision::Update(double dt)
 							break;
 						}
 						case 20:
-							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for Ghost
+							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for ZOMBIE
 							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
@@ -2361,23 +2326,17 @@ void SceneCollision::Update(double dt)
 				for (unsigned i = 0; i < enemyList.size(); ++i)
 				{
 					Enemy* go1 = enemyList[i];
-					//if (go1->type != GameObject::GO_BOSS_SLIME && go1->type != GameObject::GO_VAMPIRE && go1->type != GameObject::GO_SPIDER)
+					
+					bool runanimation = true;
+					go1->Update(dt);
+
+					//Boss only chases player if they are in screen
+					if (go1->getState() == 3 && !go1->Deadornot())
 					{
-						bool runanimation = true;
-						for (int i = 0; i < enemyAnimationPlayed.size(); i++)
-						{
-							if (enemyAnimationPlayed[i] == meshList[go1->GEOTYPE] && enemycurrentstate[i] == go1->getState())
-							{
-								runanimation = false;
-							}
-						}
-
-						if (runanimation)
-						{
-							go1->Update(dt);
-						}
-
-						//Boss only chases player if they are in screen
+						DeleteEnemy(go1);
+					}
+					else if (go1->getState() != 3)
+					{
 						if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
 						{
 							float distFromPlayerX = go1->pos.x - cPlayer2D->pos.x;
@@ -2428,31 +2387,31 @@ void SceneCollision::Update(double dt)
 
 							}
 						}
-					}
-					if (CheckCollision(go1, cPlayer2D))
-					{
-						if (Shield->visible)
+						if (CheckCollision(go1, cPlayer2D))
 						{
-							Shield->visible = false;
-							Shield->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
-						}
-						else if (cPlayer2D->inVuln < elapsedTime)
-						{
-							cPlayer2D->hp -= 2;
-							cPlayer2D->inVuln = elapsedTime + 0.5f;
-						}
-					}
-
-					for (unsigned j = 0; j < enemyList.size(); ++j)
-					{
-						Enemy* go2 = enemyList[j];
-						if (go1 == go2) {
-							continue;
+							if (Shield->visible)
+							{
+								Shield->visible = false;
+								Shield->activeTime = elapsedTime + (shieldcooldowntimer - cPlayer2D->getlowerShieldTime());
+							}
+							else if (cPlayer2D->inVuln < elapsedTime)
+							{
+								cPlayer2D->hp -= 2;
+								cPlayer2D->inVuln = elapsedTime + 0.5f;
+							}
 						}
 
-						if (go2->gethp() > 0)
+						for (unsigned j = 0; j < enemyList.size(); ++j)
 						{
-							CheckCollision(go1, go2, dt);
+							Enemy* go2 = enemyList[j];
+							if (go1 == go2) {
+								continue;
+							}
+
+							if (go2->gethp() > 0)
+							{
+								CheckCollision(go1, go2, dt);
+							}
 						}
 					}
 				}
