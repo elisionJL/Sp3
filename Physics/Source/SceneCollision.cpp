@@ -2126,12 +2126,12 @@ void SceneCollision::Update(double dt)
 							{
 								Companion->PlayAnimation("ShootL", -1, 2.0f);
 								Companion->Update(dt);
-								if (Companion->getcurrentanimationframe("ShootR") == 31 && go->bounce)
+								if (Companion->getcurrentanimationframe("ShootL") == 31 && go->bounce)
 								{
 									SceneCollision::dragonshooting(numberofbullets, 35, 2);
 									go->bounce = false;
 								}
-								else if (Companion->getcurrentanimationframe("ShootR") == 34 && !go->bounce)
+								else if (Companion->getcurrentanimationframe("ShootL") == 34 && !go->bounce)
 								{
 									timerfordragon = elapsedTime + 5;
 									go->bounce = true;
@@ -2152,7 +2152,7 @@ void SceneCollision::Update(double dt)
 									go->bounce = true;
 								}
 							}
-							else if (flip == 1 && mousePos.x > go->pos.x)
+							else if (mousePos.x > go->pos.x)
 							{
 								Companion->PlayAnimation("RunningR", -1, 2.0f);
 								Companion->Update(dt);
