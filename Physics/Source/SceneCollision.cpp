@@ -612,7 +612,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 					ArrowInsideArrow->visible = false;
 				}
 				else
-					Boss->timerforboss = 1;
+					Boss->timerforboss = 60;
 			}
 			else
 				killcounter++;
@@ -1191,6 +1191,8 @@ void SceneCollision::reset()
 	screenShake[1] = 0;
 	SuperPainPower = false;
 	PowerUsed = 0;
+
+	cSoundController->StopAllSound();
 }
 
 void SceneCollision::RenderDmgNum(Vector3 posanddmg, bool yesorno)
@@ -2418,9 +2420,7 @@ void SceneCollision::Update(double dt)
 					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Vector3(m_worldWidth * 0.5, m_worldHeight * 0.5, 0);
 					ArrowToBoss->angle = calculateAngle(center.x, center.y);
 					ArrowInsideArrow->pos = ArrowToBoss->pos;
-					Boss->timerforboss += dt;
-					ArrowInsideArrow->scale.x = Boss->timerforboss / 60 * 4;
-					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
+					ArrowInsideArrow->scale = ArrowToBoss->scale;
 				}
 				else if (bossspawned)
 				{
@@ -2433,7 +2433,7 @@ void SceneCollision::Update(double dt)
 					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
 					if (Boss->timerforboss <= 0)
 					{
-						cPlayer2D->hp = 0;
+						cPlayer2D->hp -= 999;
 					}
 				}
 
@@ -2652,6 +2652,7 @@ void SceneCollision::Update(double dt)
 			{
 				cPlayer2D->IncreaseGold(acquiredGold);
 				reset();
+				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
 				currentState = difficultySelection;
 			}
@@ -2660,6 +2661,7 @@ void SceneCollision::Update(double dt)
 			{
 				cPlayer2D->IncreaseGold(acquiredGold);
 				reset();
+				cSoundController->PlaySoundByID(1);
 				currentState = start;
 			}
 		}
@@ -2676,12 +2678,14 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
 				cPlayer2D->IncreaseGold(acquiredGold);
 				reset();
+				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
 				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
 				cPlayer2D->IncreaseGold(acquiredGold);
-					reset();
+				reset();
+				cSoundController->PlaySoundByID(1);
 				currentState = start;
 			}
 		}
