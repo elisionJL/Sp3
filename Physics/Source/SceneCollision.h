@@ -42,7 +42,6 @@ public:
 	bool CheckCollision(Enemy* Enemy, CPlayer2D* cPlayer2D);
 	void CollisionResponse(GameObject* actor, GameObject* actee);
 	void CollisionResponse(Enemy* actor, Enemy* actee, double dt);
-	void MakeThickWall(float width, float height, const Vector3& normal, const Vector3& pos);
 	void spawnPowerup(Vector3 pos);
 	void RenderTitleScreen();
 	void ShopInteraction(double dt);
