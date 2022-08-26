@@ -2435,7 +2435,7 @@ void SceneCollision::Update(double dt)
 					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
 					if (Boss->timerforboss <= 0)
 					{
-						cPlayer2D->hp = 0;
+						cPlayer2D->hp -= 999;
 					}
 				}
 
