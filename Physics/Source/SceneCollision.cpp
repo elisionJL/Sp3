@@ -612,7 +612,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 					ArrowInsideArrow->visible = false;
 				}
 				else
-					Boss->timerforboss = 1;
+					Boss->timerforboss = 60;
 			}
 			else
 				killcounter++;
@@ -2420,9 +2420,7 @@ void SceneCollision::Update(double dt)
 					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Vector3(m_worldWidth * 0.5, m_worldHeight * 0.5, 0);
 					ArrowToBoss->angle = calculateAngle(center.x, center.y);
 					ArrowInsideArrow->pos = ArrowToBoss->pos;
-					Boss->timerforboss += dt;
-					ArrowInsideArrow->scale.x = Boss->timerforboss / 60 * 4;
-					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
+					ArrowInsideArrow->scale = ArrowToBoss->scale;
 				}
 				else if (bossspawned)
 				{
