@@ -493,7 +493,7 @@ void SceneCollision::dobulletcollision(GameObject* Gun, GameObject* Bullet, Enem
 		float dmg = dmgofgun * Bullet->bowdrawamount + cPlayer2D->GetDmg();
 
 		if (Bullet->type == GameObject::GO_EXPLOSION)
-			dmg = dmgofgun * 3.333333f;
+			dmg = dmgofgun * 2.f;
 		else if (Bullet->proj == GameObject::dragon)
 			dmg = Bullet->damage;
 		else if (Bullet->proj == GameObject::sniper)
@@ -888,7 +888,7 @@ void SceneCollision::chest(Vector3 mousePos,float dt)
 						break;
 					case reverseShoot:
 						Gun->reverseShoot = true;
-						cPlayer2D->IncreaseHP();
+						dmgofgun *= 1.5;
 						break;
 					case hpUpMSDOWN:
 						cPlayer2D->maxWalk_Speed *= 0.8;
@@ -1397,7 +1397,7 @@ void SceneCollision::Update(double dt)
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_GL];
 					numberofbullets = 1;
-					dmgofgun = 3; //explosion does 5
+					dmgofgun = 5; //explosion does 5
 					pierceforbullet = 1;
 					firerate = 1.2f;
 				}
@@ -1416,7 +1416,7 @@ void SceneCollision::Update(double dt)
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_SHOTGUN];
 					numberofbullets = 4;
-					dmgofgun = 3;
+					dmgofgun = 6;
 					pierceforbullet = 1;
 					firerate = 1.2f;
 				}
@@ -1439,7 +1439,7 @@ void SceneCollision::Update(double dt)
 					Gun->scale.Set(5, 2, 1);
 					CurrentGun = meshList[GEO_PISTOL];
 					numberofbullets = 1;
-					dmgofgun = 4;
+					dmgofgun = 6;
 					pierceforbullet = 1;
 					firerate = 1;
 					Gun->mass = 6 + numberofbullets;
@@ -2647,59 +2647,6 @@ bool SceneCollision::CheckCollision(GameObject* go1, GameObject* go2)
 {
 	if (go1->type == GameObject::GO_WALL && go2->type == GameObject::GO_PILLAR)
 		switch (go2->type) {
-		case GameObject::GO_PILLAR:
-		case GameObject::GO_BALL:
-		{
-			Vector3 relativeVel = go1->vel - go2->vel;
-			Vector3 disDiff = go2->pos - go1->pos;
-
-			if (relativeVel.Dot(disDiff) <= 0) {
-				return false;
-			}
-			return disDiff.LengthSquared() <= (go1->scale.x + go2->scale.x) * (go1->scale.x + go2->scale.x);
-		}
-		break;
-		case GameObject::GO_WALL:
-		{
-			Vector3 diff = go1->pos - go2->pos;
-			Vector3 axisX = go2->normal;
-			Vector3 axisY = Vector3(-go2->normal.y, go2->normal.x, 0);
-
-
-			float ProjectedDist = diff.Dot(axisX);
-
-			//if its a thickwall
-			if (go2->otherWall != nullptr)
-			{
-				if (Math::FAbs(ProjectedDist) / go2->scale.x < Math::FAbs(diff.Dot(axisY)) / go2->otherWall->scale.x)
-				{
-					return false;
-				}
-			}
-
-			if (ProjectedDist > 0)
-			{
-				axisX = -axisX;
-			}
-
-			return go1->vel.Dot(axisX) >= 0 &&  //if traveling towards wall
-				go2->scale.x * 0.5 + go1->scale.x > -diff.Dot(axisX) && //Radius + Thickness vs Distance away from ball
-				go2->scale.y * 0.5 > fabs(diff.Dot(axisY)); //Length check
-		}
-		break;
-		case GameObject::GO_POWERUP:
-		{
-			if (go2->PUIFrame > 3.5) {
-				return false;
-			}
-			Vector3 relativeVel = go1->vel - go2->vel;
-			Vector3 disDiff = go2->pos - go1->pos;
-			if (relativeVel.Dot(disDiff) <= 0) {
-				return false;
-			}
-			return disDiff.LengthSquared() <= (go1->scale.x + go2->scale.x) * (go1->scale.x + go2->scale.x);
-		}
-		break;
 		case GameObject::GO_BOSS_SLIME:
 		{
 			Vector3 distdiff = go2->pos - go1->pos;
@@ -2845,83 +2792,6 @@ void SceneCollision::CollisionResponse(Enemy * go1, Enemy * go2, double dt)
 
 }
 
-void SceneCollision::MakeThickWall(float width, float height, const Vector3 & normal, const Vector3 & pos)
-{
-	Vector3 tangent(-normal.y, normal.x);
-	thickWall++;
-	//first wall
-	GameObject* wall1 = FetchGO();
-	float size = 0.1f;
-	wall1->type = GameObject::GO_WALL;
-	wall1->scale.Set(width, height, 1.0f);
-	wall1->pos = pos;
-	wall1->normal = normal;
-	wall1->vel = Vector3(0, -1, 0);
-	wall1->placed = true;
-	wall1->thickWall = thickWall;
-	wall1->mass = 5;
-	m_thickWallList.push_back(wall1);
-
-	//second wall
-	GameObject* wall2 = FetchGO();
-	wall2->type = GameObject::GO_WALL;
-	wall2->scale.Set(height, width, 1.0f);
-	wall2->pos = pos;
-	wall2->normal = tangent;
-	wall2->vel = Vector3(0, -1, 0);
-	wall2->visible = false;
-	wall2->thickWall = thickWall;
-	wall2->placed = true;
-	wall2->mass = 5;
-	m_thickWallList.push_back(wall2);
-
-	wall1->otherWall = wall2;
-	wall2->otherWall = wall1;
-
-	GameObject* pillar = FetchGO();
-	pillar->type = GameObject::GO_PILLAR;
-	pillar->color.Set(1, 1, 0);
-	pillar->scale.Set(size, size, 1.f);
-	pillar->pos = pos + height * 0.5f * tangent + width * 0.5f * normal;
-	pillar->thickWall = thickWall;
-	pillar->placed = true;
-	pillar->vel = Vector3(0, -1, 0);
-	pillar->mass = 5;
-	m_thickWallList.push_back(pillar);
-
-	pillar = FetchGO();
-	pillar->type = GameObject::GO_PILLAR;
-	pillar->color.Set(1, 1, 0);
-	pillar->scale.Set(size, size, 1.f);
-	pillar->pos = pos + height * 0.5f * tangent - width * 0.5f * normal;
-	pillar->thickWall = thickWall;
-	pillar->placed = true;
-	pillar->vel = Vector3(0, -1, 0);
-	pillar->mass = 5;
-	m_thickWallList.push_back(pillar);
-
-	pillar = FetchGO();
-	pillar->type = GameObject::GO_PILLAR;
-	pillar->color.Set(1, 1, 0);
-	pillar->scale.Set(size, size, 1.f);
-	pillar->pos = pos - height * 0.5f * tangent - width * 0.5f * normal;
-	pillar->thickWall = thickWall;
-	pillar->placed = true;
-	pillar->vel = Vector3(0, -1, 0);
-	pillar->mass = 5;
-	m_thickWallList.push_back(pillar);
-
-	pillar = FetchGO();
-	pillar->type = GameObject::GO_PILLAR;
-	pillar->color.Set(1, 1, 0);
-	pillar->scale.Set(size, size, 1.f);
-	pillar->pos = pos - height * 0.5f * tangent + width * 0.5f * normal;
-	pillar->thickWall = thickWall;
-	pillar->placed = true;
-	pillar->vel = Vector3(0, -1, 0);
-	pillar->mass = 5;
-	m_thickWallList.push_back(pillar);
-}
 void SceneCollision::spawnPowerup(Vector3 pos)
 {
 	bool spawn = false;
@@ -4647,26 +4517,27 @@ void SceneCollision::Render()
 		ss.str("");
 		ss.precision(1);
 		ss << "Gold Earned: " << acquiredGold;
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1.5, 7, 41);
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 2, 7, 41);
+
 		if (BossKilled < 3) {
 			ss.str("");
 			ss.precision(1);
 			ss << "Kills:" << killcounter << "/100";
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1, 2, 38);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 1.5, 2, 38);
 			ss.str("");
 			ss << "boss Killed:" << BossKilled << "/3";
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1, 2, 35);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 1.5, 2, 35);
 		}
 		else if(surviveSeconds > 0){
 			ss.str("");
 			ss.precision(2);
 			ss << "Survive:" << surviveSeconds;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1.5, 2, 38);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 1.5, 2, 38);
 		}
 		else {
 			ss.str("");
 			ss << "Enter the portal";
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 0), 1.5, 2, 38);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 1.5, 2, 38);
 		}
 		ss.str("");
 		ss.precision(2);
@@ -4676,7 +4547,7 @@ void SceneCollision::Render()
 			ss.str("");
 			ss << minutes << ":0" << seconds;
 		}
-		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 3, 3, 56);
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 3, 3, 56);
 		
 		if (surviveSeconds <= 0) {
 			modelStack.PushMatrix();
@@ -4836,11 +4707,11 @@ void SceneCollision::Render()
 
 			ss.str("");
 			ss << "hp:" << cPlayer2D->maxHP;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 25, 14);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 29, 14);
 
 			ss.str("");
 			ss << "Shots:" << numberofbullets;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 25, 11);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 29, 11);
 
 			ss.str("");
 			if (Gun->type == GameObject::GO_BOW) {
@@ -4848,7 +4719,7 @@ void SceneCollision::Render()
 			}
 			else
 				ss << "pierce:" << pierceforbullet;
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 25, 8);
+			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 1, 1), 2, 29, 8);
 
 			ss.str("");
 			ss << "MS:" << moveSpeed;
@@ -5017,6 +4888,12 @@ void SceneCollision::Exit()
 		GameObject* go = m_goList.back();
 		delete go;
 		m_goList.pop_back();
+	}
+	while (enemyAnimationPlayed.size() > 0)
+	{
+		Mesh* go = enemyAnimationPlayed.back();
+		delete go;
+		enemyAnimationPlayed.pop_back();
 	}
 	while (enemyList.size() > 0)
 	{

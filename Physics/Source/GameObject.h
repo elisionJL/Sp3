@@ -86,7 +86,6 @@ struct GameObject
 	bool bounce;
 	float activeTime;
 	float PUIFrame;
-	GameObject* otherWall;
 	bool visible;
 	bool placed;
 	int bowdrawamount = 1;

@@ -130,7 +130,6 @@ protected:
 	CMouseController* cMouseController;
 	gameStates currentState;
 	Vector3 m_gravity;
-	GameObject* m_timeGO;
 	int m_objectCount;
 	float m_timeEstimated1;
 	float m_timeTaken1;
