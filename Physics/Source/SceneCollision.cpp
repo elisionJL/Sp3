@@ -3214,7 +3214,7 @@ void SceneCollision::RenderGronkDialogue()
 				MaxUpgrade[0] = false;
 			if (MaxUpgrade[0] == true)
 				randomDialogue = rand() % 3 + 25;
-			else if (cPlayer2D->GetGold() > 200 * pow(1.75, ShopUpgrades[0]))
+			else if (cPlayer2D->GetGold() > 500 * pow(1.75, ShopUpgrades[0]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
@@ -3230,7 +3230,7 @@ void SceneCollision::RenderGronkDialogue()
 				MaxUpgrade[1] = false;
 			if (MaxUpgrade[1] == true)
 				randomDialogue = rand() % 3 + 25;
-			else if (cPlayer2D->GetGold() > 100 * pow(1.3, ShopUpgrades[1]))
+			else if (cPlayer2D->GetGold() > 750 * pow(1.3, ShopUpgrades[1]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
@@ -3246,7 +3246,7 @@ void SceneCollision::RenderGronkDialogue()
 				MaxUpgrade[2] = false;
 			if (MaxUpgrade[2] == true)
 				randomDialogue = rand() % 3 + 25;
-			else if (cPlayer2D->GetGold() > 150 * pow(2.0, ShopUpgrades[2]))
+			else if (cPlayer2D->GetGold() > 600 * pow(2.0, ShopUpgrades[2]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
@@ -3262,7 +3262,7 @@ void SceneCollision::RenderGronkDialogue()
 				MaxUpgrade[3] = false;
 			if (MaxUpgrade[3] == true)
 				randomDialogue = rand() % 3 + 25;
-			else if (cPlayer2D->GetGold() > 100 * pow(1.5, ShopUpgrades[3]))
+			else if (cPlayer2D->GetGold() > 300 * pow(1.5, ShopUpgrades[3]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
@@ -3292,7 +3292,7 @@ void SceneCollision::RenderGronkDialogue()
 				MaxUpgrade[5] = false;
 			if (MaxUpgrade[5] == true)
 				randomDialogue = rand() % 3 + 25;
-			else if (cPlayer2D->GetGold() > 500 * pow(1.1, ShopUpgrades[5]))
+			else if (cPlayer2D->GetGold() > 1250 * pow(1.2, ShopUpgrades[5]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
