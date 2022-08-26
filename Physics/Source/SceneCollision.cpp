@@ -1191,6 +1191,8 @@ void SceneCollision::reset()
 	screenShake[1] = 0;
 	SuperPainPower = false;
 	PowerUsed = 0;
+
+	cSoundController->StopAllSound();
 }
 
 void SceneCollision::RenderDmgNum(Vector3 posanddmg, bool yesorno)
@@ -2652,6 +2654,7 @@ void SceneCollision::Update(double dt)
 			{
 				cPlayer2D->IncreaseGold(acquiredGold);
 				reset();
+				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
 				currentState = difficultySelection;
 			}
@@ -2660,6 +2663,7 @@ void SceneCollision::Update(double dt)
 			{
 				cPlayer2D->IncreaseGold(acquiredGold);
 				reset();
+				cSoundController->PlaySoundByID(1);
 				currentState = start;
 			}
 		}
@@ -2676,12 +2680,14 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
 				cPlayer2D->IncreaseGold(acquiredGold);
 				reset();
+				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
 				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
 				cPlayer2D->IncreaseGold(acquiredGold);
-					reset();
+				reset();
+				cSoundController->PlaySoundByID(1);
 				currentState = start;
 			}
 		}
