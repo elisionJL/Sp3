@@ -51,6 +51,7 @@ struct GameObject
 		GO_MACHINEGUN,
 		GO_WHEREBOSS,
 		GO_SKELETONATTACK,
+		GO_ARROWTOBOSS,
 		GO_TOTAL, //must be last
 	};
 

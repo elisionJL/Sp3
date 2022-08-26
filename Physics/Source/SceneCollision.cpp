@@ -78,8 +78,8 @@ void SceneCollision::Init()
 	for (int i = 0; i < 6; ++i)
 	{
 		ShopUpgrades[i] = 0;
+		MaxUpgrade[i] = false;
 	}
-
 	string line;
 	int GetStat = 0;
 	ifstream CurrentStats("Player_Stats.txt");
@@ -110,19 +110,29 @@ void SceneCollision::Init()
 		for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
 			cPlayer2D->IncreaseDmg();
 	if (ShopUpgrades[4] > 0)
-		for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[4]; ++Upgrade)
 			cPlayer2D->IncreaseLifeCount();
 	if (ShopUpgrades[5] > 0)
 		for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
 			cPlayer2D->IncreaseEXPGain();
 
+	if (ShopUpgrades[0] >= 5)
+		MaxUpgrade[0] = true;
+	if (ShopUpgrades[1] >= 10)
+		MaxUpgrade[1] = true;
+	if (ShopUpgrades[2] >= 5)
+		MaxUpgrade[2] = true;
+	if (ShopUpgrades[3] >= 4)
+		MaxUpgrade[3] = true;
+	if (ShopUpgrades[4] >= 1)
+		MaxUpgrade[4] = true;
+	if (ShopUpgrades[5] >= 5)
+		MaxUpgrade[5] = true;
 	dmgofgun = 0;
 
 	velocityofbullet = 20;
 
 	bowframe = 0;
-
-	MaxUpgrade = false;
 
 	Transition = false;
 
@@ -595,8 +605,14 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				go->vel.SetZero();
 				go->placed = true;
 				bossspawned = false;
-				ArrowToBoss->visible = false;
 				++BossKilled;
+				if (BossKilled < 3)
+				{
+					ArrowToBoss->visible = false;
+					ArrowInsideArrow->visible = false;
+				}
+				else
+					Boss->timerforboss = 1;
 			}
 			else
 				killcounter++;
@@ -642,7 +658,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 
 				go->scale.Set(20, 20, 1);
 				go->mass = 10;
-				go->hp = 100 * pow(hpScaling, minutes);
+				go->hp = 200 * pow(hpScaling, minutes);
 
 				enemyList.push_back(go);
 
@@ -650,6 +666,7 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				std::stringstream ss;
 				ss << address;
 				go->address = ss.str();
+				Boss->timerforboss = 90;
 
 				
 				ArrowToBoss->pos = cPlayer2D->pos;
@@ -657,6 +674,12 @@ void SceneCollision::DeleteEnemy(Enemy* enemy)
 				ArrowToBoss->type = GameObject::GO_WHEREBOSS;
 				ArrowToBoss->vel.SetZero();
 				ArrowToBoss->visible = true;
+				
+				ArrowInsideArrow->pos = cPlayer2D->pos;
+				ArrowInsideArrow->scale.Set(4, 4, 1);
+				ArrowInsideArrow->type = GameObject::GO_WHEREBOSS;
+				ArrowInsideArrow->vel.SetZero();
+				ArrowInsideArrow->visible = true;
 
 				enemyspawn = elapsedTime;
 			}
@@ -1141,7 +1164,7 @@ void SceneCollision::reset()
 		for (int Upgrade = 0; Upgrade < ShopUpgrades[3]; ++Upgrade)
 			cPlayer2D->IncreaseDmg();
 	if (ShopUpgrades[4] > 0)
-		for (int Upgrade = 0; Upgrade < ShopUpgrades[4] - 1; ++Upgrade)
+		for (int Upgrade = 0; Upgrade < ShopUpgrades[4]; ++Upgrade)
 			cPlayer2D->IncreaseLifeCount();
 	if (ShopUpgrades[5] > 0)
 		for (int Upgrade = 0; Upgrade < ShopUpgrades[5]; ++Upgrade)
@@ -1149,7 +1172,6 @@ void SceneCollision::reset()
 	dmgofgun = 0;
 	velocityofbullet = 20;
 	bowframe = 0;
-	MaxUpgrade = false;
 	Transition = false;
 	timerforpistol = 0;
 	timerfordragon = 0;
@@ -1465,6 +1487,7 @@ void SceneCollision::Update(double dt)
 					elapsedTime = 2;
 					bossspawned = false;
 					ArrowToBoss = FetchGO();
+					ArrowInsideArrow = FetchGO();
 					Shield->pos = cPlayer2D->pos;
 					Gun->critchance = 10;
 					Gun->critdamage = 1.5;
@@ -1748,7 +1771,6 @@ void SceneCollision::Update(double dt)
 					if (cPlayer2D->pos.x > (m_worldWidth * 0.5) - 2.5 && cPlayer2D->pos.x < (m_worldWidth * 0.5) + 2.5 &&
 						cPlayer2D->pos.y >(m_worldHeight * 0.5) - 5 && cPlayer2D->pos.y < (m_worldHeight * 0.5) + 5) {
 						currentState = win;
-
 					}
 				}
 				else if (BossKilled >= 3) {
@@ -1789,12 +1811,12 @@ void SceneCollision::Update(double dt)
 								go->setEnemyType(1, meshList[GEO_GHOST]); //Set enemy type, 1 for Ghost
 								break;
 							}
-							go->sethp(10 * pow(hpScaling, minutes));
+							go->sethp(20 * pow(hpScaling, minutes));
 							break;
 						}
 						case 20:
 							go->setEnemyType(2, meshList[GEO_ZOMBIE]); //Set enemy type, 2 for ZOMBIE
-							go->sethp(20 * pow(hpScaling, minutes));
+							go->sethp(40 * pow(hpScaling, minutes));
 							break;
 						}
 
@@ -2389,11 +2411,30 @@ void SceneCollision::Update(double dt)
 				}
 
 				//arrow to boss
-				if (bossspawned)
+				
+				if (BossKilled >= 3)
+				{
+					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
+					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Vector3(m_worldWidth * 0.5, m_worldHeight * 0.5, 0);
+					ArrowToBoss->angle = calculateAngle(center.x, center.y);
+					ArrowInsideArrow->pos = ArrowToBoss->pos;
+					Boss->timerforboss += dt;
+					ArrowInsideArrow->scale.x = Boss->timerforboss / 60 * 4;
+					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
+				}
+				else if (bossspawned)
 				{
 					ArrowToBoss->pos = cPlayer2D->pos + Vector3(0, -10, 0);
 					Vector3 center = Vector3(ArrowToBoss->pos.x, ArrowToBoss->pos.y, 0) - Boss->pos;
 					ArrowToBoss->angle = calculateAngle(center.x, center.y);
+					ArrowInsideArrow->pos = ArrowToBoss->pos;
+					Boss->timerforboss -= dt;
+					ArrowInsideArrow->scale.x = Boss->timerforboss / 90 * 4;
+					ArrowInsideArrow->scale.y = ArrowInsideArrow->scale.x;
+					if (Boss->timerforboss <= 0)
+					{
+						cPlayer2D->hp = 0;
+					}
 				}
 
 				//Enemy List
@@ -2477,8 +2518,16 @@ void SceneCollision::Update(double dt)
 							}
 							else if (cPlayer2D->inVuln < elapsedTime)
 							{
-								cPlayer2D->hp -= 2;
-								cPlayer2D->inVuln = elapsedTime + 0.5f;
+								if (go1->GEOTYPE == GEO_BOSS_SLIME || go1->GEOTYPE == GEO_VAMPIRE || go1->GEOTYPE == GEO_SPIDER)
+								{
+									cPlayer2D->hp -= 10;
+									cPlayer2D->inVuln = elapsedTime + 0.5f;
+								}
+								else
+								{
+									cPlayer2D->hp -= 2;
+									cPlayer2D->inVuln = elapsedTime + 0.5f;
+								}
 							}
 						}
 
@@ -3158,15 +3207,15 @@ void SceneCollision::RenderGronkDialogue()
 			OutputDialogue = "";
 			CurrentCharText = 0;
 			if (ShopUpgrades[0] < 5)
-				MaxUpgrade = false;
-			if (MaxUpgrade == true)
+				MaxUpgrade[0] = false;
+			if (MaxUpgrade[0] == true)
 				randomDialogue = rand() % 3 + 25;
 			else if (cPlayer2D->GetGold() > 200 * pow(1.75, ShopUpgrades[0]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
 			if (ShopUpgrades[0] >= 5)
-				MaxUpgrade = true;
+				MaxUpgrade[0] = true;
 			PlayerBuy = true;
 			currentlyHovering = false;
 		}
@@ -3174,15 +3223,15 @@ void SceneCollision::RenderGronkDialogue()
 			OutputDialogue = "";
 			CurrentCharText = 0;
 			if (ShopUpgrades[1] < 10)
-				MaxUpgrade = false;
-			if (MaxUpgrade == true)
+				MaxUpgrade[1] = false;
+			if (MaxUpgrade[1] == true)
 				randomDialogue = rand() % 3 + 25;
 			else if (cPlayer2D->GetGold() > 100 * pow(1.3, ShopUpgrades[1]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
 			if (ShopUpgrades[1] >= 10)
-				MaxUpgrade = true;
+				MaxUpgrade[1] = true;
 			PlayerBuy = true;
 			currentlyHovering = false;
 		}
@@ -3190,15 +3239,15 @@ void SceneCollision::RenderGronkDialogue()
 			OutputDialogue = "";
 			CurrentCharText = 0;
 			if (ShopUpgrades[2] < 5)
-				MaxUpgrade = false;
-			if (MaxUpgrade == true)
+				MaxUpgrade[2] = false;
+			if (MaxUpgrade[2] == true)
 				randomDialogue = rand() % 3 + 25;
 			else if (cPlayer2D->GetGold() > 150 * pow(2.0, ShopUpgrades[2]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
 			if (ShopUpgrades[2] >= 5)
-				MaxUpgrade = true;
+				MaxUpgrade[2] = true;
 			PlayerBuy = true;
 			currentlyHovering = false;
 		}
@@ -3206,35 +3255,29 @@ void SceneCollision::RenderGronkDialogue()
 			OutputDialogue = "";
 			CurrentCharText = 0;
 			if (ShopUpgrades[3] < 4)
-				MaxUpgrade = false;
-			if (MaxUpgrade == true)
+				MaxUpgrade[3] = false;
+			if (MaxUpgrade[3] == true)
 				randomDialogue = rand() % 3 + 25;
 			else if (cPlayer2D->GetGold() > 100 * pow(1.5, ShopUpgrades[3]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
 			if (ShopUpgrades[3] >= 4)
-				MaxUpgrade = true;
+				MaxUpgrade[3] = true;
 			PlayerBuy = true;
 			currentlyHovering = false;
 		}
 		else if ((mousePos.x >= (m_worldWidth * 0.4f) - m_worldWidth * 0.05 && mousePos.x <= (m_worldWidth * 0.4f) + m_worldWidth * 0.05) && (mousePos.y <= (m_worldHeight * 0.325f) + m_worldHeight * 0.1 && mousePos.y >= (m_worldHeight * 0.325f))) {
 			OutputDialogue = "";
 			CurrentCharText = 0;
-			if (ShopUpgrades[4] <= 1) {
-				MaxUpgrade = false;
-				ShopUpgrades[4] += 1;
-			}
-			if (MaxUpgrade == true)
+			if (MaxUpgrade[4] == true)
 				randomDialogue = rand() % 3 + 25;
 			else if (cPlayer2D->GetGold() > 2000)
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
-			if (MaxUpgrade == false)
-				ShopUpgrades[4] -= 1;
-			if (ShopUpgrades[4] > 1)
-				MaxUpgrade = true;
+			if (ShopUpgrades[4] >= 1)
+				MaxUpgrade[4] = true;
 			PlayerBuy = true;
 			currentlyHovering = false;
 		}
@@ -3242,15 +3285,15 @@ void SceneCollision::RenderGronkDialogue()
 			OutputDialogue = "";
 			CurrentCharText = 0;
 			if (ShopUpgrades[5] < 5)
-				MaxUpgrade = false;
-			if (MaxUpgrade == true)
+				MaxUpgrade[5] = false;
+			if (MaxUpgrade[5] == true)
 				randomDialogue = rand() % 3 + 25;
 			else if (cPlayer2D->GetGold() > 500 * pow(1.1, ShopUpgrades[5]))
 				randomDialogue = rand() % 4 + 17;
 			else
 				randomDialogue = rand() % 4 + 21;
 			if (ShopUpgrades[5] >= 5)
-				MaxUpgrade = true;
+				MaxUpgrade[5] = true;
 			PlayerBuy = true;
 			currentlyHovering = false;
 		}
@@ -4505,6 +4548,13 @@ void SceneCollision::Render()
 			modelStack.Rotate(ArrowToBoss->angle, 0, 0, 1);
 			modelStack.Scale(ArrowToBoss->scale.x, ArrowToBoss->scale.y, 1);
 			RenderMesh(meshList[GEO_WHEREBOSS], false);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(ArrowInsideArrow->pos.x, ArrowInsideArrow->pos.y, zaxis += 0.001f);
+			modelStack.Rotate(ArrowToBoss->angle, 0, 0, 1);
+			modelStack.Scale(ArrowInsideArrow->scale.x, ArrowInsideArrow->scale.y, 1);
+			RenderMesh(meshList[GEO_ARROWTOBOSS], false);
 			modelStack.PopMatrix();
 		}
 
