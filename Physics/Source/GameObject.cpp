@@ -35,7 +35,6 @@ void GameObject::fetchReturnStatus()
 	momentOfInertia = 0;
 	prevpos = (0, 0, 0);
 	PUIFrame = 0;
-	otherWall = nullptr;
 	visible = true;
 	placed = false;
 }
