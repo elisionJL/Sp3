@@ -2162,7 +2162,7 @@ void SceneCollision::Update(double dt)
 
 							if (timerfordragon < elapsedTime && mousePos.x < go->pos.x)
 							{
-								Companion->PlayAnimation("ShootL", -1, 2.0f);
+								Companion->PlayAnimation("ShootL", -1, 2.0f); //dragon
 								Companion->Update(dt);
 								if (Companion->getcurrentanimationframe("ShootL") == 31 && go->bounce)
 								{
