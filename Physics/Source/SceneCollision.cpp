@@ -2667,7 +2667,7 @@ void SceneCollision::Update(double dt)
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.6) + 6 && mousePos.y >= (m_worldHeight * 0.6) - 6)) 
 			{
-				cPlayer2D->IncreaseGold(acquiredGold);
+				cPlayer2D->IncreaseGold(acquiredGold* difficulty);
 				reset();
 				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
@@ -2676,7 +2676,7 @@ void SceneCollision::Update(double dt)
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) &&
 				(mousePos.y <= (m_worldHeight * 0.3) + 6 && mousePos.y >= (m_worldHeight * 0.3) - 6)) 
 			{
-				cPlayer2D->IncreaseGold(acquiredGold);
+				cPlayer2D->IncreaseGold(acquiredGold * difficulty);
 				reset();
 				cSoundController->PlaySoundByID(1);
 				currentState = start;
@@ -2693,14 +2693,14 @@ void SceneCollision::Update(double dt)
 		else if (bLButtonState && !Application::IsMousePressed(0)) {
 			bLButtonState = false;
 			if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.6) + 7.5 && mousePos.y >= (m_worldHeight * 0.6) - 7.5)) {
-				cPlayer2D->IncreaseGold(acquiredGold);
+				cPlayer2D->IncreaseGold(acquiredGold * difficulty);
 				reset();
 				cSoundController->PlaySoundByID(2);
 				SpawnMapObjects();
 				currentState = difficultySelection;
 			}
 			else if ((mousePos.x >= (m_worldWidth / 2) - m_worldWidth * 0.25 && mousePos.x <= (m_worldWidth / 2) + m_worldWidth * 0.25) && (mousePos.y <= (m_worldHeight * 0.3) + 7.5 && mousePos.y >= (m_worldHeight * 0.3) - 7.5)) {
-				cPlayer2D->IncreaseGold(acquiredGold);
+				cPlayer2D->IncreaseGold(acquiredGold * difficulty);
 				reset();
 				cSoundController->PlaySoundByID(1);
 				currentState = start;
