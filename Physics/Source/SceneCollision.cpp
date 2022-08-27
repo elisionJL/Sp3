@@ -1265,6 +1265,13 @@ void SceneCollision::Update(double dt)
 	{
 		cPlayer2D->UseGold(-9999);
 	}
+	if (cKeyboardController->IsKeyDown('N'))
+	{
+		if (Boss != nullptr) {
+			surviveSeconds = 5;
+			BossKilled = 3;
+		}
+	}
 	//Mouse Section
 	double x, y, windowwidth, windowheight;
 	Application::GetCursorPos(&x, &y);
@@ -1789,6 +1796,13 @@ void SceneCollision::Update(double dt)
 				if (cKeyboardController->IsKeyPressed('M'))
 				{
 					killcounter += 100;
+				}
+				//satisfy win conditions
+				if (cKeyboardController->IsKeyPressed('N'))
+				{
+					BossKilled = 3;
+					surviveSeconds = 10;
+
 				}
 
 				//enemy spawn over time
