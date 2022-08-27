@@ -1408,10 +1408,12 @@ void SceneCollision::Update(double dt)
 					}
 				}
 
-				if (elapsedTime > 10)
+				static bool hLButtonState = false;
+				if (!hLButtonState && Application::IsKeyPressed('H'))
 				{
 					Startgame = true;
 					Gun->type = GameObject::GO_MACHINEGUN;
+					hLButtonState = true;
 				}
 
 				Gun->mass = 2;
