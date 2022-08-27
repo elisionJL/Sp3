@@ -1496,6 +1496,7 @@ void SceneCollision::Update(double dt)
 					Gun->critchance = 10;
 					Gun->critdamage = 1.5;
 					Gun->reverseShoot = false;
+					GunRightClickSpecial = false;
 				}
 			}
 		}
@@ -2010,7 +2011,7 @@ void SceneCollision::Update(double dt)
 							GunRightClickSpecial = true;
 							Gun->mass = 0;
 						}
-						else if (Gun->type == GameObject::GO_MACHINEGUN && Gun->activeTime < elapsedTime)
+						else if (Gun->type == GameObject::GO_MACHINEGUN && Gun->activeTime < elapsedTime && GunRightClickSpecial == false)
 						{
 							Gun->mass = elapsedTime + 3.8f;
 							Gun->activeTime = elapsedTime + 0.5f;
